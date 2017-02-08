@@ -217,7 +217,7 @@ void ComputePolygonRows(
 }
 
 
-void VertexShader( const vec3& v, ivec2& p ) {
+void VertexShader( const vec3& v, vec3& p ) {
 
 	vec3 p_dash = (v - cameraPos)*R;
 
@@ -232,14 +232,14 @@ void VertexShader( const vec3& v, ivec2& p ) {
 
 	p.x = x;
 	p.y = y;
-
+	p.z = p_dash.z;
 }
 
 
 
-bool insideTriangle(const ivec2 &b, const ivec2 &a, const ivec2 &c)
+float lamdaCalc(const ivec2 &b, const ivec2 &a, const ivec2 &p)
 {
-    return ((c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x) >= 0);
+    return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
 
 
@@ -271,18 +271,18 @@ void DrawPolygon( const vector<vec3>& vertices )
 {
 	u_long V = 3;
 
-	vector<ivec2> vertexPixels( V );
+	vector<vec3> vertexPixels( V );
 
 	for( int i=0; i<V; ++i ) {
 		VertexShader(vertices[i], vertexPixels[i]);
 	}
 
-	vec2 V0 = vertexPixels[0];
-	vec2 V1 = vertexPixels[1];
-	vec2 V2 = vertexPixels[2];
+	vec3 V0 = vertexPixels[0];
+	vec3 V1 = vertexPixels[1];
+	vec3 V2 = vertexPixels[2];
 
-	ivec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
-	ivec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
+	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
+	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
 	for( int i=0; i<V; ++i ) {
 		VertexShader(vertices[i], vertexPixels[i]);
@@ -295,55 +295,25 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	}
 
-	for(int y = bb_min.y ; y <= bb_max.y ; y++) {
-		for (int x = bb_min.x; x <= bb_max.x; x++) {
+	for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
+		for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
 
 			vec2 p(x, y);
 
-			bool inside = true;
-			inside &= insideTriangle(V0, V1, p);
-			inside &= insideTriangle(V1, V2, p);
-			inside &= insideTriangle(V2, V0, p);
+			float lamda0 = lamdaCalc(V1, V2, p);
+			float lamda1 = lamdaCalc(V2, V0, p);
+			float lamda2 = lamdaCalc(V0, V1, p);
 
-			if(inside){
+			float totalArea = lamdaCalc(V0, V1, V2);
+
+			lamda0 /= totalArea;
+			lamda1 /= totalArea;
+			lamda2 /= totalArea;
+
+			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 && (lamda0 + lamda1 + lamda2 <= 1) ){
 				PutPixelSDL(screen, x, y, current_colour);
 			}
 		}
-	}
-}
-
-
-
-
-void DrawLineSDL( SDL_Surface* surface, ivec2 a, ivec2 b, vec3 color ){
-
-	ivec2 delta = glm::abs( a- b );
-	int pixels = glm::max( delta.x, delta.y ) + 1;
-
-	vector<ivec2> result (pixels);
-	Interpolate(a,b ,result );
-
-	for(int i = 0 ; i < pixels ; i++) {
-		//PutPixelSDL(surface, result[i].x, result[i].y, color);
-	}
-
-}
-
-void DrawPolygonEdges( const vector<vec3>& vertices )
-{
-	int V = vertices.size();
-	// Transform each vertex from 3D world position to 2D image position:
-	vector<ivec2> projectedVertices( V );
-	for( int i=0; i<V; ++i )
-	{
-		VertexShader( vertices[i], projectedVertices[i] );
-	}
-	// Loop over all vertices and draw the edge from it to the next vertex:
-	for( int i=0; i<V; ++i )
-	{
-		int j = (i+1)%V; // The next vertex
-		vec3 color( 1, 1, 1 );
-		//DrawLineSDL( screen, projectedVertices[i], projectedVertices[j], color );
 	}
 }
 
@@ -355,6 +325,15 @@ void Draw()
 
 	if( SDL_MUSTLOCK(screen) )
 		SDL_LockSurface(screen);
+
+
+	float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
+
+
+	for(int i = 0 ; i < SCREEN_HEIGHT * SCREEN_WIDTH ; i ++){
+		depth_buffer[i] = INFINITY;
+	}
+
 
 	for( int i=0; i<triangles.size(); ++i )
 	{
