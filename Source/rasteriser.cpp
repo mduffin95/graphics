@@ -7,6 +7,7 @@
 using namespace std;
 using glm::vec3;
 using glm::mat3;
+using glm::ivec2;
 
 /* ----------------------------------------------------------------------------*/
 /* GLOBAL VARIABLES                                                            */
@@ -16,7 +17,9 @@ const int SCREEN_HEIGHT = 500;
 SDL_Surface* screen;
 int t;
 vector<Triangle> triangles;
-
+vec3 cameraPos( 0, 0, -3.001 );
+mat3 R;
+float focalLength = SCREEN_HEIGHT / 1.2f;
 
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
@@ -55,6 +58,17 @@ void Update()
 
 //Screen buffer
 //Z Buffer
+
+void VertexShader( const vec3& v, ivec2& p ) {
+
+	vec3 p_dash = v - cameraPos;
+	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
+	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
+
+	p.x = x;
+	p.y = y;
+
+}
 
 
 void Draw()
