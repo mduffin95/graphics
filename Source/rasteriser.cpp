@@ -168,24 +168,14 @@ void ComputePolygonRows(
 	}
 
 	int height = y_max - y_min + 1;
-// 2. Resize leftPixels and rightPixels
-//    so that they have an element for each row.
-	leftPixels = vector<ivec2>(height);
-	rightPixels = vector<ivec2>(height);
 
-// 3. Initialize the x-coordinates in leftPixels
-//    to some really large value and the x-coordinates
-//    in rightPixels to some really small value.
+	leftPixels.resize(height);
+	rightPixels.resize(height);
+
 	for(int i = 0 ; i<height ; i++){
 		leftPixels[i].x  = +numeric_limits<int>::max();
 		rightPixels[i].x = -numeric_limits<int>::max();
 	}
-
-// 4. Loop through all edges of the polygon and use
-//    linear interpolation to find the x-coordinate for
-//    each row it occupies. Update the corresponding
-//    values in rightPixels and leftPixels.
-
 
 
 	//Loop through edges
@@ -195,11 +185,12 @@ void ComputePolygonRows(
 
 		vec2 a = vertexPixels[i];
 		vec2 b = vertexPixels[j];
-		ivec2 delta = glm::abs( a- b );
+		ivec2 delta = glm::abs( a - b );
 
 		int pixels = glm::max( delta.x, delta.y ) + 1;
 
 		vector<ivec2> result (pixels);
+
 		Interpolate(a, b, result);
 
 		//Loop through pixels on edge
@@ -212,6 +203,7 @@ void ComputePolygonRows(
 
 			leftPixels[y].y = result[k].y;
 			rightPixels[y].y = result[k].y;
+
 			if (leftPixels[y].x > x)
 			{
 				leftPixels[y].x = x;
@@ -261,8 +253,8 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for( int i=0; i<V; ++i ) {
 		VertexShader(vertices[i], vertexPixels[i]);
 	}
-	vector<ivec2> leftPixels;
-	vector<ivec2> rightPixels;
+	vector<ivec2> leftPixels(SCREEN_HEIGHT);
+	vector<ivec2> rightPixels(SCREEN_HEIGHT);
 
 	ComputePolygonRows( vertexPixels, leftPixels, rightPixels );
 
@@ -319,7 +311,6 @@ void Draw()
 		vertices[0] = triangles[i].v0;
 		vertices[1] = triangles[i].v1;
 		vertices[2] = triangles[i].v2;
-
 		DrawPolygon(vertices);
 	}
 
