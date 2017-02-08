@@ -224,11 +224,11 @@ void VertexShader( const vec3& v, ivec2& p ) {
 	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
 	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
 
-    if(x < 0) x = 0;
-    if(y < 0) y = 0;
+	if(x < 0) x = 0;
+	if(y < 0) y = 0;
 
-    if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
-    if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
+	if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
+	if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
 
 	p.x = x;
 	p.y = y;
@@ -290,32 +290,32 @@ void DrawPolygon( const vector<vec3>& vertices )
     ivec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
     for( int i=0; i<V; ++i ) {
-        VertexShader(vertices[i], vertexPixels[i]);
+			VertexShader(vertices[i], vertexPixels[i]);
 
-        if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
-        if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
+			if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
+			if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
 
-        if(vertexPixels[i].y<bb_min.y) bb_min.y = vertexPixels[i].y;
-        if(vertexPixels[i].y>bb_max.y) bb_max.y = vertexPixels[i].y;
+			if(vertexPixels[i].y<bb_min.y) bb_min.y = vertexPixels[i].y;
+			if(vertexPixels[i].y>bb_max.y) bb_max.y = vertexPixels[i].y;
 
     }
 
 
 
     for(int y = bb_min.y ; y < bb_max.y ; y++) {
-        for (int x = bb_min.x; x < bb_max.x; x++) {
-            vec2 p(x, y);
+			for (int x = bb_min.x; x < bb_max.x; x++) {
+				vec2 p(x, y);
 
-            bool inside = true;
-            inside &= edgeFunction(V0, V1, p);
-            inside &= edgeFunction(V1, V2, p);
-            inside &= edgeFunction(V2, V0, p);
+				bool inside = true;
+				inside &= edgeFunction(V0, V1, p);
+				inside &= edgeFunction(V1, V2, p);
+				inside &= edgeFunction(V2, V0, p);
 
-            if(inside){
-                PutPixelSDL(screen, x, y, current_colour);
+				if(inside){
+						PutPixelSDL(screen, x, y, current_colour);
 
-            }
-        }
+				}
+			}
 
     }
 }
