@@ -259,7 +259,9 @@ void DrawPolygon( const vector<vec3>& vertices )
 	ComputePolygonRows( vertexPixels, leftPixels, rightPixels );
 
 	DrawPolygonRows( leftPixels, rightPixels );
+
 }
+
 
 
 
