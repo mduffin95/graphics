@@ -17,6 +17,7 @@ using glm::vec2;
 
 const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = 500;
+#define C(x,y)  (x + y * SCREEN_HEIGHT)
 SDL_Surface* screen;
 int t;
 vector<Triangle> triangles;
@@ -25,6 +26,7 @@ mat3 R;
 float focalLength = SCREEN_HEIGHT / 1;
 float angle = 0.0f;
 vec3 current_colour;
+float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
 
@@ -37,6 +39,8 @@ void ComputePolygonRows(
 void DrawPolygonRows(
 				const vector<ivec2>& leftPixels,
 				const vector<ivec2>& rightPixels, vec3 color );
+
+
 
 void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
 {
@@ -145,78 +149,6 @@ void Update()
 		lightPos += down;*/
 }
 
-void ComputePolygonRows(
-				const vector<ivec2>& vertexPixels,
-				vector<ivec2>& leftPixels,
-				vector<ivec2>& rightPixels )
-{
-// 1. Find max and min y-value of the polygon
-//    and compute the number of rows it occupies.
-
-
-	int y_min = +numeric_limits<int>::max();
-	int y_max = 0;
-
-	for(int i = 0 ; i < vertexPixels.size() ; i ++){
-		if(vertexPixels[i].y < y_min){
-			y_min = vertexPixels[i].y;
-		}
-
-		if(vertexPixels[i].y > y_max){
-			y_max = vertexPixels[i].y;
-		}
-	}
-
-	int height = y_max - y_min + 1;
-
-	leftPixels.resize(height);
-	rightPixels.resize(height);
-
-	for(int i = 0 ; i<height ; i++){
-		leftPixels[i].x  = +numeric_limits<int>::max();
-		rightPixels[i].x = -numeric_limits<int>::max();
-	}
-
-
-	//Loop through edges
-	for( int i=0; i<3; ++i )
-	{
-		int j = (i+1)%3; // The next vertex
-
-		vec2 a = vertexPixels[i];
-		vec2 b = vertexPixels[j];
-		ivec2 delta = glm::abs( a - b );
-
-		int pixels = glm::max( delta.x, delta.y ) + 1;
-
-		vector<ivec2> result (pixels);
-
-		Interpolate(a, b, result);
-
-		//Loop through pixels on edge
-
-		//TODO: Make more efficient
-		for( int k = 0; k < result.size(); k++)
-		{
-			int y = result[k].y - y_min;
-			int x = result[k].x;
-
-			leftPixels[y].y = result[k].y;
-			rightPixels[y].y = result[k].y;
-
-			if (leftPixels[y].x > x)
-			{
-				leftPixels[y].x = x;
-			}
-			if (rightPixels[y].x < x)
-			{
-				rightPixels[y].x = x;
-			}
-		}
-	}
-}
-
-
 void VertexShader( const vec3& v, vec3& p ) {
 
 	vec3 p_dash = (v - cameraPos)*R;
@@ -235,37 +167,11 @@ void VertexShader( const vec3& v, vec3& p ) {
 	p.z = p_dash.z;
 }
 
-
-
 float lamdaCalc(const ivec2 &b, const ivec2 &a, const ivec2 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
 
-
-
-void DrawPolygonRows(
-				const vector<ivec2>& leftPixels,
-				const vector<ivec2>& rightPixels){
-	vec3 color(1, 1, 1);
-
-	long height = leftPixels.size();
-
-	for(int i = 0 ; i < height ; i++){
-		int width = rightPixels[i].x - leftPixels[i].x;
-		for(int j = 0; j < width ; j++){
-
-			int x = leftPixels[i].x+j;
-			int y = leftPixels[i].y;
-
-			if(x >= 0 && x < SCREEN_WIDTH ){
-				if(y >= 0 && y < SCREEN_HEIGHT){
-					PutPixelSDL(screen, x , y, current_colour);
-				}
-			}
-		}
-	}
-}
 
 void DrawPolygon( const vector<vec3>& vertices )
 {
@@ -311,7 +217,13 @@ void DrawPolygon( const vector<vec3>& vertices )
 			lamda2 /= totalArea;
 
 			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 && (lamda0 + lamda1 + lamda2 <= 1) ){
-				PutPixelSDL(screen, x, y, current_colour);
+
+				float z = 1 / (1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
+
+				if(z > 0 && z < depth_buffer[C(x,y)] ){
+					depth_buffer[C(x,y)] = z;
+					PutPixelSDL(screen, x, y, current_colour);
+				}
 			}
 		}
 	}
@@ -325,10 +237,6 @@ void Draw()
 
 	if( SDL_MUSTLOCK(screen) )
 		SDL_LockSurface(screen);
-
-
-	float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
-
 
 	for(int i = 0 ; i < SCREEN_HEIGHT * SCREEN_WIDTH ; i ++){
 		depth_buffer[i] = INFINITY;
