@@ -15,6 +15,8 @@ const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = 500;
 SDL_Surface* screen;
 int t;
+vector<Triangle> triangles;
+
 
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
@@ -22,11 +24,15 @@ int t;
 void Update();
 void Draw();
 
+
+
+
 int main( int argc, char* argv[] )
 {
 	screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 	t = SDL_GetTicks();	// Set start value for timer.
 
+	LoadTestModel( triangles );
 	while( NoQuitMessageSDL() )
 	{
 		Update();
@@ -46,21 +52,35 @@ void Update()
 	cout << "Render time: " << dt << " ms." << endl;
 }
 
+
+//Screen buffer
+//Z Buffer
+
+
 void Draw()
 {
+
+	SDL_FillRect( screen, 0, 0 );
+
 	if( SDL_MUSTLOCK(screen) )
 		SDL_LockSurface(screen);
 
-	for( int y=0; y<SCREEN_HEIGHT; ++y )
+	for( int i=0; i<triangles.size(); ++i )
 	{
-		for( int x=0; x<SCREEN_WIDTH; ++x )
+		vector<vec3> vertices(3);
+		vertices[0] = triangles[i].v0;
+		vertices[1] = triangles[i].v1;
+		vertices[2] = triangles[i].v2;
+		for(int v=0; v<3; ++v)
 		{
-			vec3 color( 1.0, 0.0, 0.0 );
-			PutPixelSDL( screen, x, y, color );
+			ivec2 projPos;
+			VertexShader( vertices[v], projPos );
+			vec3 color(1,1,1);
+			PutPixelSDL( screen, projPos.x, projPos.y, color );
 		}
 	}
 
-	if( SDL_MUSTLOCK(screen) )
+	if ( SDL_MUSTLOCK(screen) )
 		SDL_UnlockSurface(screen);
 
 	SDL_UpdateRect( screen, 0, 0, 0, 0 );
