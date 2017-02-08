@@ -235,6 +235,15 @@ void VertexShader( const vec3& v, ivec2& p ) {
 
 }
 
+
+
+bool edgeFunction(const ivec2 &a, const ivec2 &b, const ivec2 &c)
+{
+    return ((c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x) >= 0);
+}
+
+
+
 void DrawPolygonRows(
 				const vector<ivec2>& leftPixels,
 				const vector<ivec2>& rightPixels){
@@ -270,14 +279,45 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for( int i=0; i<V; ++i ) {
 		VertexShader(vertices[i], vertexPixels[i]);
 	}
-	vector<ivec2> leftPixels(SCREEN_HEIGHT);
-	vector<ivec2> rightPixels(SCREEN_HEIGHT);
-
-	ComputePolygonRows( vertexPixels, leftPixels, rightPixels );
-
-	DrawPolygonRows( leftPixels, rightPixels );
 
 
+    vec2 V0 = vertexPixels[0];
+    vec2 V1 = vertexPixels[1];
+    vec2 V2 = vertexPixels[2];
+
+
+    ivec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
+    ivec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
+
+    for( int i=0; i<V; ++i ) {
+        VertexShader(vertices[i], vertexPixels[i]);
+
+        if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
+        if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
+
+        if(vertexPixels[i].y<bb_min.y) bb_min.y = vertexPixels[i].y;
+        if(vertexPixels[i].y>bb_max.y) bb_max.y = vertexPixels[i].y;
+
+    }
+
+
+
+    for(int y = bb_min.y ; y < bb_max.y ; y++) {
+        for (int x = bb_min.x; x < bb_max.x; x++) {
+            vec2 p(x, y);
+
+            bool inside = true;
+            inside &= edgeFunction(V0, V1, p);
+            inside &= edgeFunction(V1, V2, p);
+            inside &= edgeFunction(V2, V0, p);
+
+            if(inside){
+                PutPixelSDL(screen, x, y, current_colour);
+
+            }
+        }
+
+    }
 }
 
 
