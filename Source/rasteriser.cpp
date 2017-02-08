@@ -224,6 +224,12 @@ void VertexShader( const vec3& v, ivec2& p ) {
 	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
 	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
 
+    if(x < 0) x = 0;
+    if(y < 0) y = 0;
+
+    if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
+    if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
+
 	p.x = x;
 	p.y = y;
 
