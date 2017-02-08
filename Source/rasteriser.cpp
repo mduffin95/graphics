@@ -24,13 +24,19 @@ vec3 cameraPos( 0, 0, -3.001 );
 mat3 R;
 float focalLength = SCREEN_HEIGHT / 1;
 float angle = 0.0f;
-
+vec3 current_colour;
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
 
 void Update();
 void Draw();
-
+void ComputePolygonRows(
+				const vector<ivec2>& vertexPixels,
+				vector<ivec2>& leftPixels,
+				vector<ivec2>& rightPixels );
+void DrawPolygonRows(
+				const vector<ivec2>& leftPixels,
+				const vector<ivec2>& rightPixels, vec3 color );
 
 void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
 {
@@ -50,12 +56,12 @@ int main( int argc, char* argv[] )
 	t = SDL_GetTicks();	// Set start value for timer.
 
 	LoadTestModel( triangles );
+
 	while( NoQuitMessageSDL() )
 	{
 		Update();
 		Draw();
 	}
-
 	SDL_SaveBMP( screen, "screenshot.bmp" );
 	return 0;
 }
@@ -139,10 +145,85 @@ void Update()
 		lightPos += down;*/
 }
 
+void ComputePolygonRows(
+				const vector<ivec2>& vertexPixels,
+				vector<ivec2>& leftPixels,
+				vector<ivec2>& rightPixels )
+{
+// 1. Find max and min y-value of the polygon
+//    and compute the number of rows it occupies.
 
 
-//Screen buffer
-//Z Buffer
+	int y_min = +numeric_limits<int>::max();
+	int y_max = 0;
+
+	for(int i = 0 ; i < vertexPixels.size() ; i ++){
+		if(vertexPixels[i].y < y_min){
+			y_min = vertexPixels[i].y;
+		}
+
+		if(vertexPixels[i].y > y_max){
+			y_max = vertexPixels[i].y;
+		}
+	}
+
+	int height = y_max - y_min + 1;
+// 2. Resize leftPixels and rightPixels
+//    so that they have an element for each row.
+	leftPixels = vector<ivec2>(height);
+	rightPixels = vector<ivec2>(height);
+
+// 3. Initialize the x-coordinates in leftPixels
+//    to some really large value and the x-coordinates
+//    in rightPixels to some really small value.
+	for(int i = 0 ; i<height ; i++){
+		leftPixels[i].x  = +numeric_limits<int>::max();
+		rightPixels[i].x = -numeric_limits<int>::max();
+	}
+
+// 4. Loop through all edges of the polygon and use
+//    linear interpolation to find the x-coordinate for
+//    each row it occupies. Update the corresponding
+//    values in rightPixels and leftPixels.
+
+
+
+	//Loop through edges
+	for( int i=0; i<3; ++i )
+	{
+		int j = (i+1)%3; // The next vertex
+
+		vec2 a = vertexPixels[i];
+		vec2 b = vertexPixels[j];
+		ivec2 delta = glm::abs( a- b );
+
+		int pixels = glm::max( delta.x, delta.y ) + 1;
+
+		vector<ivec2> result (pixels);
+		Interpolate(a, b, result);
+
+		//Loop through pixels on edge
+
+		//TODO: Make more efficient
+		for( int k = 0; k < result.size(); k++)
+		{
+			int y = result[k].y - y_min;
+			int x = result[k].x;
+
+			leftPixels[y].y = result[k].y;
+			rightPixels[y].y = result[k].y;
+			if (leftPixels[y].x > x)
+			{
+				leftPixels[y].x = x;
+			}
+			if (rightPixels[y].x < x)
+			{
+				rightPixels[y].x = x;
+			}
+		}
+	}
+}
+
 
 void VertexShader( const vec3& v, ivec2& p ) {
 
@@ -156,6 +237,44 @@ void VertexShader( const vec3& v, ivec2& p ) {
 
 }
 
+void DrawPolygonRows(
+				const vector<ivec2>& leftPixels,
+				const vector<ivec2>& rightPixels){
+	vec3 color(1, 1, 1);
+
+	long height = leftPixels.size();
+
+	for(int i = 0 ; i < height ; i++){
+
+		int width = leftPixels[i].x - rightPixels[i].x;
+
+		for(int j = 0; j < width ; j++){
+
+			PutPixelSDL(screen, leftPixels[i].x+j,leftPixels[i].y, current_colour);
+
+		}
+	}
+}
+
+void DrawPolygon( const vector<vec3>& vertices )
+{
+	int V = vertices.size();
+
+	vector<ivec2> vertexPixels( V );
+
+	for( int i=0; i<V; ++i ) {
+		VertexShader(vertices[i], vertexPixels[i]);
+	}
+	vector<ivec2> leftPixels;
+	vector<ivec2> rightPixels;
+
+	ComputePolygonRows( vertexPixels, leftPixels, rightPixels );
+
+	//DrawPolygonRows( leftPixels, rightPixels );
+}
+
+
+
 void DrawLineSDL( SDL_Surface* surface, ivec2 a, ivec2 b, vec3 color ){
 
 	ivec2 delta = glm::abs( a- b );
@@ -165,7 +284,7 @@ void DrawLineSDL( SDL_Surface* surface, ivec2 a, ivec2 b, vec3 color ){
 	Interpolate(a,b ,result );
 
 	for(int i = 0 ; i < pixels ; i++) {
-		PutPixelSDL(surface, result[i].x, result[i].y, color);
+		//PutPixelSDL(surface, result[i].x, result[i].y, color);
 	}
 
 }
@@ -184,7 +303,7 @@ void DrawPolygonEdges( const vector<vec3>& vertices )
 	{
 		int j = (i+1)%V; // The next vertex
 		vec3 color( 1, 1, 1 );
-		DrawLineSDL( screen, projectedVertices[i], projectedVertices[j], color );
+		//DrawLineSDL( screen, projectedVertices[i], projectedVertices[j], color );
 	}
 }
 
@@ -199,12 +318,13 @@ void Draw()
 
 	for( int i=0; i<triangles.size(); ++i )
 	{
+		current_colour = triangles[i].color;
 		vector<vec3> vertices(3);
 		vertices[0] = triangles[i].v0;
 		vertices[1] = triangles[i].v1;
 		vertices[2] = triangles[i].v2;
 
-		DrawPolygonEdges(vertices);
+		DrawPolygon(vertices);
 	}
 
 	if ( SDL_MUSTLOCK(screen) )
