@@ -245,13 +245,9 @@ void DrawPolygonRows(
 	long height = leftPixels.size();
 
 	for(int i = 0 ; i < height ; i++){
-
-		int width = leftPixels[i].x - rightPixels[i].x;
-
+		int width = rightPixels[i].x - leftPixels[i].x;
 		for(int j = 0; j < width ; j++){
-
 			PutPixelSDL(screen, leftPixels[i].x+j,leftPixels[i].y, current_colour);
-
 		}
 	}
 }
@@ -270,7 +266,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	ComputePolygonRows( vertexPixels, leftPixels, rightPixels );
 
-	//DrawPolygonRows( leftPixels, rightPixels );
+	DrawPolygonRows( leftPixels, rightPixels );
 }
 
 
