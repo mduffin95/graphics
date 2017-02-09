@@ -32,14 +32,9 @@ float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 
 void Update();
 void Draw();
-void ComputePolygonRows(
-				const vector<ivec2>& vertexPixels,
-				vector<ivec2>& leftPixels,
-				vector<ivec2>& rightPixels );
-void DrawPolygonRows(
-				const vector<ivec2>& leftPixels,
-				const vector<ivec2>& rightPixels, vec3 color );
-
+void VertexShader( const vec3& v, vec3& p ); 
+float lambdaCalc(const vec3 &a, const vec3 &b, const vec3 &p);
+void DrawPolygon( const vector<vec3>& vertices );
 
 /*
 void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
