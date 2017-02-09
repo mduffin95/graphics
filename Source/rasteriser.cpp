@@ -41,7 +41,7 @@ void DrawPolygonRows(
 				const vector<ivec2>& rightPixels, vec3 color );
 
 
-
+/*
 void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
 {
 	int N = result.size();
@@ -53,6 +53,7 @@ void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
 		current += step;
 	}
 }
+*/
 
 int main( int argc, char* argv[] )
 {
@@ -156,12 +157,6 @@ void VertexShader( const vec3& v, vec3& p ) {
 	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
 	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
 
-	//if(x < 0) x = 0;
-	//if(y < 0) y = 0;
-
-	//if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
-	//if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
-
 	p.x = x;
 	p.y = y;
 	p.z = p_dash.z;
@@ -186,22 +181,6 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V0 = vertexPixels[0];
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
-
-  //Bounding box
-	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
-	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
-
-	for( int i=0; i<V; ++i ) {
-
-		if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
-		if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
-
-		if(vertexPixels[i].y<bb_min.y) bb_min.y = vertexPixels[i].y;
-		if(vertexPixels[i].y>bb_max.y) bb_max.y = vertexPixels[i].y;
-
-	}
-
-
 
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
