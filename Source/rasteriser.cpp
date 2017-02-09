@@ -156,18 +156,18 @@ void VertexShader( const vec3& v, vec3& p ) {
 	int x = (int)floor(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
 	int y = (int)floor(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
 
-	if(x < 0) x = 0;
-	if(y < 0) y = 0;
+	//if(x < 0) x = 0;
+	//if(y < 0) y = 0;
 
-	if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
-	if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
+	//if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
+	//if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
 
 	p.x = x;
 	p.y = y;
 	p.z = p_dash.z;
 }
 
-float lamdaCalc(const ivec2 &b, const ivec2 &a, const ivec2 &p)
+float lamdaCalc(const ivec2 &a, const ivec2 &b, const ivec2 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
@@ -201,8 +201,13 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	}
 
-	for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
-		for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
+
+
+	//for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
+		//for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
+
+	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
+		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
 			vec2 p(x, y);
 
@@ -218,7 +223,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 && (lamda0 + lamda1 + lamda2 <= 1) ){
 
-				float z = 1 / (1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
+				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
 
 				if(z > 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
