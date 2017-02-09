@@ -153,8 +153,8 @@ void VertexShader( const vec3& v, vec3& p ) {
 
 	vec3 p_dash = (v - cameraPos)*R;
 
-	int x = (int)floor(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
-	int y = (int)floor(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
+	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
+	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
 
 	//if(x < 0) x = 0;
 	//if(y < 0) y = 0;
@@ -167,7 +167,7 @@ void VertexShader( const vec3& v, vec3& p ) {
 	p.z = p_dash.z;
 }
 
-float lamdaCalc(const ivec2 &a, const ivec2 &b, const ivec2 &p)
+float lambdaCalc(const vec3 &a, const vec3 &b, const vec3 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
@@ -187,11 +187,11 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
 
+  //Bounding box
 	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
 	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
 	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], vertexPixels[i]);
 
 		if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
 		if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
@@ -203,27 +203,24 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 
 
-	//for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
-		//for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
-
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
-			vec2 p(x, y);
+			vec3 p(x, y, 0);
 
-			float lamda0 = lamdaCalc(V1, V2, p);
-			float lamda1 = lamdaCalc(V2, V0, p);
-			float lamda2 = lamdaCalc(V0, V1, p);
+			float lambda0 = lambdaCalc(V1, V2, p);
+			float lambda1 = lambdaCalc(V2, V0, p);
+			float lambda2 = lambdaCalc(V0, V1, p);
 
-			float totalArea = lamdaCalc(V0, V1, V2);
+			float totalArea = lambdaCalc(V0, V1, V2);
 
-			lamda0 /= totalArea;
-			lamda1 /= totalArea;
-			lamda2 /= totalArea;
+			lambda0 /= totalArea;
+			lambda1 /= totalArea;
+			lambda2 /= totalArea;
 
-			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 && (lamda0 + lamda1 + lamda2 <= 1) ){
+			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0 && (lambda0 + lambda1 + lambda2 <= 1) ){
 
-				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
+				float z = 1 / ( 1/V0.z * lambda0 + 1/V1.z * lambda1 + 1/V2.z * lambda2 );
 
 				if(z > 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
