@@ -153,14 +153,8 @@ void VertexShader( const vec3& v, vec3& p ) {
 
 	vec3 p_dash = (v - cameraPos)*R;
 
-	int x = (int)floor(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
-	int y = (int)floor(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
-
-	//if(x < 0) x = 0;
-	//if(y < 0) y = 0;
-
-	//if(y > SCREEN_HEIGHT) y = SCREEN_HEIGHT;
-	//if(x > SCREEN_WIDTH) x = SCREEN_WIDTH;
+	float x = focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2;
+	float y = focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2;
 
 	p.x = x;
 	p.y = y;
