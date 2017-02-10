@@ -27,6 +27,8 @@ float focalLength = SCREEN_HEIGHT / 1;
 float angle = 0.0f;
 vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
+float nearClippingPlane = SCREEN_HEIGHT ;
+
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
 
@@ -149,16 +151,33 @@ void Update()
 		lightPos += down;*/
 }
 
-void VertexShader( const vec3& v, vec3& p ) {
+void VertexShader( const vec3& v, vec3& p_raster ) {
 
-	vec3 p_dash = (v - cameraPos)*R;
+	vec3 p_camera = (v - cameraPos)*R;
 
-	float x = focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2;
-	float y = focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2;
 
-	p.x = x;
-	p.y = y;
-	p.z = p_dash.z;
+	vec2 p_screen;
+
+	p_screen.x = nearClippingPlane * p_camera.x / p_camera.z;
+	p_screen.y = nearClippingPlane * p_camera.y / p_camera.z;
+
+	float l = -SCREEN_WIDTH / 2;
+	float r = SCREEN_WIDTH / 2;
+	float t = SCREEN_HEIGHT / 2;
+	float b = -SCREEN_HEIGHT / 2;
+
+	vec2 p_ndc;
+	p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
+	p_ndc.y = 2 * p_screen.y / (t - b) - (t + b) / (t - b);
+
+
+	p_raster.x = (p_ndc.x + 1) / 2 * SCREEN_WIDTH;
+	p_raster.y = (1-p_ndc.y) / 2 * SCREEN_HEIGHT;
+	p_raster.z = p_camera.z;
+
+
+
+
 }
 
 float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
@@ -180,6 +199,9 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V0 = vertexPixels[0];
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
+
+	cout << V0.x << "," << V0.y << "," <<  V0.z << "\n";
+
 
 	/* Don't need the min/max code atm
 
@@ -209,7 +231,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
-			vec3 p(x,y,1);
+			vec3 p(x , y  , 1 );
 
 			float lamda0 = lamdaCalc(V1, V2, p);
 			float lamda1 = lamdaCalc(V2, V0, p);
@@ -226,6 +248,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
 
 				if(z >= 0 && z < depth_buffer[C(x,y)] ){
+
 					depth_buffer[C(x,y)] = z;
 					PutPixelSDL(screen, x, y, current_colour);
 				}
