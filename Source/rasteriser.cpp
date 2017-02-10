@@ -7,7 +7,6 @@
 using namespace std;
 using glm::vec3;
 using glm::mat3;
-using glm::ivec2;
 using glm::vec2;
 
 #define PI 3.14159265359f
@@ -17,13 +16,13 @@ using glm::vec2;
 
 const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = 500;
-#define C(x,y)  (x + y * SCREEN_HEIGHT)
+#define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
+float clipping_distance = 1;
 vector<Triangle> triangles;
-vec3 cameraPos( 0, 0, -3.001 );
+vec3 cameraPos( 0.5,0,-0.801001);
 mat3 R;
-float focalLength = SCREEN_HEIGHT / 1;
 float angle = 0.0f;
 vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
@@ -34,27 +33,7 @@ float nearClippingPlane = SCREEN_HEIGHT ;
 
 void Update();
 void Draw();
-void ComputePolygonRows(
-				const vector<ivec2>& vertexPixels,
-				vector<ivec2>& leftPixels,
-				vector<ivec2>& rightPixels );
-void DrawPolygonRows(
-				const vector<ivec2>& leftPixels,
-				const vector<ivec2>& rightPixels, vec3 color );
 
-
-
-void Interpolate( ivec2 a, ivec2 b, vector<ivec2>& result )
-{
-	int N = result.size();
-	vec2 step = vec2(b-a) / float(max(N-1,1));
-	vec2 current( a );
-	for( int i=0; i<N; ++i )
-	{
-		result[i] = current;
-		current += step;
-	}
-}
 
 int main( int argc, char* argv[] )
 {
@@ -80,7 +59,6 @@ void Update()
 	t = t2;
 	cout << "Render time: " << dt << " ms." << endl;
 	Uint8* keystate = SDL_GetKeyState( 0 );
-
 
 	float yaw;
 	yaw =  (-angle /180) * PI ;
@@ -151,12 +129,13 @@ void Update()
 		lightPos += down;*/
 }
 
-void VertexShader( const vec3& v, vec3& p_raster ) {
+bool VertexShader( const vec3& v, vec3& p_raster ) {
 
 	vec3 p_camera = (v - cameraPos)*R;
 
-
 	vec2 p_screen;
+
+	if( abs(p_camera.z) <= clipping_distance  ) return false;
 
 	p_screen.x = nearClippingPlane * p_camera.x / p_camera.z;
 	p_screen.y = nearClippingPlane * p_camera.y / p_camera.z;
@@ -170,14 +149,12 @@ void VertexShader( const vec3& v, vec3& p_raster ) {
 	p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
 	p_ndc.y = 2 * p_screen.y / (t - b) - (t + b) / (t - b);
 
-
 	p_raster.x = (p_ndc.x + 1) / 2 * SCREEN_WIDTH;
 	p_raster.y = (1-p_ndc.y) / 2 * SCREEN_HEIGHT;
+
 	p_raster.z = p_camera.z;
 
-
-
-
+	return true;
 }
 
 float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
@@ -185,6 +162,14 @@ float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
 
+bool insideScreen(vec3 &point){
+	if(point.x > SCREEN_WIDTH)return false;
+	if(point.x < 0)return false;
+	if(point.y > SCREEN_HEIGHT)return false;
+	if(point.y < 0)return false;
+
+	return true;
+}
 
 void DrawPolygon( const vector<vec3>& vertices )
 {
@@ -192,15 +177,19 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	vector<vec3> vertexPixels( V );
 
+
 	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], vertexPixels[i]);
+		if(!VertexShader(vertices[i], vertexPixels[i])){
+			return ;
+		};
 	}
 
 	vec3 V0 = vertexPixels[0];
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
 
-	cout << V0.x << "," << V0.y << "," <<  V0.z << "\n";
+
+	//cout << V0.x << "," << V0.y << "," <<  V0.z << ":" << current_colour.x <<  "," << current_colour.y << "," << current_colour.z << "\n";
 
 
 	/* Don't need the min/max code atm
@@ -221,8 +210,6 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	}
 
-
-
 	//for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
 		//for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
 
@@ -231,7 +218,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
-			vec3 p(x , y  , 1 );
+			vec3 p(x + 0.5, y+0.5, 1);
 
 			float lamda0 = lamdaCalc(V1, V2, p);
 			float lamda1 = lamdaCalc(V2, V0, p);
@@ -242,19 +229,24 @@ void DrawPolygon( const vector<vec3>& vertices )
 			lamda0 /= totalArea;
 			lamda1 /= totalArea;
 			lamda2 /= totalArea;
-
-			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 ){
+			vec3 green(  0.15f, 0.75f, 0.15f );
+			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0){
 
 				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
 
 				if(z >= 0 && z < depth_buffer[C(x,y)] ){
-
 					depth_buffer[C(x,y)] = z;
 					PutPixelSDL(screen, x, y, current_colour);
+					if(current_colour == green && x == 500 && y == 250) {
+						//cout << x <<","<<y << "   " <<V0.x<<","<<V0.y<<","<<V0.z<<"   "<<V1.x<<","<<V1.y<<","<<V1.z << "    "<<V2.x<<","<<V2.y<<","<<V2.z <<"  " << lamda0 << "  "<< lamda1 << "  "<< lamda2 << "  "  << z<<"\n" ;
+					}
 				}
 			}
 		}
 	}
+
+
+	//cout << cameraPos.x << ","<< cameraPos.y << ","<< cameraPos.z << "\n";
 }
 
 
@@ -263,13 +255,13 @@ void Draw()
 
 	SDL_FillRect( screen, 0, 0 );
 
-	if( SDL_MUSTLOCK(screen) )
+	if( SDL_MUSTLOCK(screen) ) {
 		SDL_LockSurface(screen);
+	}
 
 	for(int i = 0 ; i < SCREEN_HEIGHT * SCREEN_WIDTH ; i ++){
 		depth_buffer[i] = INFINITY;
 	}
-
 
 	for( int i=0; i<triangles.size(); ++i )
 	{
@@ -281,8 +273,9 @@ void Draw()
 		DrawPolygon(vertices);
 	}
 
-	if (SDL_MUSTLOCK(screen))
+	if (SDL_MUSTLOCK(screen)) {
 		SDL_UnlockSurface(screen);
+	}
 
 	SDL_UpdateRect( screen, 0, 0, 0, 0 );
 }
