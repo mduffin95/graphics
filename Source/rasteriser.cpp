@@ -167,7 +167,7 @@ void VertexShader( const vec3& v, vec3& p ) {
 	p.z = p_dash.z;
 }
 
-float lamdaCalc(const ivec2 &a, const ivec2 &b, const ivec2 &p)
+float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
@@ -215,7 +215,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
-			vec2 p(x, y);
+			vec3 p(x,y,1);
 
 			float lamda0 = lamdaCalc(V1, V2, p);
 			float lamda1 = lamdaCalc(V2, V0, p);
@@ -227,7 +227,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 			lamda1 /= totalArea;
 			lamda2 /= totalArea;
 
-			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 && (lamda0 + lamda1 + lamda2 <= 1) ){
+			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0 ){
 
 				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
 
