@@ -23,7 +23,8 @@ int t;
 vector<Triangle> triangles;
 vec3 cameraPos( 0, 0, -3.001 );
 mat3 R;
-float focalLength = SCREEN_HEIGHT / 1;
+//float focalLength = SCREEN_HEIGHT / 1;
+float nearClippingPlane = 1.0f;
 float angle = 0.0f;
 vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
@@ -33,7 +34,7 @@ float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 void Update();
 void Draw();
 void VertexShader( const vec3& v, vec3& p ); 
-float lambdaCalc(const vec3 &a, const vec3 &b, const vec3 &p);
+float lambdaCalc(const vec2 &a, const vec2 &b, const vec2 &p);
 void DrawPolygon( const vector<vec3>& vertices );
 
 /*
@@ -145,19 +146,30 @@ void Update()
 		lightPos += down;*/
 }
 
-void VertexShader( const vec3& v, vec3& p ) {
+void VertexShader( const vec3& v, vec3& p_raster ) {
 
-	vec3 p_dash = (v - cameraPos)*R;
+	vec3 p_camera = (v - cameraPos)*R;
+  vec2 p_screen;
 
-	int x = (int)(focalLength * p_dash.x / p_dash.z + SCREEN_WIDTH / 2);
-	int y = (int)(focalLength * p_dash.y / p_dash.z + SCREEN_HEIGHT / 2);
+	p_screen.x = nearClippingPlane * p_camera.x / p_camera.z;
+	p_screen.y = nearClippingPlane * p_camera.y / p_camera.z;
 
-	p.x = x;
-	p.y = y;
-	p.z = p_dash.z;
+  float l = -SCREEN_WIDTH / 2;
+  float r = SCREEN_WIDTH / 2;
+  float t = SCREEN_HEIGHT / 2;
+  float b = -SCREEN_HEIGHT / 2;
+
+  vec2 p_ndc;
+  p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
+  p_ndc.y = 2 * p_screen.y / (t - b) - (t + b) / (t - b);
+
+  
+	p_raster.x = (p_screen.x + 1) / 2 * SCREEN_WIDTH;
+	p_raster.y = (p_screen.y + 1) / 2 * SCREEN_HEIGHT;
+	p_raster.z = p_camera.z;
 }
 
-float lambdaCalc(const vec3 &a, const vec3 &b, const vec3 &p)
+float lambdaCalc(const vec2 &a, const vec2 &b, const vec2 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
@@ -167,34 +179,39 @@ void DrawPolygon( const vector<vec3>& vertices )
 {
 	u_long V = 3;
 
-	vector<vec3> vertexPixels( V );
+	vector<vec3> proj_vertices( V );
 
 	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], vertexPixels[i]);
+		VertexShader(vertices[i], proj_vertices[i]);
 	}
 
-	vec3 V0 = vertexPixels[0];
-	vec3 V1 = vertexPixels[1];
-	vec3 V2 = vertexPixels[2];
+	vec3 v0_3d = proj_vertices[0];
+	vec3 v1_3d = proj_vertices[1];
+	vec3 v2_3d = proj_vertices[2];
+
+  //2D vectors
+  vec2 v0(v0_3d.x, v0_3d.y); 
+  vec2 v1(v1_3d.x, v1_3d.y); 
+  vec2 v2(v2_3d.x, v2_3d.y); 
+
+  float totalArea = lambdaCalc(v0, v1, v2);
 
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
-			vec3 p(x, y, 0);
+			vec2 p(x + 0.5f, y + 0.5f);
 
-			float lambda0 = lambdaCalc(V1, V2, p);
-			float lambda1 = lambdaCalc(V2, V0, p);
-			float lambda2 = lambdaCalc(V0, V1, p);
+			float lambda0 = lambdaCalc(v1, v2, p);
+			float lambda1 = lambdaCalc(v2, v0, p);
+			float lambda2 = lambdaCalc(v0, v1, p);
 
-			float totalArea = lambdaCalc(V0, V1, V2);
-
-			lambda0 /= totalArea;
-			lambda1 /= totalArea;
-			lambda2 /= totalArea;
+      lambda0 /= totalArea;
+      lambda1 /= totalArea;
+      lambda2 /= totalArea;
 
 			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0 && (lambda0 + lambda1 + lambda2 <= 1) ){
 
-				float z = 1 / ( 1/V0.z * lambda0 + 1/V1.z * lambda1 + 1/V2.z * lambda2 );
+				float z = 1 / ( 1/v0_3d.z * lambda0 + 1/v1_3d.z * lambda1 + 1/v2_3d.z * lambda2 );
 
 				if(z > 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
