@@ -187,6 +187,10 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
 
+	/* Don't need the min/max code atm
+
+
+
 	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
 	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
@@ -205,6 +209,8 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 	//for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
 		//for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
+
+	*/
 
 	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
@@ -225,7 +231,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
 
-				if(z > 0 && z < depth_buffer[C(x,y)] ){
+				if(z >= 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
 					PutPixelSDL(screen, x, y, current_colour);
 				}
