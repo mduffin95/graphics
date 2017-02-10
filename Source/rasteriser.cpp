@@ -19,9 +19,10 @@ const int SCREEN_HEIGHT = 500;
 #define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
-float clipping_distance = 1;
+float clipping_distance = 0.0000000001;
 vector<Triangle> triangles;
-vec3 cameraPos( 0.5,0,-0.801001);
+vector<Triangle> triangles_extra;
+vec3 cameraPos( 0.5,0,-3);
 mat3 R;
 float angle = 0.0f;
 vec3 current_colour;
@@ -135,8 +136,6 @@ bool VertexShader( const vec3& v, vec3& p_raster ) {
 
 	vec2 p_screen;
 
-	if( abs(p_camera.z) <= clipping_distance  ) return false;
-
 	p_screen.x = nearClippingPlane * p_camera.x / p_camera.z;
 	p_screen.y = nearClippingPlane * p_camera.y / p_camera.z;
 
@@ -162,14 +161,6 @@ float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
 
-bool insideScreen(vec3 &point){
-	if(point.x > SCREEN_WIDTH)return false;
-	if(point.x < 0)return false;
-	if(point.y > SCREEN_HEIGHT)return false;
-	if(point.y < 0)return false;
-
-	return true;
-}
 
 void DrawPolygon( const vector<vec3>& vertices )
 {
@@ -181,15 +172,12 @@ void DrawPolygon( const vector<vec3>& vertices )
 	for( int i=0; i<V; ++i ) {
 		if(!VertexShader(vertices[i], vertexPixels[i])){
 			return ;
-		};
+		}
 	}
 
 	vec3 V0 = vertexPixels[0];
 	vec3 V1 = vertexPixels[1];
 	vec3 V2 = vertexPixels[2];
-
-
-	//cout << V0.x << "," << V0.y << "," <<  V0.z << ":" << current_colour.x <<  "," << current_colour.y << "," << current_colour.z << "\n";
 
 
 	/* Don't need the min/max code atm
@@ -229,7 +217,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 			lamda0 /= totalArea;
 			lamda1 /= totalArea;
 			lamda2 /= totalArea;
-			vec3 green(  0.15f, 0.75f, 0.15f );
+
 			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0){
 
 				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
@@ -237,16 +225,162 @@ void DrawPolygon( const vector<vec3>& vertices )
 				if(z >= 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
 					PutPixelSDL(screen, x, y, current_colour);
-					if(current_colour == green && x == 500 && y == 250) {
-						//cout << x <<","<<y << "   " <<V0.x<<","<<V0.y<<","<<V0.z<<"   "<<V1.x<<","<<V1.y<<","<<V1.z << "    "<<V2.x<<","<<V2.y<<","<<V2.z <<"  " << lamda0 << "  "<< lamda1 << "  "<< lamda2 << "  "  << z<<"\n" ;
-					}
 				}
 			}
 		}
 	}
 
+}
 
-	//cout << cameraPos.x << ","<< cameraPos.y << ","<< cameraPos.z << "\n";
+int temp_triangle_count;
+
+void ClipTriangle( Triangle triangle){
+
+	//TODO: TIDY THIS CODE!
+
+	vector<vec3> verticies(3);
+	verticies[0] = triangle.v0;
+	verticies[1] = triangle.v1;
+	verticies[2] = triangle.v2;
+
+	bool bV0=false;   bool bV1=false;   bool bV2=false;
+	int inCount = 0;
+
+	vec3 pos = (verticies[0] - cameraPos)*R;
+
+	if(pos.z > clipping_distance){
+		bV0 = true;
+		inCount++;
+	}
+
+	pos = (verticies[1] - cameraPos)*R;
+
+	if(pos.z > clipping_distance){
+		bV1 = true;
+		inCount++;
+	}
+
+	pos = (verticies[2] - cameraPos)*R;
+	if(pos.z > clipping_distance){
+		bV2 = true;
+		inCount++;
+	}
+
+	vector<vec3> in_out(3);
+
+	if(inCount == 1) {
+
+		//cout << "Clipped 1\n" ;
+
+		if (bV0) {
+			in_out[0] = verticies[0];
+			in_out[1] = verticies[1];
+			in_out[2] = verticies[2];
+		}
+		if (bV1) {
+			in_out[0] = verticies[1];
+			in_out[1] = verticies[0];
+			in_out[2] = verticies[2];
+		}
+		if (bV2) {
+			in_out[0] = verticies[2];
+			in_out[1] = verticies[1];
+			in_out[2] = verticies[0];
+		}
+
+		//Parametric line stuff
+		// p = v0 + v01*t
+		vec3 v01 = in_out[1] - in_out[0];
+
+		float t1 = (clipping_distance - in_out[0]).z / v01.z;
+
+		float newz1 = clipping_distance;
+		float newx1 = in_out[0].x + v01.x * t1;
+		float newy1 = in_out[0].y + v01.y * t1;
+
+		// Second vert point
+		vec3 v02 = in_out[2] - in_out[0];
+
+		float t2 = (clipping_distance - in_out[0].z) / v02.z;
+
+		float newz2 = clipping_distance;
+		float newx2 = in_out[0].x + v02.x * t2;
+		float newy2 = in_out[0].y + v02.y * t2;
+
+		in_out[2].x = newx2;
+		in_out[2].y = newy2;
+		in_out[2].z = newz2;
+
+		in_out[1].x = newx1;
+		in_out[1].y = newy1;
+		in_out[1].z = newz1;
+
+		Triangle newt(in_out[0], in_out[1], in_out[2], current_colour);
+
+		triangles_extra.push_back(newt);
+
+		temp_triangle_count++;
+
+	}else if(inCount == 2){
+
+		if (!bV0) {
+			in_out[0] = verticies[1];
+			in_out[1] = verticies[2];
+			in_out[2] = verticies[0];
+		}
+		if (!bV1) {
+			in_out[0] = verticies[0];
+			in_out[1] = verticies[2];
+			in_out[2] = verticies[1];
+		}
+		if (!bV2) {
+			in_out[0] = verticies[0];
+			in_out[1] = verticies[1];
+			in_out[2] = verticies[2];
+		}
+
+		//Parametric line stuff
+		// p = v0 + v01*t
+		vec3 v01 = in_out[2] - in_out[0];
+
+		float t1 = ((clipping_distance - (in_out[0]).z)/v01.z );
+
+		float newz1 = clipping_distance;
+		float newx1 = (in_out[0]).x + v01.x * t1;
+		float newy1 = (in_out[0]).y + v01.y * t1;
+
+		// Second point
+		vec3 v02 = in_out[2] - in_out[1];
+
+		float t2 = ((clipping_distance - (in_out[1]).z)/v02.z );
+
+		float newz2 = clipping_distance;
+		float newx2 = (in_out[1]).x + v02.x * t2;
+		float newy2 = (in_out[1]).y + v02.y * t2;
+
+		in_out[2].x = newx1;
+		in_out[2].y = newy1;
+		in_out[2].z = newz1;
+
+		Triangle newt(in_out[0], in_out[1], in_out[2], current_colour);
+
+		triangles_extra.push_back(newt);
+
+		temp_triangle_count++;
+
+		Triangle tempTriangle( vec3(newx1, newy1, newz1) , vec3(newx2, newy2, newz2) , in_out[1] , current_colour);
+		triangles_extra.push_back(tempTriangle);
+
+		temp_triangle_count ++;
+
+	}else if(inCount == 3){
+
+		triangles_extra.push_back(triangle);
+		temp_triangle_count++;
+
+	}
+
+
 }
 
 
@@ -263,15 +397,24 @@ void Draw()
 		depth_buffer[i] = INFINITY;
 	}
 
+	temp_triangle_count=0;
+	triangles_extra.clear();
 	for( int i=0; i<triangles.size(); ++i )
 	{
 		current_colour = triangles[i].color;
+		ClipTriangle(triangles[i]);
+	}
+
+	for( int i=0; i<temp_triangle_count; ++i )
+	{
+		current_colour = triangles_extra[i].color;
 		vector<vec3> vertices(3);
-		vertices[0] = triangles[i].v0;
-		vertices[1] = triangles[i].v1;
-		vertices[2] = triangles[i].v2;
+		vertices[0] = triangles_extra[i].v0;
+		vertices[1] = triangles_extra[i].v1;
+		vertices[2] = triangles_extra[i].v2;
 		DrawPolygon(vertices);
 	}
+
 
 	if (SDL_MUSTLOCK(screen)) {
 		SDL_UnlockSurface(screen);
