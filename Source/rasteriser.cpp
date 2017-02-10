@@ -196,7 +196,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 
   float totalArea = lambdaCalc(v0, v1, v2);
 
-	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
+	for(int y = 0; y <= SCREEN_HEIGHT; y++) {
 		for (int x = 0; x <=SCREEN_WIDTH; x++) {
 
 			vec2 p(x + 0.5f, y + 0.5f);
@@ -209,7 +209,7 @@ void DrawPolygon( const vector<vec3>& vertices )
       lambda1 /= totalArea;
       lambda2 /= totalArea;
 
-			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0 && (lambda0 + lambda1 + lambda2 <= 1) ){
+			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0 && (lambda0 + lambda1 + lambda2 <= 1.01) ){
 
 				float z = 1 / ( 1/v0_3d.z * lambda0 + 1/v1_3d.z * lambda1 + 1/v2_3d.z * lambda2 );
 
