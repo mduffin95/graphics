@@ -3,13 +3,13 @@
 #include <SDL.h>
 #include "SDLauxiliary.h"
 #include "TestModel.h"
+#include "camera.h"
 
 using namespace std;
 using glm::vec3;
 using glm::mat3;
 using glm::vec2;
 
-#define PI 3.14159265359f
 
 /* ----------------------------------------------------------------------------*/
 /* GLOBAL VARIABLES                                                            */
@@ -23,8 +23,10 @@ float clipping_distance = 0.5;
 vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
 vec3 cameraPos( 0,0,-3);
+Camera camera(cameraPos);
 mat3 R;
-float angle = 0.0f;
+//in radians
+float yaw = 0.0f;
 vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 float screen_plane = 0.25 ;
@@ -58,59 +60,50 @@ void Update()
 	int t2 = SDL_GetTicks();
 	float dt = float(t2-t);
 	t = t2;
+  float sf = 0.001f;
 	//cout << "Render time: " << dt << " ms." << endl;
-	cout << "Camera pos: (" << cameraPos.x << "," 
-                          << cameraPos.y << ","
-                          << cameraPos.z << ","
-                          << ")" << endl;
+	cout << "Camera pos: " << camera << endl;
 	Uint8* keystate = SDL_GetKeyState( 0 );
 
-	float yaw;
-	yaw =  (-angle /180) * PI ;
-	R = mat3(cos(yaw), 0.0, -sin(yaw),  // 1. column
-					 0, 1.0, 0.0,  // 2. column
-					 sin(yaw), 0, cos(yaw)); // 3. column
+	vec3 forward(0, 0, 1);
+	vec3 down(0, 1, 0);
+	vec3 right(1,0,0);
 
-
-	vec3 forward(R[2][0], R[2][1], R[2][2]);
-	vec3 down(R[1][0], R[1][1], R[1][2]);
-	vec3 right(R[0][0], R[0][1], R[0][2]);
-
-
-	forward *= 0.1;
-	right *= 0.1;
-
+	forward *= sf * dt;
+	right *= sf * dt;
 
 	//Camera Position
 	if( keystate[SDLK_UP] )
 	{
 		// Move camera forward
-		cameraPos +=  forward ;
 
+    camera.move(forward);
 	}
 	if( keystate[SDLK_DOWN] )
 	{
 		// Move camera backward
-		cameraPos -= forward;
+    camera.move(-forward);
 	}
 	if( keystate[SDLK_z] )
 	{
 		// Move camera to the left
-		cameraPos -= right;
+    camera.move(-right);
 	}
 	if( keystate[SDLK_x] )
 	{
 		// Move camera to the right
-		cameraPos += right;
+    camera.move(right);
 	}
 
 	//Rotation
 	if( keystate[SDLK_LEFT]){
-		angle += 5.0;
+		yaw -= sf * dt;
+    camera.rotate(yaw);
 	}
 
 	if( keystate[SDLK_RIGHT]){
-		angle -= 5.0;
+		yaw += sf * dt;
+    camera.rotate(yaw);
 	}
 
 	//Light position
@@ -136,7 +129,7 @@ void Update()
 
 bool VertexShader( const vec3& v, vec3& p_raster ) {
 
-	vec3 p_camera = (v - cameraPos)*R;
+	vec3 p_camera = camera.transform(v);
 
 	vec2 p_screen;
 
@@ -242,29 +235,28 @@ void ClipTriangle( Triangle triangle){
 
 	//TODO: TIDY THIS CODE!
 
-	vector<vec3> verticies(3);
-	verticies[0] = triangle.v0;
-	verticies[1] = triangle.v1;
-	verticies[2] = triangle.v2;
+	vector<vec3> vertices(3);
+	vertices[0] = triangle.v0;
+	vertices[1] = triangle.v1;
+	vertices[2] = triangle.v2;
 
 	bool bV0=false;   bool bV1=false;   bool bV2=false;
 	int inCount = 0;
 
-	vec3 pos = (verticies[0] - cameraPos)*R;
+	vec3 pos = camera.transform(vertices[0]);
 
 	if(pos.z > clipping_distance){
 		bV0 = true;
 		inCount++;
 	}
 
-	pos = (verticies[1] - cameraPos)*R;
-
+	pos = camera.transform(vertices[1]);
 	if(pos.z > clipping_distance){
 		bV1 = true;
 		inCount++;
 	}
 
-	pos = (verticies[2] - cameraPos)*R;
+	pos = camera.transform(vertices[2]);
 	if(pos.z > clipping_distance){
 		bV2 = true;
 		inCount++;
@@ -277,19 +269,19 @@ void ClipTriangle( Triangle triangle){
 		//cout << "Clipped 1\n" ;
 
 		if (bV0) {
-			in_out[0] = verticies[0];
-			in_out[1] = verticies[1];
-			in_out[2] = verticies[2];
+			in_out[0] = vertices[0];
+			in_out[1] = vertices[1];
+			in_out[2] = vertices[2];
 		}
 		if (bV1) {
-			in_out[0] = verticies[1];
-			in_out[1] = verticies[0];
-			in_out[2] = verticies[2];
+			in_out[0] = vertices[1];
+			in_out[1] = vertices[0];
+			in_out[2] = vertices[2];
 		}
 		if (bV2) {
-			in_out[0] = verticies[2];
-			in_out[1] = verticies[1];
-			in_out[2] = verticies[0];
+			in_out[0] = vertices[2];
+			in_out[1] = vertices[1];
+			in_out[2] = vertices[0];
 		}
 
 		//Parametric line stuff
@@ -328,19 +320,19 @@ void ClipTriangle( Triangle triangle){
 	}else if(inCount == 2){
 
 		if (!bV0) {
-			in_out[0] = verticies[1];
-			in_out[1] = verticies[2];
-			in_out[2] = verticies[0];
+			in_out[0] = vertices[1];
+			in_out[1] = vertices[2];
+			in_out[2] = vertices[0];
 		}
 		if (!bV1) {
-			in_out[0] = verticies[0];
-			in_out[1] = verticies[2];
-			in_out[2] = verticies[1];
+			in_out[0] = vertices[0];
+			in_out[1] = vertices[2];
+			in_out[2] = vertices[1];
 		}
 		if (!bV2) {
-			in_out[0] = verticies[0];
-			in_out[1] = verticies[1];
-			in_out[2] = verticies[2];
+			in_out[0] = vertices[0];
+			in_out[1] = vertices[1];
+			in_out[2] = vertices[2];
 		}
 
 		//Parametric line stuff
