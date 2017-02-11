@@ -27,7 +27,7 @@ mat3 R;
 float angle = 0.0f;
 vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
-float nearClippingPlane = SCREEN_HEIGHT ;
+float screen_plane = 0.25 ;
 
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
@@ -58,7 +58,11 @@ void Update()
 	int t2 = SDL_GetTicks();
 	float dt = float(t2-t);
 	t = t2;
-	cout << "Render time: " << dt << " ms." << endl;
+	//cout << "Render time: " << dt << " ms." << endl;
+	cout << "Camera pos: (" << cameraPos.x << "," 
+                          << cameraPos.y << ","
+                          << cameraPos.z << ","
+                          << ")" << endl;
 	Uint8* keystate = SDL_GetKeyState( 0 );
 
 	float yaw;
@@ -136,13 +140,13 @@ bool VertexShader( const vec3& v, vec3& p_raster ) {
 
 	vec2 p_screen;
 
-	p_screen.x = nearClippingPlane * p_camera.x / p_camera.z;
-	p_screen.y = nearClippingPlane * p_camera.y / p_camera.z;
+	p_screen.x = screen_plane * p_camera.x / p_camera.z;
+	p_screen.y = screen_plane * p_camera.y / p_camera.z;
 
-	float l = -SCREEN_WIDTH / 2;
-	float r = SCREEN_WIDTH / 2;
-	float t = SCREEN_HEIGHT / 2;
-	float b = -SCREEN_HEIGHT / 2;
+	float l = -screen_plane;
+	float r = screen_plane;
+	float t = screen_plane;
+	float b = -screen_plane;
 
 	vec2 p_ndc;
 	p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
