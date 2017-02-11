@@ -4,6 +4,7 @@
 #include "SDLauxiliary.h"
 #include "TestModel.h"
 #include "camera.h"
+#include <algorithm>
 
 using namespace std;
 using glm::vec3;
@@ -19,7 +20,7 @@ const int SCREEN_HEIGHT = 500;
 #define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
-float clipping_distance = 0.5;
+float clipping_distance = 0.25;
 vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
 vec3 cameraPos( 0,0,-3);
@@ -167,9 +168,7 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 
 	for( int i=0; i<V; ++i ) {
-		if(!VertexShader(vertices[i], proj_vertices[i])){
-			return ;
-		}
+		VertexShader(vertices[i], proj_vertices[i]);
 	}
 
 	vec3 V0 = proj_vertices[0];
@@ -177,7 +176,6 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V2 = proj_vertices[2];
 
 
-	/* Don't need the min/max code atm
 
 
 
@@ -185,7 +183,6 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
 	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], proj_vertices[i]);
 
 		if(proj_vertices[i].x<bb_min.x) bb_min.x = proj_vertices[i].x;
 		if(proj_vertices[i].x>bb_max.x) bb_max.x = proj_vertices[i].x;
@@ -194,16 +191,19 @@ void DrawPolygon( const vector<vec3>& vertices )
 		if(proj_vertices[i].y>bb_max.y) bb_max.y = proj_vertices[i].y;
 
 	}
+  
+  if(bb_max.x < 0 || bb_max.y < 0 || bb_min.x > SCREEN_WIDTH || bb_min.y > SCREEN_HEIGHT)
+    return;
 
-	//for(int y = (int)floor(bb_min.y) ; y <= (int)ceil(bb_max.y) ; y++) {
-		//for (int x = (int)floor(bb_min.x); x <= (int)ceil(bb_max.x); x++) {
+  int x0 = std::max(0, (int)floor(bb_min.x));
+  int x1 = std::min(SCREEN_WIDTH-1, (int)floor(bb_max.x));
+  int y0 = std::max(0, (int)floor(bb_min.y));
+  int y1 = std::min(SCREEN_HEIGHT-1, (int)floor(bb_max.y));
+  
 
-	*/
-
-	for(int y = 0 ; y <= SCREEN_HEIGHT ; y++) {
-		for (int x = 0; x <=SCREEN_WIDTH; x++) {
-
-			vec3 p(x + 0.5, y+0.5, 1);
+	for (int y = y0; y <= y1; ++y) {
+	  for (int x = x0; x <= x1; ++x) {
+			vec3 p(x + 0.5, y + 0.5, 1);
 
 			float lambda0 = lambdaCalc(V1, V2, p);
 			float lambda1 = lambdaCalc(V2, V0, p);
