@@ -19,10 +19,10 @@ const int SCREEN_HEIGHT = 500;
 #define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
-float clipping_distance = 0.0000000001;
+float clipping_distance = 0.5;
 vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
-vec3 cameraPos( 0.5,0,-3);
+vec3 cameraPos( 0,0,-3);
 mat3 R;
 float angle = 0.0f;
 vec3 current_colour;
@@ -156,7 +156,7 @@ bool VertexShader( const vec3& v, vec3& p_raster ) {
 	return true;
 }
 
-float lamdaCalc(vec3 &a, vec3 &b, vec3 &p)
+float lambdaCalc(vec3 &a, vec3 &b, vec3 &p)
 {
     return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
@@ -166,18 +166,18 @@ void DrawPolygon( const vector<vec3>& vertices )
 {
 	u_long V = 3;
 
-	vector<vec3> vertexPixels( V );
+	vector<vec3> proj_vertices( V );
 
 
 	for( int i=0; i<V; ++i ) {
-		if(!VertexShader(vertices[i], vertexPixels[i])){
+		if(!VertexShader(vertices[i], proj_vertices[i])){
 			return ;
 		}
 	}
 
-	vec3 V0 = vertexPixels[0];
-	vec3 V1 = vertexPixels[1];
-	vec3 V2 = vertexPixels[2];
+	vec3 V0 = proj_vertices[0];
+	vec3 V1 = proj_vertices[1];
+	vec3 V2 = proj_vertices[2];
 
 
 	/* Don't need the min/max code atm
@@ -188,13 +188,13 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
 
 	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], vertexPixels[i]);
+		VertexShader(vertices[i], proj_vertices[i]);
 
-		if(vertexPixels[i].x<bb_min.x) bb_min.x = vertexPixels[i].x;
-		if(vertexPixels[i].x>bb_max.x) bb_max.x = vertexPixels[i].x;
+		if(proj_vertices[i].x<bb_min.x) bb_min.x = proj_vertices[i].x;
+		if(proj_vertices[i].x>bb_max.x) bb_max.x = proj_vertices[i].x;
 
-		if(vertexPixels[i].y<bb_min.y) bb_min.y = vertexPixels[i].y;
-		if(vertexPixels[i].y>bb_max.y) bb_max.y = vertexPixels[i].y;
+		if(proj_vertices[i].y<bb_min.y) bb_min.y = proj_vertices[i].y;
+		if(proj_vertices[i].y>bb_max.y) bb_max.y = proj_vertices[i].y;
 
 	}
 
@@ -208,19 +208,19 @@ void DrawPolygon( const vector<vec3>& vertices )
 
 			vec3 p(x + 0.5, y+0.5, 1);
 
-			float lamda0 = lamdaCalc(V1, V2, p);
-			float lamda1 = lamdaCalc(V2, V0, p);
-			float lamda2 = lamdaCalc(V0, V1, p);
+			float lambda0 = lambdaCalc(V1, V2, p);
+			float lambda1 = lambdaCalc(V2, V0, p);
+			float lambda2 = lambdaCalc(V0, V1, p);
 
-			float totalArea = lamdaCalc(V0, V1, V2);
+			float totalArea = lambdaCalc(V0, V1, V2);
 
-			lamda0 /= totalArea;
-			lamda1 /= totalArea;
-			lamda2 /= totalArea;
+			lambda0 /= totalArea;
+			lambda1 /= totalArea;
+			lambda2 /= totalArea;
 
-			if(lamda0 >= 0 && lamda1 >= 0 && lamda2>=0){
+			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0){
 
-				float z = 1 / ( 1/V0.z * lamda0 + 1/V1.z * lamda1 + 1/V2.z * lamda2 );
+				float z = 1 / ( 1/V0.z * lambda0 + 1/V1.z * lambda1 + 1/V2.z * lambda2 );
 
 				if(z >= 0 && z < depth_buffer[C(x,y)] ){
 					depth_buffer[C(x,y)] = z;
