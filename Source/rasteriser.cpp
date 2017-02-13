@@ -23,7 +23,7 @@ int t;
 float clipping_distance = 0.01f;
 vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
-vec3 cameraPos(-0.0889362,0,-0.630162);
+vec3 cameraPos(0,0,-3);
 Camera camera(cameraPos);
 //in radians
 float yaw = 0.0f;
@@ -187,7 +187,7 @@ void DrawPolygon( const Triangle& t )
   {
     for(float x=0; x<SCREEN_WIDTH; x++)
     {
-      vec3 p(x, y, 1);
+      vec3 p(x/SCREEN_WIDTH, y/SCREEN_HEIGHT, 1);
       vec3 E = glm::transpose(M_i) * p;
       //Check all edge functions
       if (glm::dot(e0, p) > 0 &&
