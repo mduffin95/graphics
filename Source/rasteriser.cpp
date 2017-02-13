@@ -25,7 +25,6 @@ vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
 vec3 cameraPos(-0.0889362,0,-0.630162);
 Camera camera(cameraPos);
-mat3 R;
 //in radians
 float yaw = 0.0f;
 vec3 current_colour;
@@ -168,8 +167,39 @@ float lambdaCalc(vec3 &a, vec3 &b, vec3 &p)
 }
 
 
-void DrawPolygon( const vector<vec3>& vertices )
+void DrawPolygon( const Triangle& t )
 {
+  vec3 v0_dash = camera.transform(t.v0);
+  vec3 v1_dash = camera.transform(t.v1);
+  vec3 v2_dash = camera.transform(t.v2);
+
+  vec3 c0 = glm::cross(t.v1, t.v2);
+  vec3 c1 = glm::cross(t.v2, t.v0);
+  vec3 c2 = glm::cross(t.v0, t.v1);
+
+  float D = glm::dot(c0, v0_dash);
+  mat3 M_i(c0, c1, c2);
+  M_i *= 1/D;
+  vec3 w = M_i * vec3(1,1,1);
+  //Get edge functions (rows of M_inv)
+  for (int y=0; y<SCREEN_HEIGHT; y++)
+  {
+    for(int x=0; x<SCREEN_WIDTH; x++)
+    {
+      vec3 p(x, y, 1);
+      vec3 E = glm::transpose(M_i) * p;
+      //Check all edge functions
+      if (E.x > 0 &&
+          E.y > 0 &&
+          E.z > 0)
+      {
+        float W = 1/glm::dot(w, p);
+        PutPixelSDL(screen, W * E.x, W * E.y, t.color);
+      }
+    }
+  }
+  //
+/*
 	u_long V = 3;
 
 	vector<vec3> proj_vertices( V );
@@ -230,160 +260,9 @@ void DrawPolygon( const vector<vec3>& vertices )
 			}
 		}
 	}
+*/
 
 }
-
-int temp_triangle_count;
-
-void ClipTriangle( Triangle triangle){
-
-	//TODO: TIDY THIS CODE!
-
-	vector<vec3> vertices(3);
-	vertices[0] = triangle.v0;
-	vertices[1] = triangle.v1;
-	vertices[2] = triangle.v2;
-
-	bool bV0=false;   bool bV1=false;   bool bV2=false;
-	int inCount = 0;
-
-	vec3 pos = camera.transform(vertices[0]);
-	if(pos.z > clipping_distance){
-		bV0 = true;
-		inCount++;
-	}
-
-	pos = camera.transform(vertices[1]);
-	if(pos.z > clipping_distance){
-		bV1 = true;
-		inCount++;
-	}
-
-	pos = camera.transform(vertices[2]);
-	if(pos.z > clipping_distance){
-		bV2 = true;
-		inCount++;
-	}
-
-	vector<vec3> in_out(3);
-
-	if(inCount == 1) {
-
-		//cout << "Clipped 1\n" ;
-
-		if (bV0) {
-			in_out[0] = vertices[0];
-			in_out[1] = vertices[1];
-			in_out[2] = vertices[2];
-		}
-		if (bV1) {
-			in_out[0] = vertices[1];
-			in_out[1] = vertices[0];
-			in_out[2] = vertices[2];
-		}
-		if (bV2) {
-			in_out[0] = vertices[2];
-			in_out[1] = vertices[1];
-			in_out[2] = vertices[0];
-		}
-
-
-
-		//Parametric line stuff
-		// p = v0 + v01*t
-		vec3 v01 = in_out[1] - in_out[0];
-
-		float t1 = (clipping_distance - camera.transform(in_out[0]).z) / v01.z;
-
-		float newz1 = clipping_distance;
-		float newx1 = in_out[0].x + v01.x * t1;
-		float newy1 = in_out[0].y + v01.y * t1;
-
-		// Second vert point
-		vec3 v02 = in_out[2] - in_out[0];
-
-		float t2 = (clipping_distance - camera.transform(in_out[0]).z) / v02.z;
-
-		float newz2 = clipping_distance;
-		float newx2 = in_out[0].x + v02.x * t2;
-		float newy2 = in_out[0].y + v02.y * t2;
-
-		in_out[2].x = newx2;
-		in_out[2].y = newy2;
-		in_out[2].z = newz2;
-
-		in_out[1].x = newx1;
-		in_out[1].y = newy1;
-		in_out[1].z = newz1;
-
-		Triangle newt(in_out[0], in_out[1], in_out[2], current_colour);
-
-		triangles_extra.push_back(newt);
-
-		temp_triangle_count++;
-
-	}else if(inCount == 2){
-
-		if (!bV0) {
-			in_out[0] = vertices[1];
-			in_out[1] = vertices[2];
-			in_out[2] = vertices[0];
-		}
-		if (!bV1) {
-			in_out[0] = vertices[0];
-			in_out[1] = vertices[2];
-			in_out[2] = vertices[1];
-		}
-		if (!bV2) {
-			in_out[0] = vertices[0];
-			in_out[1] = vertices[1];
-			in_out[2] = vertices[2];
-		}
-
-		//Parametric line stuff
-		// p = v0 + v01*t
-		vec3 v01 = in_out[2] - in_out[0];
-
-		float t1 = (clipping_distance - camera.transform(in_out[0]).z)/v01.z ;
-
-		float newz1 = clipping_distance;
-		float newx1 = (in_out[0]).x + v01.x * t1;
-		float newy1 = (in_out[0]).y + v01.y * t1;
-
-		// Second point
-		vec3 v02 = in_out[2] - in_out[1];
-
-		float t2 = (clipping_distance - camera.transform(in_out[1]).z)/v02.z ;
-
-		float newz2 = clipping_distance;
-		float newx2 = in_out[1].x + v02.x * t2;
-		float newy2 = in_out[1].y + v02.y * t2;
-
-		in_out[2].x = newx1;
-		in_out[2].y = newy1;
-		in_out[2].z = newz1;
-
-		Triangle newt(in_out[0], in_out[1], in_out[2], current_colour);
-
-		triangles_extra.push_back(newt);
-
-		temp_triangle_count++;
-
-		Triangle tempTriangle( vec3(newx1, newy1, newz1) , vec3(newx2, newy2, newz2) , in_out[1] , current_colour);
-		triangles_extra.push_back(tempTriangle);
-
-		temp_triangle_count ++;
-
-	}else if(inCount == 3){
-
-		triangles_extra.push_back(triangle);
-		temp_triangle_count++;
-
-	}
-
-
-}
-
 
 void Draw()
 {
@@ -398,22 +277,9 @@ void Draw()
 		depth_buffer[i] = INFINITY;
 	}
 
-	temp_triangle_count=0;
-	triangles_extra.clear();
 	for( int i=0; i<triangles.size(); ++i )
 	{
-		current_colour = triangles[i].color;
-		ClipTriangle(triangles[i]);
-	}
-
-	for( int i=0; i<temp_triangle_count; ++i )
-	{
-		current_colour = triangles_extra[i].color;
-		vector<vec3> vertices(3);
-		vertices[0] = triangles_extra[i].v0;
-		vertices[1] = triangles_extra[i].v1;
-		vertices[2] = triangles_extra[i].v2;
-		DrawPolygon(vertices);
+		DrawPolygon(triangles[i]);
 	}
 
 
