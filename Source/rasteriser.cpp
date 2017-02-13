@@ -149,9 +149,9 @@ void DrawPolygon( const Triangle& t )
       vec3 p(x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
       vec3 E = M_i * p;
       //Check all edge functions
-      if (E.x > 0 &&
-          E.y > 0 &&
-          E.z > 0)
+      if (E.x >= 0 &&
+          E.y >= 0 &&
+          E.z >= 0)
       {
         float W = 1/glm::dot(w, p);
 				if(depth_buffer[C(x,y)] > W ){
