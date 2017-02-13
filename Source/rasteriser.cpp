@@ -17,7 +17,7 @@ using glm::vec2;
 
 const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = 500;
-#define C(x,y)  ((x + SCREEN_WIDTH/2) + (y+SCREEN_HEIGHT/2) * SCREEN_WIDTH)
+#define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
 float clipping_distance = 0.01f;
@@ -27,15 +27,16 @@ vec3 cameraPos(0,0,-3);
 Camera camera(cameraPos);
 //in radians
 float yaw = 0.0f;
+float pitch = 0.0f;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 float screen_plane = 0.25 ;
+bool quit = false;
 
 /* ----------------------------------------------------------------------------*/
 /* FUNCTIONS                                                                   */
 
-void Update();
+bool ProcessInput();
 void Draw();
-
 
 int main( int argc, char* argv[] )
 {
@@ -44,22 +45,28 @@ int main( int argc, char* argv[] )
 
 	LoadTestModel( triangles );
 
-	while( NoQuitMessageSDL() )
+  SDL_WM_GrabInput( SDL_GRAB_ON );
+  SDL_ShowCursor(0);
+
+  //A bit of a hack to flush initial events
+  SDL_Event e;
+	while( SDL_PollEvent(&e) );
+
+	while( ProcessInput() )
 	{
-		Update();
 		Draw();
 	}
 	SDL_SaveBMP( screen, "screenshot.bmp" );
 	return 0;
 }
 
-void Update()
+bool ProcessInput()
 {
 	// Compute frame time:
 	int t2 = SDL_GetTicks();
 	float dt = float(t2-t);
 	t = t2;
-  float sf = 0.001f;
+  float sf = 0.002f;
 	//cout << "Render time: " << dt << " ms." << endl;
 	cout << "Camera pos: " << camera << endl;
 	Uint8* keystate = SDL_GetKeyState( 0 );
@@ -72,58 +79,55 @@ void Update()
 	right *= sf * dt;
 
 	//Camera Position
-	if( keystate[SDLK_UP] )
+	if( keystate[SDLK_w] )
 	{
 		// Move camera forward
-
     camera.move(forward);
 	}
-	if( keystate[SDLK_DOWN] )
+	if( keystate[SDLK_s] )
 	{
 		// Move camera backward
     camera.move(-forward);
 	}
-	if( keystate[SDLK_z] )
+	if( keystate[SDLK_a] )
 	{
 		// Move camera to the left
     camera.move(-right);
 	}
-	if( keystate[SDLK_x] )
+	if( keystate[SDLK_d] )
 	{
 		// Move camera to the right
     camera.move(right);
 	}
 
-	//Rotation
-	if( keystate[SDLK_LEFT]){
-		yaw -= sf * dt;
-    camera.rotate(yaw);
+  SDL_Event e;
+
+  //Single hit keys and mouse movement
+	while( SDL_PollEvent(&e) )
+	{
+		if( e.type == SDL_QUIT )
+			return false;
+		if( e.type == SDL_KEYDOWN )
+    {
+			if( e.key.keysym.sym == SDLK_ESCAPE)
+				return false;
+    }
+    if( e.type == SDL_MOUSEMOTION )
+    {
+      yaw += sf * e.motion.xrel;
+      pitch -= sf * e.motion.yrel;
+    }
 	}
+  camera.rotate(pitch, yaw);
+  return true;
+}
 
-	if( keystate[SDLK_RIGHT]){
-		yaw += sf * dt;
-    camera.rotate(yaw);
-	}
-
-	//Light position
-	/*
-	if( keystate[SDLK_w] )
-		lightPos += forward;
-
-	if( keystate[SDLK_s] )
-		lightPos -= forward;
-
-	if( keystate[SDLK_a] )
-		lightPos -= right;
-
-	if( keystate[SDLK_d] )
-		lightPos += right;
-
-	if( keystate[SDLK_q] )
-		lightPos -= down;
-
-	if( keystate[SDLK_e] )
-		lightPos += down;*/
+inline vec3 getPoint(int x, int y, int w, int h)
+{
+  return vec3(
+          (x - SCREEN_WIDTH/2)/ (float) SCREEN_WIDTH, 
+          -(y - SCREEN_HEIGHT/2)/ (float) SCREEN_HEIGHT,
+           1);
 }
 
 void DrawPolygon( const Triangle& t )
@@ -141,12 +145,12 @@ void DrawPolygon( const Triangle& t )
   vec3 w = vec3(1,1,1) * M_i;
   //Get edge functions (rows of M_inv)
 
-  for (int y=-SCREEN_HEIGHT/2; y<SCREEN_HEIGHT/2; y++)
+  for (int y=0; y<SCREEN_HEIGHT; y++)
   {
-    for(int x=-SCREEN_WIDTH/2; x<SCREEN_WIDTH/2; x++)
+    for(int x=0; x<SCREEN_WIDTH; x++)
     {
       //vec3 p = getPoint(x, y);
-      vec3 p(x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
+      vec3 p = getPoint(x, y, SCREEN_WIDTH, SCREEN_HEIGHT);
       vec3 E = M_i * p;
       //Check all edge functions
       if (E.x >= 0 &&
@@ -154,9 +158,10 @@ void DrawPolygon( const Triangle& t )
           E.z >= 0)
       {
         float W = 1/glm::dot(w, p);
-				if(depth_buffer[C(x,y)] > W ){
+				if(depth_buffer[C(x,y)] > W )
+        {
 					depth_buffer[C(x,y)] = W;
-					PutPixelSDL(screen, x + SCREEN_WIDTH/2, y + SCREEN_HEIGHT/2, t.color);
+					PutPixelSDL(screen, x, y, t.color);
 				}
       }
     }
