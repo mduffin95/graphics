@@ -20,10 +20,10 @@ const int SCREEN_HEIGHT = 500;
 #define C(x,y)  (x + y * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
-float clipping_distance = 0.25;
+float clipping_distance = 0.01f;
 vector<Triangle> triangles;
 vector<Triangle> triangles_extra;
-vec3 cameraPos( 0,0,-3);
+vec3 cameraPos(-0.0889362,0,-0.630162);
 Camera camera(cameraPos);
 mat3 R;
 //in radians
@@ -142,6 +142,14 @@ bool VertexShader( const vec3& v, vec3& p_raster ) {
 	float t = screen_plane;
 	float b = -screen_plane;
 
+
+	/*
+float l = -SCREEN_WIDTH / 2;
+	float r = SCREEN_WIDTH / 2;
+	float t = SCREEN_HEIGHT / 2;
+	float b = -SCREEN_HEIGHT / 2;
+
+	 */
 	vec2 p_ndc;
 	p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
 	p_ndc.y = 2 * p_screen.y / (t - b) - (t + b) / (t - b);
@@ -156,7 +164,7 @@ bool VertexShader( const vec3& v, vec3& p_raster ) {
 
 float lambdaCalc(vec3 &a, vec3 &b, vec3 &p)
 {
-    return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
+	return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 }
 
 
@@ -174,10 +182,6 @@ void DrawPolygon( const vector<vec3>& vertices )
 	vec3 V0 = proj_vertices[0];
 	vec3 V1 = proj_vertices[1];
 	vec3 V2 = proj_vertices[2];
-
-
-
-
 
 	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
 	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
@@ -244,7 +248,6 @@ void ClipTriangle( Triangle triangle){
 	int inCount = 0;
 
 	vec3 pos = camera.transform(vertices[0]);
-
 	if(pos.z > clipping_distance){
 		bV0 = true;
 		inCount++;
@@ -283,6 +286,8 @@ void ClipTriangle( Triangle triangle){
 			in_out[1] = vertices[1];
 			in_out[2] = vertices[0];
 		}
+
+
 
 		//Parametric line stuff
 		// p = v0 + v01*t
@@ -339,7 +344,7 @@ void ClipTriangle( Triangle triangle){
 		// p = v0 + v01*t
 		vec3 v01 = in_out[2] - in_out[0];
 
-		float t1 = ((clipping_distance - camera.transform(in_out[0]).z)/v01.z );
+		float t1 = (clipping_distance - camera.transform(in_out[0]).z)/v01.z ;
 
 		float newz1 = clipping_distance;
 		float newx1 = (in_out[0]).x + v01.x * t1;
@@ -348,11 +353,11 @@ void ClipTriangle( Triangle triangle){
 		// Second point
 		vec3 v02 = in_out[2] - in_out[1];
 
-		float t2 = ((clipping_distance - camera.transform(in_out[1]).z)/v02.z );
+		float t2 = (clipping_distance - camera.transform(in_out[1]).z)/v02.z ;
 
 		float newz2 = clipping_distance;
-		float newx2 = (in_out[1]).x + v02.x * t2;
-		float newy2 = (in_out[1]).y + v02.y * t2;
+		float newx2 = in_out[1].x + v02.x * t2;
+		float newy2 = in_out[1].y + v02.y * t2;
 
 		in_out[2].x = newx1;
 		in_out[2].y = newy1;
