@@ -128,31 +128,30 @@ void Update()
 
 void DrawPolygon( const Triangle& t )
 {
+  //Transform to camera coordinates
   vec3 v0_dash = camera.transform(t.v0);
   vec3 v1_dash = camera.transform(t.v1);
   vec3 v2_dash = camera.transform(t.v2);
   
+  //Matrix of vertices
   mat3 M(v0_dash, v1_dash, v2_dash);
 
   mat3 M_i = glm::inverse(M);
 
-  vec3 e0 = vec3(1, 0, 0) * M_i;
-  vec3 e1 = vec3(0, 1, 0) * M_i;
-  vec3 e2 = vec3(0, 0, 1) * M_i;
-
   vec3 w = vec3(1,1,1) * M_i;
   //Get edge functions (rows of M_inv)
 
-  for (int y=-SCREEN_HEIGHT/2 ; y<SCREEN_HEIGHT/2; y++)
+  for (int y=-SCREEN_HEIGHT/2; y<SCREEN_HEIGHT/2; y++)
   {
-    for(int x=-SCREEN_WIDTH/2 ; x< SCREEN_WIDTH/2; x++)
+    for(int x=-SCREEN_WIDTH/2; x<SCREEN_WIDTH/2; x++)
     {
-      vec3 p( x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
-      //vec3 E = glm::transpose(M_i) * p;
+      //vec3 p = getPoint(x, y);
+      vec3 p(x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
+      vec3 E = M_i * p;
       //Check all edge functions
-      if (glm::dot(e0, p) > 0 &&
-          glm::dot(e1, p) > 0 &&
-          glm::dot(e2, p) > 0)
+      if (E.x > 0 &&
+          E.y > 0 &&
+          E.z > 0)
       {
         float W = 1/glm::dot(w, p);
 				if(depth_buffer[C(x,y)] > W ){
