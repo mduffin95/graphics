@@ -126,46 +126,6 @@ void Update()
 		lightPos += down;*/
 }
 
-bool VertexShader( const vec3& v, vec3& p_raster ) {
-
-	vec3 p_camera = camera.transform(v);
-
-	vec2 p_screen;
-
-	p_screen.x = screen_plane * p_camera.x / p_camera.z;
-	p_screen.y = screen_plane * p_camera.y / p_camera.z;
-
-	float l = -screen_plane;
-	float r = screen_plane;
-	float t = screen_plane;
-	float b = -screen_plane;
-
-
-	/*
-float l = -SCREEN_WIDTH / 2;
-	float r = SCREEN_WIDTH / 2;
-	float t = SCREEN_HEIGHT / 2;
-	float b = -SCREEN_HEIGHT / 2;
-
-	 */
-	vec2 p_ndc;
-	p_ndc.x = 2 * p_screen.x / (r - l) - (r + l) / (r - l);
-	p_ndc.y = 2 * p_screen.y / (t - b) - (t + b) / (t - b);
-
-	p_raster.x = (p_ndc.x + 1) / 2 * SCREEN_WIDTH;
-	p_raster.y = (1-p_ndc.y) / 2 * SCREEN_HEIGHT;
-
-	p_raster.z = p_camera.z;
-
-	return true;
-}
-
-float lambdaCalc(vec3 &a, vec3 &b, vec3 &p)
-{
-	return (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
-}
-
-
 void DrawPolygon( const Triangle& t )
 {
   vec3 v0_dash = camera.transform(t.v0);
@@ -202,70 +162,6 @@ void DrawPolygon( const Triangle& t )
       }
     }
   }
-  //
-/*
-	u_long V = 3;
-
-	vector<vec3> proj_vertices( V );
-
-
-	for( int i=0; i<V; ++i ) {
-		VertexShader(vertices[i], proj_vertices[i]);
-	}
-
-	vec3 V0 = proj_vertices[0];
-	vec3 V1 = proj_vertices[1];
-	vec3 V2 = proj_vertices[2];
-
-	vec2 bb_min (+numeric_limits<int>::max(),+numeric_limits<int>::max());
-	vec2 bb_max (-numeric_limits<int>::max(),-numeric_limits<int>::max()) ;
-
-	for( int i=0; i<V; ++i ) {
-
-		if(proj_vertices[i].x<bb_min.x) bb_min.x = proj_vertices[i].x;
-		if(proj_vertices[i].x>bb_max.x) bb_max.x = proj_vertices[i].x;
-
-		if(proj_vertices[i].y<bb_min.y) bb_min.y = proj_vertices[i].y;
-		if(proj_vertices[i].y>bb_max.y) bb_max.y = proj_vertices[i].y;
-
-	}
-  
-  if(bb_max.x < 0 || bb_max.y < 0 || bb_min.x > SCREEN_WIDTH || bb_min.y > SCREEN_HEIGHT)
-    return;
-
-  int x0 = std::max(0, (int)floor(bb_min.x));
-  int x1 = std::min(SCREEN_WIDTH-1, (int)floor(bb_max.x));
-  int y0 = std::max(0, (int)floor(bb_min.y));
-  int y1 = std::min(SCREEN_HEIGHT-1, (int)floor(bb_max.y));
-  
-
-	for (int y = y0; y <= y1; ++y) {
-	  for (int x = x0; x <= x1; ++x) {
-			vec3 p(x + 0.5, y + 0.5, 1);
-
-			float lambda0 = lambdaCalc(V1, V2, p);
-			float lambda1 = lambdaCalc(V2, V0, p);
-			float lambda2 = lambdaCalc(V0, V1, p);
-
-			float totalArea = lambdaCalc(V0, V1, V2);
-
-			lambda0 /= totalArea;
-			lambda1 /= totalArea;
-			lambda2 /= totalArea;
-
-			if(lambda0 >= 0 && lambda1 >= 0 && lambda2>=0){
-
-				float z = 1 / ( 1/V0.z * lambda0 + 1/V1.z * lambda1 + 1/V2.z * lambda2 );
-
-				if(z >= 0 && z < depth_buffer[C(x,y)] ){
-					depth_buffer[C(x,y)] = z;
-					PutPixelSDL(screen, x, y, current_colour);
-				}
-			}
-		}
-	}
-*/
-
 }
 
 void Draw()
