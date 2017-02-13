@@ -288,7 +288,7 @@ void ClipTriangle( Triangle triangle){
 		// p = v0 + v01*t
 		vec3 v01 = in_out[1] - in_out[0];
 
-		float t1 = (clipping_distance - in_out[0]).z / v01.z;
+		float t1 = (clipping_distance - camera.transform(in_out[0]).z) / v01.z;
 
 		float newz1 = clipping_distance;
 		float newx1 = in_out[0].x + v01.x * t1;
@@ -297,7 +297,7 @@ void ClipTriangle( Triangle triangle){
 		// Second vert point
 		vec3 v02 = in_out[2] - in_out[0];
 
-		float t2 = (clipping_distance - in_out[0].z) / v02.z;
+		float t2 = (clipping_distance - camera.transform(in_out[0]).z) / v02.z;
 
 		float newz2 = clipping_distance;
 		float newx2 = in_out[0].x + v02.x * t2;
@@ -339,7 +339,7 @@ void ClipTriangle( Triangle triangle){
 		// p = v0 + v01*t
 		vec3 v01 = in_out[2] - in_out[0];
 
-		float t1 = ((clipping_distance - (in_out[0]).z)/v01.z );
+		float t1 = ((clipping_distance - camera.transform(in_out[0]).z)/v01.z );
 
 		float newz1 = clipping_distance;
 		float newx1 = (in_out[0]).x + v01.x * t1;
@@ -348,7 +348,7 @@ void ClipTriangle( Triangle triangle){
 		// Second point
 		vec3 v02 = in_out[2] - in_out[1];
 
-		float t2 = ((clipping_distance - (in_out[1]).z)/v02.z );
+		float t2 = ((clipping_distance - camera.transform(in_out[1]).z)/v02.z );
 
 		float newz2 = clipping_distance;
 		float newx2 = (in_out[1]).x + v02.x * t2;
