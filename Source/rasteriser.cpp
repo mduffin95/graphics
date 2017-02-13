@@ -187,7 +187,7 @@ void DrawPolygon( const Triangle& t )
   {
     for(int x=0; x<SCREEN_WIDTH; x++)
     {
-      vec3 p(x/ (float) SCREEN_WIDTH, y/ (float) SCREEN_HEIGHT, 1);
+      vec3 p(x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
       //vec3 E = glm::transpose(M_i) * p;
       //Check all edge functions
       if (glm::dot(e0, p) > 0 &&
@@ -195,7 +195,11 @@ void DrawPolygon( const Triangle& t )
           glm::dot(e2, p) > 0)
       {
         float W = 1/glm::dot(w, p);
-        PutPixelSDL(screen, x, y, t.color);
+				if(depth_buffer[C(x,y)] > W ){
+					depth_buffer[C(x,y)] = W;
+					PutPixelSDL(screen, x, y, t.color);
+				}
+
       }
     }
   }
