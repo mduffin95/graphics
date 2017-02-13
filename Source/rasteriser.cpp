@@ -17,7 +17,7 @@ using glm::vec2;
 
 const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = 500;
-#define C(x,y)  (x + y * SCREEN_WIDTH)
+#define C(x,y)  ((x + SCREEN_WIDTH/2) + (y+SCREEN_HEIGHT/2) * SCREEN_WIDTH)
 SDL_Surface* screen;
 int t;
 float clipping_distance = 0.01f;
@@ -27,7 +27,6 @@ vec3 cameraPos(0,0,-3);
 Camera camera(cameraPos);
 //in radians
 float yaw = 0.0f;
-vec3 current_colour;
 float * depth_buffer = (float*)malloc(sizeof(float)*SCREEN_HEIGHT*SCREEN_WIDTH);
 float screen_plane = 0.25 ;
 
@@ -174,6 +173,7 @@ void DrawPolygon( const Triangle& t )
   vec3 v2_dash = camera.transform(t.v2);
   
   mat3 M(v0_dash, v1_dash, v2_dash);
+
   mat3 M_i = glm::inverse(M);
 
   vec3 e0 = vec3(1, 0, 0) * M_i;
@@ -183,11 +183,11 @@ void DrawPolygon( const Triangle& t )
   vec3 w = vec3(1,1,1) * M_i;
   //Get edge functions (rows of M_inv)
 
-  for (int y=0; y<SCREEN_HEIGHT; y++)
+  for (int y=-SCREEN_HEIGHT/2 ; y<SCREEN_HEIGHT/2; y++)
   {
-    for(int x=0; x<SCREEN_WIDTH; x++)
+    for(int x=-SCREEN_WIDTH/2 ; x< SCREEN_WIDTH/2; x++)
     {
-      vec3 p(x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
+      vec3 p( x/ (float) SCREEN_WIDTH, -y/ (float) SCREEN_HEIGHT, 1);
       //vec3 E = glm::transpose(M_i) * p;
       //Check all edge functions
       if (glm::dot(e0, p) > 0 &&
@@ -197,9 +197,8 @@ void DrawPolygon( const Triangle& t )
         float W = 1/glm::dot(w, p);
 				if(depth_buffer[C(x,y)] > W ){
 					depth_buffer[C(x,y)] = W;
-					PutPixelSDL(screen, x, y, t.color);
+					PutPixelSDL(screen, x + SCREEN_WIDTH/2, y + SCREEN_HEIGHT/2, t.color);
 				}
-
       }
     }
   }
