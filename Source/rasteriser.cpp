@@ -172,29 +172,30 @@ void DrawPolygon( const Triangle& t )
   vec3 v0_dash = camera.transform(t.v0);
   vec3 v1_dash = camera.transform(t.v1);
   vec3 v2_dash = camera.transform(t.v2);
+  
+  mat3 M(v0_dash, v1_dash, v2_dash);
+  mat3 M_i = glm::inverse(M);
 
-  vec3 c0 = glm::cross(t.v1, t.v2);
-  vec3 c1 = glm::cross(t.v2, t.v0);
-  vec3 c2 = glm::cross(t.v0, t.v1);
+  vec3 e0 = vec3(1, 0, 0) * M_i;
+  vec3 e1 = vec3(0, 1, 0) * M_i;
+  vec3 e2 = vec3(0, 0, 1) * M_i;
 
-  float D = glm::dot(c0, v0_dash);
-  mat3 M_i(c0, c1, c2);
-  M_i *= 1/D;
-  vec3 w = M_i * vec3(1,1,1);
+  vec3 w = vec3(1,1,1) * M_i;
   //Get edge functions (rows of M_inv)
-  for (int y=0; y<SCREEN_HEIGHT; y++)
+
+  for (float y=0; y<SCREEN_HEIGHT; y++)
   {
-    for(int x=0; x<SCREEN_WIDTH; x++)
+    for(float x=0; x<SCREEN_WIDTH; x++)
     {
       vec3 p(x, y, 1);
       vec3 E = glm::transpose(M_i) * p;
       //Check all edge functions
-      if (E.x > 0 &&
-          E.y > 0 &&
-          E.z > 0)
+      if (glm::dot(e0, p) > 0 &&
+          glm::dot(e1, p) > 0 &&
+          glm::dot(e2, p) > 0)
       {
         float W = 1/glm::dot(w, p);
-        PutPixelSDL(screen, W * E.x, W * E.y, t.color);
+        PutPixelSDL(screen, x, y, t.color);
       }
     }
   }
