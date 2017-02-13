@@ -183,12 +183,12 @@ void DrawPolygon( const Triangle& t )
   vec3 w = vec3(1,1,1) * M_i;
   //Get edge functions (rows of M_inv)
 
-  for (float y=0; y<SCREEN_HEIGHT; y++)
+  for (int y=0; y<SCREEN_HEIGHT; y++)
   {
-    for(float x=0; x<SCREEN_WIDTH; x++)
+    for(int x=0; x<SCREEN_WIDTH; x++)
     {
-      vec3 p(x/SCREEN_WIDTH, y/SCREEN_HEIGHT, 1);
-      vec3 E = glm::transpose(M_i) * p;
+      vec3 p(x/ (float) SCREEN_WIDTH, y/ (float) SCREEN_HEIGHT, 1);
+      //vec3 E = glm::transpose(M_i) * p;
       //Check all edge functions
       if (glm::dot(e0, p) > 0 &&
           glm::dot(e1, p) > 0 &&
