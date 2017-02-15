@@ -3,11 +3,15 @@ TARGET   = Main
 
 CC       = g++
 # compiling flags here
-CFLAGS   = -pipe -Wall -Wno-switch -ggdb -g3 -Ofast `sdl-config --cflags --libs sdl`
+CFLAGS   = -c -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
 
 LINKER   = g++ -o
 # linking flags here
-LFLAGS   = -Wall
+LFLAGS   = 
+
+SDL_CFLAGS := $(shell sdl-config --cflags)
+GLM_CFLAGS := -I$(GLMDIR)
+SDL_LDFLAGS := $(shell sdl-config --libs)
 
 # change these to proper directories where each file should be
 SRCDIR   = Source
@@ -22,19 +26,19 @@ rm       = rm -f
 print-%  : ; @echo $* = $($*)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+	$(LINKER) $@ $(LFLAGS) $(OBJECTS) $(SDL_LDFLAGS)
 	@echo "Linking complete!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
-	@$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $< -o $@ $(SDL_CFLAGS) $(GLM_CFLAGS)
 	@echo "Compiled "$<" successfully!"
 
 .PHONY: clean
 clean:
-	@$(rm) $(OBJECTS)
+	$(rm) $(OBJECTS)
 	@echo "Cleanup complete!"
 
 .PHONY: remove
 remove: clean
-	@$(rm) $(BINDIR)/$(TARGET)
+	$(rm) $(BINDIR)/$(TARGET)
 	@echo "Executable removed!"
