@@ -1,8 +1,8 @@
 #ifndef COMPUTER_GRAPHICS_DRAW_H
 #define COMPUTER_GRAPHICS_DRAW_H
 
+#include "TestTriangle.h"
 #include "camera.h"
-
 class Renderer {
 
 
