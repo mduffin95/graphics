@@ -1,47 +1,38 @@
-FILE=Main
+# project name (generate executable with this name)
+TARGET   = Main
 
-########
-#   Directories
-S_DIR=Source
-B_DIR=Build
+CC       = g++
+# compiling flags here
+CFLAGS   = -c -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
 
-########
-#   Output
-EXEC=$(B_DIR)/$(FILE)
+LINKER   = g++ -o
+# linking flags here
+LFLAGS   = -Wall -I. -lm
 
-# default build settings
-CC_OPTS=-c -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
-LN_OPTS=
-CC=g++
+# change these to proper directories where each file should be
+SRCDIR   = Source
+OBJDIR   = Objects
+BINDIR   = Build
 
-########
-#       SDL options
-SDL_CFLAGS := $(shell sdl-config --cflags)
-GLM_CFLAGS := -I$(GLMDIR)
-SDL_LDFLAGS := $(shell sdl-config --libs)
+SOURCES  := $(wildcard $(SRCDIR)/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+rm       = rm -f
 
-########
-#   This is the default action
-all:Build
+$(BINDIR)/$(TARGET): $(OBJECTS)
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+	@echo "Linking complete!"
 
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled "$<" successfully!"
 
-########
-#   Object list
-#
-OBJ = $(B_DIR)/$(FILE).o
-
-
-########
-#   Objects
-$(B_DIR)/$(FILE).o : $(S_DIR)/$(FILE).cpp  $(S_DIR)/SDLauxiliary.h $(S_DIR)/TestModel.h
-	$(CC) $(CC_OPTS) -o $(B_DIR)/$(FILE).o $(S_DIR)/$(FILE).cpp $(SDL_CFLAGS) $(GLM_CFLAGS)
-
-
-########
-#   Main build rule     
-Build : $(OBJ) Makefile
-	$(CC) $(LN_OPTS) -o $(EXEC) $(OBJ) $(SDL_LDFLAGS)
-
-
+.PHONY: clean
 clean:
-	rm -f $(B_DIR)/* 
+	@$(rm) $(OBJECTS)
+	@echo "Cleanup complete!"
+
+.PHONY: remove
+remove: clean
+	@$(rm) $(BINDIR)/$(TARGET)
+	@echo "Executable removed!"
