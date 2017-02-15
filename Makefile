@@ -3,27 +3,29 @@ TARGET   = Main
 
 CC       = g++
 # compiling flags here
-CFLAGS   = -c -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
+CFLAGS   = -I/usr/include/SDL -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
 
 LINKER   = g++ -o
 # linking flags here
-LFLAGS   = -Wall -I. -lm
+LFLAGS   = -Wall
 
 # change these to proper directories where each file should be
 SRCDIR   = Source
 OBJDIR   = Objects
 BINDIR   = Build
 
-SOURCES  := $(wildcard $(SRCDIR)/*.c)
+SOURCES  := $(wildcard $(SRCDIR)/*.cpp)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
-OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 rm       = rm -f
+
+print-%  : ; @echo $* = $($*)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
 	@echo "Linking complete!"
 
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled "$<" successfully!"
 
