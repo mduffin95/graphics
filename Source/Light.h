@@ -2,8 +2,8 @@
 // Created by John Griffith on 15/02/2017.
 //
 
-#ifndef COMPUTER_GRAPHICS_LIGHT_H
-#define COMPUTER_GRAPHICS_LIGHT_H
+#ifndef LIGHT_H
+#define LIGHT_H
 
 #endif //COMPUTER_GRAPHICS_LIGHT_H
 
@@ -20,9 +20,6 @@ class Light {
 		vec3 lightColor = 14.f * vec3( 1, 1, 1 ) * 5.0f;
 		vec3 indirectLight = 0.5f*vec3( 1, 1, 1 );
 		float p = 0.75;
-
-
-
 
 };
 

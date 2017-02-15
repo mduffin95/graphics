@@ -1,7 +1,5 @@
-#include "SDLauxiliary.h"
-#include "TestModel.h"
 #include "Rasteriser.h"
-
+#include "TestModel.h"
 
 bool ProcessInput(int t, Camera & camera);
 using namespace std;

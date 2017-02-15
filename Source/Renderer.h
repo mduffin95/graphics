@@ -1,8 +1,10 @@
-#ifndef COMPUTER_GRAPHICS_DRAW_H
-#define COMPUTER_GRAPHICS_DRAW_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
-#include "TestTriangle.h"
+#include "TestModel.h"
+#include "SDLauxiliary.h"
 #include "Camera.h"
+
 class Renderer {
 
 

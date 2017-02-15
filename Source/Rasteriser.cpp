@@ -1,10 +1,9 @@
 #include <iostream>
 #include <glm/glm.hpp>
-#include <SDL.h>
 #include "TestModel.h"
 #include "Camera.h"
-#include "Tools.h"
 #include "Rasteriser.h"
+
 
 using namespace std;
 using glm::vec3;
@@ -13,7 +12,7 @@ using glm::vec2;
 
 #define C(x,y,width,height)  (x + y * width)
 
-inline vec3 Rasteriser::getPoint(int x, int y, int w, int h)
+vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 {
   return vec3(
           (x - width/2)/ (float) width,
