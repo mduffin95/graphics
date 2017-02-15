@@ -3,7 +3,7 @@ TARGET   = Main
 
 CC       = g++
 # compiling flags here
-CFLAGS   = -I/usr/include/SDL -pipe -Wall -Wno-switch -ggdb -g3 -Ofast
+CFLAGS   = -pipe -Wall -Wno-switch -ggdb -g3 -Ofast `sdl-config --cflags --libs sdl`
 
 LINKER   = g++ -o
 # linking flags here
