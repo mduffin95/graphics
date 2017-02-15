@@ -2,7 +2,7 @@
 #define COMPUTER_GRAPHICS_DRAW_H
 
 #include "TestTriangle.h"
-#include "camera.h"
+#include "Camera.h"
 class Renderer {
 
 

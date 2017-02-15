@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <SDL.h>
 #include "TestModel.h"
-#include "camera.h"
+#include "Camera.h"
 #include "Tools.h"
 #include "Rasteriser.h"
 
