@@ -1,3 +1,7 @@
+#ifndef COMPUTER_GRAPHICS_CAMERA_H
+#define COMPUTER_GRAPHICS_CAMERA_H
+
+
 #include <iostream>
 #include <glm/glm.hpp>
 
@@ -52,3 +56,6 @@ ostream& operator<<(ostream& os, const Camera& cam)
        << "," << cam.pos.z << ")";
     return os;  
 }
+
+
+#endif
