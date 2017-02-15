@@ -15,6 +15,7 @@ LINKER   = g++ -o
 LFLAGS   = -Wall
 
 # change these to proper directories where each file should be
+BINDIR   = Build
 SRCDIR   = Source
 OBJDIR   = Objects
 
@@ -26,19 +27,19 @@ rm       = rm -f
 print-%  : ; @echo $* = $($*)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) $(SDL_LDFLAGS)
+	$(LINKER) $@ $(LFLAGS) $(OBJECTS) $(SDL_LDFLAGS)
 	@echo "Linking complete!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
-	@$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GLM_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GLM_CFLAGS) -c $< -o $@
 	@echo "Compiled "$<" successfully!"
 
 .PHONY: clean
 clean:
-	@$(rm) $(OBJECTS)
+	$(rm) $(OBJECTS)
 	@echo "Cleanup complete!"
 
 .PHONY: remove
 remove: clean
-	@$(rm) $(BINDIR)/$(TARGET)
+	$(rm) $(BINDIR)/$(TARGET)
 	@echo "Executable removed!"
