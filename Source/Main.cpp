@@ -1,7 +1,7 @@
 #include "Rasteriser.h"
 #include "TestModel.h"
 
-bool ProcessInput(int t, Camera & camera);
+bool ProcessInput(int& t, Camera & camera);
 using namespace std;
 using glm::vec3;
 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[] )
 }
 
 
-bool ProcessInput(int t, Camera & camera )
+bool ProcessInput(int& t, Camera & camera )
 {
 	// Compute frame time:
 	int t2 = SDL_GetTicks();

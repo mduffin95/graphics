@@ -17,7 +17,7 @@ class Camera
   mat3 R_x, R_y;
 
   public:
-  Camera (vec3 pos) : pos(pos) {}
+  Camera (vec3 pos);
 
   void move (vec3);
   void rotate (float, float);

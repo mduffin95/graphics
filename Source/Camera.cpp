@@ -1,10 +1,14 @@
 #include "Camera.h"
 
+Camera::Camera (vec3 pos) : pos(pos) 
+{
+ 	R_x = mat3();
+	R_y = mat3();
+}
+
 void Camera::move (vec3 movement)
 {
 	pos += R_y*R_x*movement;
-	R_x = mat3();
-	R_y = mat3();
 }
 
 void Camera::rotate (float pitch, float yaw)
