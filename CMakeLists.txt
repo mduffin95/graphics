@@ -11,8 +11,8 @@ INCLUDE_DIRECTORIES($(S_DIR)/TestModel.h)
 
 set(SOURCE_FILES
     Source/SDLauxiliary.h
-    Source/rasteriser.cpp
+        Source/Rasteriser.cpp
     Source/TestModel.h
-    Makefile)
+    Makefile Source/Tools.h Source/Light.h Source/Renderer.h Source/Rasteriser.h Source/Main.cpp)
 
 add_executable(Computer_Graphics ${SOURCE_FILES})
