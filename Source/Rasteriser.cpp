@@ -66,30 +66,29 @@ void Rasteriser::DrawPolygon(Camera &camera, Lighting &lighting, const Triangle 
 		}
 	}
 
-	/*
 	//Transform to camera coordinates
-	vec3 v0_dash_c = lighting.transform(t.v0);
-	vec3 v1_dash_c = lighting.transform(t.v1);
-	vec3 v2_dash_c = lighting.transform(t.v2);
+	vec3 v0_dash_c = lighting.transform(v0_dash);
+	vec3 v1_dash_c = lighting.transform(v1_dash);
+	vec3 v2_dash_c = lighting.transform(v2_dash);
 
 	//Matrix of vertices
-	mat3 M(v0_dash_c, v1_dash_c, v2_dash_c);
+	mat3 M_l(v0_dash_c, v1_dash_c, v2_dash_c);
 
-	mat3 M_i = glm::inverse(M);
+	mat3 M_i_l = glm::inverse(M_l);
 
-	vec3 w = vec3(1, 1, 1) * M_i;
+	vec3 w_l = vec3(1, 1, 1) * M_i_l;
 	//Get edge functions (rows of M_inv)
 
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			//vec3 p = getPoint(x, y);
 			vec3 p = getPoint(x, y, width, height);
-			vec3 E = M_i * p;
+			vec3 E = M_i_l * p;
 			//Check all edge functions
 			if (E.x >= 0 &&
 					E.y >= 0 &&
 					E.z >= 0) {
-				float W = 1 / glm::dot(w, p);
+				float W = 1 / glm::dot(w_l, p);
 				if (depthBufferLight[C(x, y, width, height)] > W) {
 					depthBufferLight[C(x, y, width, height)] = W;
 				}
@@ -97,7 +96,6 @@ void Rasteriser::DrawPolygon(Camera &camera, Lighting &lighting, const Triangle 
 		}
 	}
 
-	 */
 }
 
 
@@ -114,6 +112,7 @@ void Rasteriser::Draw(Camera & camera, Lighting & lighting ,vector<Triangle>& tr
 
 	for(int i = 0 ; i < height * width ; i ++){
 		depthBufferCamera[i] = INFINITY;
+		depthBufferLight[i] = INFINITY;
 		colourBuffer[i] = vec3(0,0,0);
 	}
 
@@ -127,7 +126,7 @@ void Rasteriser::Draw(Camera & camera, Lighting & lighting ,vector<Triangle>& tr
 	for(int y = 0; y < height ; y++){
 		for(int x = 0; x < width; x++){
 			if(depthBufferLight < depthBufferCamera){
-				//colourBuffer[C(x,y,width, height)] = vec3(0,0,0);
+				colourBuffer[C(x,y,width, height)] = vec3(0,0,0);
 			}
 			PutPixelSDL(screen, x, y, colourBuffer[C(x,y,width, height)]);
 		}
