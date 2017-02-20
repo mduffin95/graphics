@@ -1,3 +1,4 @@
+#include "Raytracer.h"
 #include "Rasteriser.h"
 #include "TestModel.h"
 #include "Lighting.h"
@@ -13,8 +14,6 @@ const int SCREEN_HEIGHT = 500;
 
 int main(int argc, char* argv[] )
 {
-
-	SDL_Surface * screen;
 	vector<Triangle> triangles;
 
 	vec3 cameraPos(0,0,-3);
@@ -23,16 +22,16 @@ int main(int argc, char* argv[] )
 	Camera camera(cameraPos);
 	Lighting lighting(lightingPos, lightColour);
 
-	int t;
-	screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
-	t = SDL_GetTicks();	// Set start value for timer.
+	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
+	int t = SDL_GetTicks();	// Set start value for timer.
 
 	LoadTestModel( triangles );
 
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);
 
-	Rasteriser r (screen) ;
+	//Rasteriser r (screen) ;
+	Raytracer r (screen) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;

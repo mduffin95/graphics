@@ -27,6 +27,11 @@ vec3 Camera::transform(vec3 p)
 	return (p - pos)*R_y*R_x;
 }
 
+vec3 Camera::transform1(vec3 p)
+{
+	return R_y*R_x*(p - pos);
+}
+
 ostream& operator<<(ostream& os, const Camera& cam)
 {
 	os << "(" << cam.pos.x
