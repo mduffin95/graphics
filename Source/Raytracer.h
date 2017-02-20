@@ -14,7 +14,7 @@ struct Intersection
 };
 
 using glm::vec3;
-class Raytracer : Renderer {
+class Raytracer : public Renderer {
 
 public:
     Raytracer(SDL_Surface* screen);

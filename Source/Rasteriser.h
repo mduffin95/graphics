@@ -10,16 +10,13 @@
 
 using glm::vec3;
 using glm::ivec2;
-class Rasteriser : Renderer {
+class Rasteriser : public Renderer {
 
 public:
 		Rasteriser(SDL_Surface *screen);
 		void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles);
 
 private:
-		SDL_Surface* screen;
-		int width;
-		int height;
 		float * depthBufferCamera;
 		float * depthBufferLight;
 		vec3 * colourBuffer;

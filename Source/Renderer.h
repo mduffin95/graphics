@@ -12,9 +12,9 @@ protected:
     SDL_Surface * screen;
     int width;
     int height;
+    Renderer(SDL_Surface* screen);
 
 public:
-    Renderer(SDL_Surface* screen);
 		virtual void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles) = 0;
 
 };
