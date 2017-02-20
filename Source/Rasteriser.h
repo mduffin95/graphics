@@ -15,7 +15,9 @@ private:
 		SDL_Surface* screen;
 		int width;
 		int height;
-		float * depthBuffer;
+		float * depthBufferCamera;
+		float * depthBufferLight;
+		vec3 * colourBuffer;
 		vec3 getPoint(int x, int y, int w, int h);
 		void DrawPolygon( Camera & camera, const Triangle& t );
 
