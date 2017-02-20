@@ -15,13 +15,13 @@ public:
     vec3 pos;
     mat3 R_x, R_y;
 
-    Camera (vec3 pos);
+    Camera (const vec3 pos);
 
-    void move (vec3);
+    void move (const vec3);
     void rotate (float, float);
 
-    vec3 transform(vec3);
-    vec3 transform1(vec3);
+    vec3 transform(const vec3) const;
+    vec3 transform1(const vec3) const;
     friend ostream& operator<<(ostream& os, const Camera& cam);
 };
 

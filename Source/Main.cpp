@@ -31,7 +31,7 @@ int main(int argc, char* argv[] )
 	SDL_ShowCursor(0);
 
 	Rasteriser r (screen) ;
-	//Raytracer r (screen) ;
+  //Raytracer r (screen) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;

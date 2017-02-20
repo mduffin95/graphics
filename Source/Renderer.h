@@ -15,7 +15,7 @@ protected:
     Renderer(SDL_Surface* screen);
 
 public:
-		virtual void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles) = 0;
+		virtual void Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle>& triangles) = 0;
 
 };
 

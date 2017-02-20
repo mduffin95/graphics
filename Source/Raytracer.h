@@ -18,10 +18,10 @@ class Raytracer : public Renderer {
 
 public:
     Raytracer(SDL_Surface* screen);
-    void Draw(Camera & camera, Lighting & lighting,vector<Triangle>& triangles);
+    void Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle> &triangles);
 
 private:
-    bool CheckIntersection(float, float);
+    bool CheckIntersection(const float, const float);
     bool ClosestIntersection(vec3, vec3, const vector<Triangle>&, Intersection&, int);
     vec3 DirectLight( const Intersection& i, const vector<Triangle>& triangles );
     vec3 lightPos;

@@ -1,17 +1,17 @@
 #include "Camera.h"
 
-Camera::Camera (vec3 pos) : pos(pos) 
+Camera::Camera (const vec3 pos) : pos(pos) 
 {
  	R_x = mat3();
 	R_y = mat3();
 }
 
-void Camera::move (vec3 movement)
+void Camera::move (const vec3 movement)
 {
 	pos += R_y*R_x*movement;
 }
 
-void Camera::rotate (float pitch, float yaw)
+void Camera::rotate (const float pitch, const float yaw)
 {
 	R_x *= mat3(1, 0, 0,  // 1. column
 							0, cos(pitch), -sin(pitch),  // 2. column
@@ -22,12 +22,12 @@ void Camera::rotate (float pitch, float yaw)
 							sin(yaw), 0, cos(yaw)); // 3. column
 }
 
-vec3 Camera::transform(vec3 p)
+vec3 Camera::transform(const vec3 p) const
 {
 	return (p - pos)*R_y*R_x;
 }
 
-vec3 Camera::transform1(vec3 p)
+vec3 Camera::transform1(const vec3 p) const
 {
 	return R_y*R_x*(p - pos);
 }

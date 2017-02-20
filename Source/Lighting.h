@@ -16,7 +16,7 @@ class Lighting {
   vec3 colour;
 
   void move (vec3);
-  vec3 transform(vec3);
+  vec3 transform(vec3) const;
 
 };
 

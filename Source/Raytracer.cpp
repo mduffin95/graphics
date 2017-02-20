@@ -9,7 +9,7 @@ Raytracer::Raytracer(SDL_Surface* screen) : Renderer(screen), lightPos( 0, -0.5,
     
 }
 
-bool Raytracer::CheckIntersection( float u, float v )
+bool Raytracer::CheckIntersection( const float u, const float v )
 {
     if (u >= 0 &&
         v >= 0 &&
@@ -168,7 +168,7 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 	return illuminationColour;
 }
 
-void Raytracer::Draw(Camera& camera,Lighting &lighting,vector<Triangle>& triangles)
+void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
 {
 
 	if( SDL_MUSTLOCK(screen) )
@@ -184,20 +184,20 @@ void Raytracer::Draw(Camera& camera,Lighting &lighting,vector<Triangle>& triangl
 			//d = d*camera.r_y*camera.R_x;
 			d = camera.transform1(d);
 
-            Intersection inter;
-            inter.distance = numeric_limits<float>::max();
-            vec3 colour;
-            if (ClosestIntersection(camera.pos, d, triangles, inter, -1))
-            {
-                colour = triangles[inter.triangleIndex].color;
-                colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
-            }
-            else
-            { 
-                colour = vec3(0, 0, 0);
-            }
-            //vec3 color( 1.0, 0.0, 0.0 );
-            PutPixelSDL( screen, x, y, colour );
+      Intersection inter;
+      inter.distance = numeric_limits<float>::max();
+      vec3 colour;
+      if (ClosestIntersection(camera.pos, d, triangles, inter, -1))
+      {
+          colour = triangles[inter.triangleIndex].color;
+          colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+      }
+      else
+      { 
+          colour = vec3(0, 0, 0);
+      }
+      //vec3 color( 1.0, 0.0, 0.0 );
+      PutPixelSDL( screen, x, y, colour );
 		}
 	}
 

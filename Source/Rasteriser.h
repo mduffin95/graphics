@@ -13,16 +13,15 @@ using glm::ivec2;
 class Rasteriser : public Renderer {
 
 public:
-		Rasteriser(SDL_Surface *screen);
-		void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles);
+  Rasteriser(SDL_Surface *screen);
+  void Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle> &triangles);
 
 private:
-		float * depthBufferCamera;
-		float * depthBufferLight;
-		vec3 * colourBuffer;
-		vec3 getPoint(int x, int y, int w, int h);
-		void DrawPolygon(Camera &camera, Lighting &lighting, const Triangle &t);
-		void DrawLighting(Lighting & lighting, const Triangle& t);
+  float *depthBufferCamera;
+  float *depthBufferLight;
+  vec3 *colourBuffer;
+  vec3 getPoint(int x, int y, int w, int h);
+  void DrawPolygon(const Camera &camera, const Lighting &lighting, const Triangle &t);
 };
 
 

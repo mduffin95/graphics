@@ -27,11 +27,10 @@ Rasteriser::Rasteriser(SDL_Surface *screen) : Renderer(screen) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
-
 }
 
 
-void Rasteriser::DrawPolygon(Camera &camera, Lighting &lighting, const Triangle &t) {
+void Rasteriser::DrawPolygon(const Camera &camera, const Lighting &lighting, const Triangle &t) {
 	//Transform to camera coordinates
 	vec3 v0_dash = camera.transform(t.v0);
 	vec3 v1_dash = camera.transform(t.v1);
@@ -96,9 +95,7 @@ void Rasteriser::DrawPolygon(Camera &camera, Lighting &lighting, const Triangle 
 }
 
 
-
-
-void Rasteriser::Draw(Camera & camera, Lighting & lighting ,vector<Triangle>& triangles)
+void Rasteriser::Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle> &triangles)
 {
 
 	SDL_FillRect( screen, 0, 0 );
@@ -107,7 +104,7 @@ void Rasteriser::Draw(Camera & camera, Lighting & lighting ,vector<Triangle>& tr
 		SDL_LockSurface(screen);
 	}
 
-	for(int i = 0 ; i < height * width ; i ++){
+	for(int i = 0; i < height * width; i++){
 		depthBufferCamera[i] = INFINITY;
 		depthBufferLight[i] = INFINITY;
 		colourBuffer[i] = vec3(0,0,0);
@@ -119,10 +116,10 @@ void Rasteriser::Draw(Camera & camera, Lighting & lighting ,vector<Triangle>& tr
 	}
 
 
-
 	for(int y = 0; y < height ; y++){
 		for(int x = 0; x < width; x++){
-			if(depthBufferLight < depthBufferCamera){
+			if(depthBufferLight[C(x,y,width,height)] 
+         < depthBufferCamera[C(x,y,width,height)]) {
 				colourBuffer[C(x,y,width, height)] = vec3(0,0,0);
 			}
 			PutPixelSDL(screen, x, y, colourBuffer[C(x,y,width, height)]);
