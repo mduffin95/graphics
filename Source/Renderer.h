@@ -4,12 +4,13 @@
 #include "TestModel.h"
 #include "SDLauxiliary.h"
 #include "Camera.h"
+#include "Lighting.h"
 
 class Renderer {
 
 
 public:
-		virtual void Draw(Camera &camera,vector<Triangle>& triangles) = 0;
+		virtual void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles) = 0;
 
 };
 

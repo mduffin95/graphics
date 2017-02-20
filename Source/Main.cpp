@@ -1,5 +1,6 @@
 #include "Rasteriser.h"
 #include "TestModel.h"
+#include "Lighting.h"
 
 bool ProcessInput(int& t, Camera & camera);
 using namespace std;
@@ -17,7 +18,10 @@ int main(int argc, char* argv[] )
 	vector<Triangle> triangles;
 
 	vec3 cameraPos(0,0,-3);
+  vec3 lightingPos(1,1,-3);
+  vec3 lightColour(10,10,10);
 	Camera camera(cameraPos);
+	Lighting lighting(lightingPos, lightColour);
 
 	int t;
 	screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
@@ -36,7 +40,7 @@ int main(int argc, char* argv[] )
 
 	while( ProcessInput(t,camera) )
 	{
-		r.Draw(camera,triangles);
+		r.Draw(camera,lighting,triangles);
 	}
 	SDL_SaveBMP( screen, "screenshot.bmp" );
 	return 0;
