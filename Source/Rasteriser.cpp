@@ -26,10 +26,7 @@ float Lighting (const Triangle& t){
 
 }
 
-Rasteriser::Rasteriser(SDL_Surface* screen) {
-	this->screen = screen;
-	this->width = screen->w;
-	this->height = screen->w;
+Rasteriser::Rasteriser(SDL_Surface* screen) : Renderer(screen) {
 	this->depthBuffer = (float*)malloc(sizeof(float)*height*width);
 }
 
@@ -71,7 +68,7 @@ void Rasteriser::DrawPolygon( Camera & camera, const Triangle& t )
   }
 }
 
-void Rasteriser::Draw(Camera & camera, vector<Triangle>& triangles)
+void Rasteriser::Draw(Camera& camera, vector<Triangle>& triangles)
 {
 
 	SDL_FillRect( screen, 0, 0 );

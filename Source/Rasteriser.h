@@ -12,9 +12,6 @@ public:
 		void Draw(Camera &camera,vector<Triangle>& triangles);
 
 private:
-		SDL_Surface* screen;
-		int width;
-		int height;
 		float * depthBuffer;
 		vec3 getPoint(int x, int y, int w, int h);
 		void DrawPolygon( Camera & camera, const Triangle& t );

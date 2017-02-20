@@ -7,9 +7,14 @@
 
 class Renderer {
 
+protected:
+    SDL_Surface * screen;
+    int width;
+    int height;
 
 public:
-		virtual void Draw(Camera &camera,vector<Triangle>& triangles) = 0;
+    virtual void Draw(Camera &camera,vector<Triangle>& triangles) = 0;
+    Renderer(SDL_Surface* screen);
 
 };
 
