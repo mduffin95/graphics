@@ -23,7 +23,7 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface* screen) {
+Rasteriser::Rasteriser(SDL_Surface *screen) : Renderer(screen) {
 	this->screen = screen;
 	this->width = screen->w;
 	this->height = screen->w;

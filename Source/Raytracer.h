@@ -18,7 +18,7 @@ class Raytracer : Renderer {
 
 public:
     Raytracer(SDL_Surface* screen);
-    void Draw(Camera& camera,vector<Triangle>& triangles);
+    void Draw(Camera & camera, Lighting & lighting,vector<Triangle>& triangles);
 
 private:
     bool CheckIntersection(float, float);

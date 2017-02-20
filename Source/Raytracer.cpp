@@ -1,4 +1,7 @@
 #include "Raytracer.h"
+#include "Lighting.h"
+
+#define PI 3.141592653f
 
 Raytracer::Raytracer(SDL_Surface* screen) : Renderer(screen), lightPos( 0, -0.5, -0.7 ), 
     lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f)
@@ -165,7 +168,7 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 	return illuminationColour;
 }
 
-void Raytracer::Draw(Camera& camera,vector<Triangle>& triangles)
+void Raytracer::Draw(Camera& camera,Lighting &lighting,vector<Triangle>& triangles)
 {
 
 	if( SDL_MUSTLOCK(screen) )

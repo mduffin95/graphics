@@ -5,12 +5,15 @@
 #include "Lighting.h"
 #include "TestModel.h"
 
+
+
+
 using glm::vec3;
 using glm::ivec2;
 class Rasteriser : Renderer {
 
 public:
-		Rasteriser(SDL_Surface* screen);
+		Rasteriser(SDL_Surface *screen);
 		void Draw(Camera &camera,Lighting &lighting,vector<Triangle>& triangles);
 
 private:
