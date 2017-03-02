@@ -110,8 +110,12 @@ vec3 Raytracer::DOFRay(const int x, const int y, const Camera& camera, const Lig
 {
   float aperture_radius = 0.1;
   float focalDepth = 2;
+  float threshold = 20;
+  int num = 0;
+  vec3 delta = vec3(255, 255, 255);
   vec3 colour = vec3(0,0,0);
-  for( int i=0; i<NUM_SAMPLES; i++)
+  vec3 average = colour;
+  while(glm::length(delta) > threshold)
   {
     float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
     float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
@@ -138,9 +142,11 @@ vec3 Raytracer::DOFRay(const int x, const int y, const Camera& camera, const Lig
         col_tmp = vec3(0, 0, 0);
     }
     colour += col_tmp;
+    num++;
+    delta = colour / (float)num - average;
+    average = colour / (float)num;
   }
-  colour /= NUM_SAMPLES;
-  return colour;
+  return average;
 }
 
 vec3 Raytracer::NormalRay(const int x, const int y, const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
