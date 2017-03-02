@@ -24,15 +24,15 @@ public:
     Normal, DepthOfField
   };
 
-  Raytracer(SDL_Surface* screen, RenderType type);
-  void Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle> &triangles);
+  Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, RenderType type);
+  void Draw();
 
 private:
   bool CheckIntersection(const float, const float);
   bool ClosestIntersection(vec3, vec3, const vector<Triangle>&, Intersection&, int);
   vec3 DirectLight( const Intersection& i, const vector<Triangle>& triangles );
-  vec3 NormalRay(const int x, const int y, const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles);
-  vec3 DOFRay(const int x, const int y, const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles);
+  vec3 NormalRay(const int x, const int y);
+  vec3 DOFRay(const int x, const int y);
   vec3 lightPos;
   vec3 lightColour;
   int focalLength;

@@ -10,12 +10,15 @@ class Renderer {
 
 protected:
     SDL_Surface * screen;
+    Camera &camera;
+    Lighting &lighting;
+    vector<Triangle> &triangles;
     int width;
     int height;
-    Renderer(SDL_Surface* screen);
+    Renderer(SDL_Surface*, Camera&, Lighting&, vector<Triangle>&);
 
 public:
-		virtual void Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle>& triangles) = 0;
+		virtual void Draw() = 0;
 
 };
 

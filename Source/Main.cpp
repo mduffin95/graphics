@@ -31,7 +31,7 @@ int main(int argc, char* argv[] )
 	SDL_ShowCursor(0);
 
 	//Rasteriser r (screen) ;
-  Raytracer r (screen, Raytracer::DepthOfField) ;
+  Raytracer r (screen, camera, lighting, triangles, Raytracer::DepthOfField) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[] )
 
 	while( ProcessInput(t,camera) )
 	{
-		r.Draw(camera,lighting,triangles);
+		r.Draw();
 	}
 	SDL_SaveBMP( screen, "screenshot.bmp" );
 	return 0;

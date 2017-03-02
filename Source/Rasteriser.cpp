@@ -23,14 +23,14 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface *screen) : Renderer(screen) {
+Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, Lighting &lighting, vector<Triangle> &triangles) : Renderer(screen, camera, lighting, triangles) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
 }
 
 
-void Rasteriser::DrawPolygon(const Camera &camera, const Lighting &lighting, const Triangle &t) {
+void Rasteriser::DrawPolygon(const Triangle &t) {
 	//Transform to camera coordinates
 	vec3 v0_dash = camera.transform_w2c(t.v0);
 	vec3 v1_dash = camera.transform_w2c(t.v1);
@@ -95,7 +95,7 @@ void Rasteriser::DrawPolygon(const Camera &camera, const Lighting &lighting, con
 }
 
 
-void Rasteriser::Draw(const Camera &camera, const Lighting &lighting, const vector<Triangle> &triangles)
+void Rasteriser::Draw()
 {
 
 	SDL_FillRect( screen, 0, 0 );
@@ -112,7 +112,7 @@ void Rasteriser::Draw(const Camera &camera, const Lighting &lighting, const vect
 
 	for( int i=0; i<triangles.size(); ++i )
 	{
-		DrawPolygon(camera, lighting, triangles[i]);
+		DrawPolygon(triangles[i]);
 	}
 
 

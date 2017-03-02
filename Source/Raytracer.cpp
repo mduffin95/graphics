@@ -5,7 +5,7 @@
 
 #define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen, RenderType type) : Renderer(screen), lightPos( 0, -0.5, -0.7 ), 
+Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, RenderType type) : Renderer(screen, camera, lighting, triangles), lightPos( 0, -0.5, -0.7 ), 
     lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type)
 {
   srand (static_cast <unsigned> (time(0)));
@@ -81,7 +81,7 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 	return illuminationColour;
 }
 
-void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
+void Raytracer::Draw()
 {
   vec3 colour;
 	if( SDL_MUSTLOCK(screen) )
@@ -92,9 +92,9 @@ void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vecto
 		for( int x=0; x<width; ++x )
 		{
       if(type == Normal)
-        colour = NormalRay(x, y, camera, lighting, triangles);
+        colour = NormalRay(x, y);
       if(type == DepthOfField)
-        colour = DOFRay(x, y, camera, lighting, triangles);
+        colour = DOFRay(x, y);
       //vec3 color( 1.0, 0.0, 0.0 );
       PutPixelSDL( screen, x, y, colour );
 		}
@@ -106,50 +106,57 @@ void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vecto
 	SDL_UpdateRect( screen, 0, 0, 0, 0 );
 }
 
-vec3 Raytracer::DOFRay(const int x, const int y, const Camera& camera, const Lighting& lighting, const vector<Triangle>& triangles)
+vec3 Raytracer::DOFRay(const int x, const int y)
 {
-  float aperture_radius = 0.1;
+  float aperture_radius = 0.05;
   float focalDepth = 2;
-  float threshold = 20;
+  //float threshold = 0.0002;
   int num = 0;
   vec3 delta = vec3(255, 255, 255);
   vec3 colour = vec3(0,0,0);
   vec3 average = colour;
-  while(glm::length(delta) > threshold)
+  //while(glm::length(delta) > threshold)
+  for( int i=0; i<2; i++)
   {
-    float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-    float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-    vec3 point((x - width / 2.0f) / focalLength, 
-              -(y - height / 2.0f) / focalLength, 1);
-    point *= focalDepth;
-    vec3 rand_eye = vec3(r1*aperture_radius, r2*aperture_radius, 0);//Get random point
-    vec3 d = point - rand_eye;
-    d = camera.transform_c2w_rotate(d);
-    rand_eye = camera.transform_c2w_rotate(rand_eye) + camera.pos;
-
-    //d = d*camera.r_y*camera.R_x;
-    
-    Intersection inter;
-    inter.distance = numeric_limits<float>::max();
-    vec3 col_tmp;
-    if (ClosestIntersection(rand_eye, d, triangles, inter, -1))
+    for( int j=0; j<2; j++)
     {
-        col_tmp = triangles[inter.triangleIndex].color;
-        col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+      float r1 = -0.25 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/0.5f));
+      float r2 = -0.25 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/0.5f));
+      float r3 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+      float r4 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+      vec3 point((x + 0.25f + i/2.0f + r1 - width / 2.0f) / focalLength, 
+                -(y + 0.25f + j/2.0f + r2 - height / 2.0f) / focalLength, 1);
+      point *= focalDepth;
+      vec3 rand_eye = vec3(r3*aperture_radius, r4*aperture_radius, 0);//Get random point
+      vec3 d = point - rand_eye;
+      d = camera.transform_c2w_rotate(d);
+      rand_eye = camera.transform_c2w_rotate(rand_eye) + camera.pos;
+
+      //d = d*camera.r_y*camera.R_x;
+      
+      Intersection inter;
+      inter.distance = numeric_limits<float>::max();
+      vec3 col_tmp;
+      if (ClosestIntersection(rand_eye, d, triangles, inter, -1))
+      {
+          col_tmp = triangles[inter.triangleIndex].color;
+          col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+      }
+      else
+      { 
+          col_tmp = vec3(0, 0, 0);
+      }
+      colour += col_tmp;
+      num++;
+      //delta = colour / (float)num - average;
+      //average = colour / (float)num;
     }
-    else
-    { 
-        col_tmp = vec3(0, 0, 0);
-    }
-    colour += col_tmp;
-    num++;
-    delta = colour / (float)num - average;
-    average = colour / (float)num;
   }
-  return average;
+  //return average;
+  return colour / (float)num;
 }
 
-vec3 Raytracer::NormalRay(const int x, const int y, const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
+vec3 Raytracer::NormalRay(const int x, const int y)
 {
   vec3 d(x - width / 2.0f, -(y - height / 2.0f), focalLength);
 
