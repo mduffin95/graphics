@@ -20,8 +20,8 @@ public:
     void move (const vec3);
     void rotate (float, float);
 
-    vec3 transform(const vec3) const;
-    vec3 transform1(const vec3) const;
+    vec3 transform_w2c(const vec3) const;
+    vec3 transform_c2w_rotate(const vec3) const;
     friend ostream& operator<<(ostream& os, const Camera& cam);
 };
 

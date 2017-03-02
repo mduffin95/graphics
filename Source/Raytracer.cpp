@@ -1,12 +1,14 @@
 #include "Raytracer.h"
 #include "Lighting.h"
+#include <cstdlib>
+#include <ctime>
 
 #define PI 3.141592653f
 
 Raytracer::Raytracer(SDL_Surface* screen) : Renderer(screen), lightPos( 0, -0.5, -0.7 ), 
     lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f)
 {
-    
+  srand (static_cast <unsigned> (time(0)));
 }
 
 bool Raytracer::CheckIntersection( const float u, const float v )
@@ -58,95 +60,6 @@ bool Raytracer::ClosestIntersection(
   return result;
 }
 
-/*
-void Update()
-{
-	// Compute frame time:
-	int t2 = SDL_GetTicks();
-	float dt = float(t2-t);
-	t = t2;
-	cout << "Render time: " << dt << " ms." << endl;
-  
-  Uint8* keystate = SDL_GetKeyState( 0 );
-
-
-	float yaw;
-	yaw =  (-angle /180) * PI ;
-	R = mat3(cos(yaw), 0.0, -sin(yaw),  // 1. column
-					 0, 1.0, 0.0,  // 2. column
-					 sin(yaw), 0, cos(yaw)); // 3. column
-
-
-	vec3 forward(R[2][0], R[2][1], R[2][2]);
-	vec3 down(R[1][0], R[1][1], R[1][2]);
-	vec3 right(R[0][0], R[0][1], R[0][2]);
-
-
-	forward *= 0.1;
-	right *= 0.1;
-
-
-	//Camera Position
-  if( keystate[SDLK_UP] )
-  {
-  // Move camera forward
-    cameraPos +=  forward ;
-
-  }
-  if( keystate[SDLK_DOWN] )
-  {
-  // Move camera backward
-    cameraPos -= forward;
-  }
-  if( keystate[SDLK_z] )
-  {
-  // Move camera to the left
-    cameraPos -= right;
-  }
-  if( keystate[SDLK_x] )
-  {
-  // Move camera to the right
-    cameraPos += right;
-  }
-
-	//Rotation
-	if( keystate[SDLK_LEFT]){
-		angle += 5.0;
-	}
-
-	if( keystate[SDLK_RIGHT]){
-		angle -= 5.0;
-	}
-
-	//Light position
-	if( keystate[SDLK_w] )
-		lightPos += forward;
-
-	if( keystate[SDLK_s] )
-		lightPos -= forward;
-
-	if( keystate[SDLK_a] )
-		lightPos -= right;
-
-	if( keystate[SDLK_d] )
-		lightPos += right;
-
-	if( keystate[SDLK_q] )
-		lightPos -= down;
-
-	if( keystate[SDLK_e] )
-		lightPos += down;
-
-	yaw =  (angle /180) * PI ;
-	//vec3 forward(R[2][0], R[2][1], R[2][2]);
-	R = mat3(cos(yaw), 0.0, -sin(yaw),  // 1. column
-					 0, 1.0, 0.0,  // 2. column
-					 sin(yaw), 0, cos(yaw)); // 3. column
-
-}
-*/
-
-
 vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& triangles ){
 
 
@@ -171,6 +84,63 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
 {
 
+  float aperture_radius = 0.1;
+  float focalDepth = 3;
+  //Draw_original(camera, lighting, triangles);
+  //return;
+
+	if( SDL_MUSTLOCK(screen) )
+		SDL_LockSurface(screen);
+
+	for( int y=0; y<height; ++y )
+	{
+		for( int x=0; x<width; ++x )
+		{
+      vec3 colour = vec3(0,0,0);
+      for( int i=0; i<NUM_SAMPLES; i++)
+      {
+        float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+        float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+        vec3 point(x - width / 2.0f, -(y - height / 2.0f), focalLength);
+        point /= focalLength;
+        point *= focalDepth;
+        vec3 rand_eye = vec3(r1*aperture_radius, r2*aperture_radius, 0);//Get random point
+        vec3 d = point - rand_eye;
+        d = camera.transform_c2w_rotate(d); //Needs to be rotation
+        rand_eye = camera.transform_c2w_rotate(rand_eye);
+        rand_eye += camera.pos;
+
+        //d = d*camera.r_y*camera.R_x;
+        
+        Intersection inter;
+        inter.distance = numeric_limits<float>::max();
+        vec3 col_tmp;
+        if (ClosestIntersection(rand_eye, d, triangles, inter, -1))
+        {
+            col_tmp = triangles[inter.triangleIndex].color;
+            col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+        }
+        else
+        { 
+            col_tmp = vec3(0, 0, 0);
+        }
+        colour += col_tmp;
+      }
+      colour /= NUM_SAMPLES;
+      //vec3 color( 1.0, 0.0, 0.0 );
+      PutPixelSDL( screen, x, y, colour );
+		}
+	}
+
+	if( SDL_MUSTLOCK(screen) )
+		SDL_UnlockSurface(screen);
+
+	SDL_UpdateRect( screen, 0, 0, 0, 0 );
+}
+
+void Raytracer::Draw_original(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
+{
+
 	if( SDL_MUSTLOCK(screen) )
 		SDL_LockSurface(screen);
 
@@ -182,7 +152,7 @@ void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vecto
 			vec3 d(x - width / 2.0f, -(y - height / 2.0f), focalLength);
 
 			//d = d*camera.r_y*camera.R_x;
-			d = camera.transform1(d);
+			d = camera.transform_c2w_rotate(d);
 
       Intersection inter;
       inter.distance = numeric_limits<float>::max();

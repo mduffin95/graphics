@@ -32,9 +32,9 @@ Rasteriser::Rasteriser(SDL_Surface *screen) : Renderer(screen) {
 
 void Rasteriser::DrawPolygon(const Camera &camera, const Lighting &lighting, const Triangle &t) {
 	//Transform to camera coordinates
-	vec3 v0_dash = camera.transform(t.v0);
-	vec3 v1_dash = camera.transform(t.v1);
-	vec3 v2_dash = camera.transform(t.v2);
+	vec3 v0_dash = camera.transform_w2c(t.v0);
+	vec3 v1_dash = camera.transform_w2c(t.v1);
+	vec3 v2_dash = camera.transform_w2c(t.v2);
 
 	//Matrix of vertices
 	mat3 M(v0_dash, v1_dash, v2_dash);

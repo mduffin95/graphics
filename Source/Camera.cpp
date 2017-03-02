@@ -22,14 +22,16 @@ void Camera::rotate (const float pitch, const float yaw)
 							sin(yaw), 0, cos(yaw)); // 3. column
 }
 
-vec3 Camera::transform(const vec3 p) const
+vec3 Camera::transform_w2c(const vec3 p) const
 {
+  //World to camera
 	return (p - pos)*R_y*R_x;
 }
 
-vec3 Camera::transform1(const vec3 p) const
+vec3 Camera::transform_c2w_rotate(const vec3 p) const
 {
-	return R_y*R_x*(p - pos);
+  //Camera to world
+	return R_y*R_x*p;
 }
 
 ostream& operator<<(ostream& os, const Camera& cam)
