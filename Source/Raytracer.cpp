@@ -5,8 +5,8 @@
 
 #define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen) : Renderer(screen), lightPos( 0, -0.5, -0.7 ), 
-    lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f)
+Raytracer::Raytracer(SDL_Surface* screen, RenderType type) : Renderer(screen), lightPos( 0, -0.5, -0.7 ), 
+    lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type)
 {
   srand (static_cast <unsigned> (time(0)));
 }
@@ -83,12 +83,7 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 
 void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
 {
-
-  float aperture_radius = 0.1;
-  float focalDepth = 3;
-  //Draw_original(camera, lighting, triangles);
-  //return;
-
+  vec3 colour;
 	if( SDL_MUSTLOCK(screen) )
 		SDL_LockSurface(screen);
 
@@ -96,37 +91,10 @@ void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vecto
 	{
 		for( int x=0; x<width; ++x )
 		{
-      vec3 colour = vec3(0,0,0);
-      for( int i=0; i<NUM_SAMPLES; i++)
-      {
-        float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-        float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-        vec3 point(x - width / 2.0f, -(y - height / 2.0f), focalLength);
-        point /= focalLength;
-        point *= focalDepth;
-        vec3 rand_eye = vec3(r1*aperture_radius, r2*aperture_radius, 0);//Get random point
-        vec3 d = point - rand_eye;
-        d = camera.transform_c2w_rotate(d); //Needs to be rotation
-        rand_eye = camera.transform_c2w_rotate(rand_eye);
-        rand_eye += camera.pos;
-
-        //d = d*camera.r_y*camera.R_x;
-        
-        Intersection inter;
-        inter.distance = numeric_limits<float>::max();
-        vec3 col_tmp;
-        if (ClosestIntersection(rand_eye, d, triangles, inter, -1))
-        {
-            col_tmp = triangles[inter.triangleIndex].color;
-            col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
-        }
-        else
-        { 
-            col_tmp = vec3(0, 0, 0);
-        }
-        colour += col_tmp;
-      }
-      colour /= NUM_SAMPLES;
+      if(type == Normal)
+        colour = NormalRay(x, y, camera, lighting, triangles);
+      if(type == DepthOfField)
+        colour = DOFRay(x, y, camera, lighting, triangles);
       //vec3 color( 1.0, 0.0, 0.0 );
       PutPixelSDL( screen, x, y, colour );
 		}
@@ -138,41 +106,61 @@ void Raytracer::Draw(const Camera& camera, const Lighting &lighting, const vecto
 	SDL_UpdateRect( screen, 0, 0, 0, 0 );
 }
 
-void Raytracer::Draw_original(const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
+vec3 Raytracer::DOFRay(const int x, const int y, const Camera& camera, const Lighting& lighting, const vector<Triangle>& triangles)
 {
+  float aperture_radius = 0.1;
+  float focalDepth = 2;
+  vec3 colour = vec3(0,0,0);
+  for( int i=0; i<NUM_SAMPLES; i++)
+  {
+    float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+    float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+    vec3 point((x - width / 2.0f) / focalLength, 
+              -(y - height / 2.0f) / focalLength, 1);
+    point *= focalDepth;
+    vec3 rand_eye = vec3(r1*aperture_radius, r2*aperture_radius, 0);//Get random point
+    vec3 d = point - rand_eye;
+    d = camera.transform_c2w_rotate(d);
+    rand_eye = camera.transform_c2w_rotate(rand_eye) + camera.pos;
 
-	if( SDL_MUSTLOCK(screen) )
-		SDL_LockSurface(screen);
+    //d = d*camera.r_y*camera.R_x;
+    
+    Intersection inter;
+    inter.distance = numeric_limits<float>::max();
+    vec3 col_tmp;
+    if (ClosestIntersection(rand_eye, d, triangles, inter, -1))
+    {
+        col_tmp = triangles[inter.triangleIndex].color;
+        col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+    }
+    else
+    { 
+        col_tmp = vec3(0, 0, 0);
+    }
+    colour += col_tmp;
+  }
+  colour /= NUM_SAMPLES;
+  return colour;
+}
 
-	for( int y=0; y<height; ++y )
-	{
-		for( int x=0; x<width; ++x )
-		{
+vec3 Raytracer::NormalRay(const int x, const int y, const Camera& camera, const Lighting &lighting, const vector<Triangle>& triangles)
+{
+  vec3 d(x - width / 2.0f, -(y - height / 2.0f), focalLength);
 
-			vec3 d(x - width / 2.0f, -(y - height / 2.0f), focalLength);
+  //d = d*camera.r_y*camera.R_x;
+  d = camera.transform_c2w_rotate(d);
 
-			//d = d*camera.r_y*camera.R_x;
-			d = camera.transform_c2w_rotate(d);
-
-      Intersection inter;
-      inter.distance = numeric_limits<float>::max();
-      vec3 colour;
-      if (ClosestIntersection(camera.pos, d, triangles, inter, -1))
-      {
-          colour = triangles[inter.triangleIndex].color;
-          colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
-      }
-      else
-      { 
-          colour = vec3(0, 0, 0);
-      }
-      //vec3 color( 1.0, 0.0, 0.0 );
-      PutPixelSDL( screen, x, y, colour );
-		}
-	}
-
-	if( SDL_MUSTLOCK(screen) )
-		SDL_UnlockSurface(screen);
-
-	SDL_UpdateRect( screen, 0, 0, 0, 0 );
+  Intersection inter;
+  inter.distance = numeric_limits<float>::max();
+  vec3 colour;
+  if (ClosestIntersection(camera.pos, d, triangles, inter, -1))
+  {
+      colour = triangles[inter.triangleIndex].color;
+      colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+  }
+  else
+  { 
+      colour = vec3(0, 0, 0);
+  }
+  return colour;
 }
