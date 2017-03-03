@@ -24,8 +24,7 @@ bool Raytracer::CheckIntersection( const float u, const float v )
 
 
 bool Raytracer::ClosestIntersection(
-  vec3 start,
-  vec3 dir,
+  Ray ray,  
   const vector<Triangle>& triangles,
   Intersection& closestIntersection , int index )
 {
@@ -38,9 +37,9 @@ bool Raytracer::ClosestIntersection(
 
     vec3 e1 = v1 - v0;
     vec3 e2 = v2 - v0;
-    vec3 b = start - v0;
+    vec3 b = ray.origin - v0;
 
-    mat3 A( -dir, e1, e2 );
+    mat3 A( -ray.direction, e1, e2 );
     vec3 x = glm::inverse( A ) * b;      
     float t = x.x;
     float u = x.y;
@@ -52,7 +51,7 @@ bool Raytracer::ClosestIntersection(
 				i != index )
     {
       closestIntersection.distance = t;
-      closestIntersection.position = start + t * dir;
+      closestIntersection.position = ray.origin + t * ray.direction;
       closestIntersection.triangleIndex = i;
       result = true;
     }
@@ -70,7 +69,8 @@ vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& tria
 	//Check closest intersection between camera position
 	Intersection lightIntersection;
 	lightIntersection.distance = 1;
-	if(ClosestIntersection(i.position,r,triangles,lightIntersection, i.triangleIndex)){
+  Ray ray = {i.position, r};
+	if(ClosestIntersection(ray,triangles,lightIntersection, i.triangleIndex)){
 		return vec3(0,0,0);
 	}
 
@@ -106,14 +106,40 @@ void Raytracer::Draw()
 	SDL_UpdateRect( screen, 0, 0, 0, 0 );
 }
 
-vec3 cast_at_point(vec3 point)
+vec3 Raytracer::CastRay(const Ray ray)
 {
+  float apertureRadius = 0.1f;
+  float focalDepth = 3.0f;
+  float numSamples = 100;
+  float sampleWeight = 1/numSamples;
+  vec3 point = ray.direction * focalDepth;
+  Ray new_ray;
+  vec3 colour = vec3(0,0,0);
+  for( int i=0; i<numSamples; i++)
+  {
+    float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+    float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
 
+    vec3 randomise = vec3(r1*apertureRadius, r2*apertureRadius, 0);
+    new_ray.direction = camera.transform_c2w_rotate(point - randomise);
+    new_ray.origin = ray.origin + randomise;
+
+    Intersection inter;
+    inter.distance = numeric_limits<float>::max();
+
+    if (ClosestIntersection(new_ray, triangles, inter, -1))
+    {
+        vec3 tmp_colour = triangles[inter.triangleIndex].color;
+        tmp_colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+        colour += tmp_colour * sampleWeight;
+    }
+  }
+  return colour;
 }
 
 vec3 Raytracer::DOFRay(const int x, const int y)
 {
-  int superSamples = 3; //In each dimension
+  int superSamples = 2; //In each dimension
   float sampleSize = 1/(float)superSamples;
   //while(glm::length(delta) > threshold)
   float sampleWeight = 1.0f / (superSamples * superSamples);
@@ -122,11 +148,9 @@ vec3 Raytracer::DOFRay(const int x, const int y)
   {
     for( int j=0; j<superSamples; j++)
     {
-      //float r1 = -0.25 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/0.5f));
-      //float r2 = -0.25 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/0.5f));
       float r1 = -(sampleSize/2) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/sampleSize));
       float r2 = -(sampleSize/2) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/sampleSize));
-      vec3 ray((x + sampleSize*(i+0.5f) + r1 - width / 2.0f), 
+      vec3 d((x + sampleSize*(i+0.5f) + r1 - width / 2.0f), 
                 -(y + sampleSize*(j+0.5f) + r2 - height / 2.0f), focalLength);
       /*
       point *= focalDepth;
@@ -135,23 +159,12 @@ vec3 Raytracer::DOFRay(const int x, const int y)
       d = camera.transform_c2w_rotate(d);
       rand_eye = camera.transform_c2w_rotate(rand_eye) + camera.pos;
       */
-      ray = glm::normalize(ray);
+      //d = glm::normalize(d);
+      d /= focalLength;
 
       //d = d*camera.r_y*camera.R_x;
-      
-      Intersection inter;
-      inter.distance = numeric_limits<float>::max();
-      vec3 col_tmp;
-      if (ClosestIntersection(camera.pos, ray, triangles, inter, -1))
-      {
-          col_tmp = triangles[inter.triangleIndex].color;
-          col_tmp *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
-      }
-      else
-      { 
-          col_tmp = vec3(0, 0, 0);
-      }
-      colour += col_tmp * sampleWeight;
+      Ray ray = {camera.pos, d};
+      colour += CastRay(ray) * sampleWeight;
     }
   }
   //return average;
@@ -168,7 +181,8 @@ vec3 Raytracer::NormalRay(const int x, const int y)
   Intersection inter;
   inter.distance = numeric_limits<float>::max();
   vec3 colour;
-  if (ClosestIntersection(camera.pos, d, triangles, inter, -1))
+  Ray ray = {camera.pos, d};
+  if (ClosestIntersection(ray, triangles, inter, -1))
   {
       colour = triangles[inter.triangleIndex].color;
       colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
