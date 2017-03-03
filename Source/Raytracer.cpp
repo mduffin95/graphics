@@ -5,8 +5,7 @@
 
 #define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, RenderType type) : Renderer(screen, camera, lighting, triangles), lightPos( 0, -0.5, -0.7 ), 
-    lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type)
+Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, int dofSamples) : Renderer(screen, camera, lighting, triangles), lightPos( 0, -0.5, -0.7 ), lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type), dofSamples(dofSamples)
 {
   srand (static_cast <unsigned> (time(0)));
 }
@@ -61,7 +60,6 @@ bool Raytracer::ClosestIntersection(
 
 vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& triangles ){
 
-
 	vec3 r = lightPos - i.position ;
 	vec3 r_normal = normalize(r);
 	float light_distance  = r.length();
@@ -91,10 +89,7 @@ void Raytracer::Draw()
 	{
 		for( int x=0; x<width; ++x )
 		{
-      if(type == Normal)
-        colour = NormalRay(x, y);
-      if(type == DepthOfField)
-        colour = DOFRay(x, y);
+      colour = CastAtPixel(x, y);
       //vec3 color( 1.0, 0.0, 0.0 );
       PutPixelSDL( screen, x, y, colour );
 		}
@@ -110,15 +105,20 @@ vec3 Raytracer::CastRay(const Ray ray)
 {
   float apertureRadius = 0.1f;
   float focalDepth = 3.0f;
-  float numSamples = 100;
-  float sampleWeight = 1/numSamples;
+  float sampleWeight = 1/dofSamples;
   vec3 point = ray.direction * focalDepth;
-  Ray new_ray;
+  Ray new_ray = ray;
   vec3 colour = vec3(0,0,0);
-  for( int i=0; i<numSamples; i++)
+  float r1 = 0;
+  float r2 = 0;
+  
+  for( int i=0; i<dofSamples; i++)
   {
-    float r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-    float r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+    if( dofSamples > 1 )
+    {
+      r1 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+      r2 = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+    }
 
     vec3 randomise = vec3(r1*apertureRadius, r2*apertureRadius, 0);
     new_ray.direction = camera.transform_c2w_rotate(point - randomise);
@@ -137,9 +137,9 @@ vec3 Raytracer::CastRay(const Ray ray)
   return colour;
 }
 
-vec3 Raytracer::DOFRay(const int x, const int y)
+vec3 Raytracer::CastAtPixel(const int x, const int y)
 {
-  int superSamples = 2; //In each dimension
+  int superSamples = 3; //In each dimension
   float sampleSize = 1/(float)superSamples;
   //while(glm::length(delta) > threshold)
   float sampleWeight = 1.0f / (superSamples * superSamples);
@@ -152,13 +152,7 @@ vec3 Raytracer::DOFRay(const int x, const int y)
       float r2 = -(sampleSize/2) + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/sampleSize));
       vec3 d((x + sampleSize*(i+0.5f) + r1 - width / 2.0f), 
                 -(y + sampleSize*(j+0.5f) + r2 - height / 2.0f), focalLength);
-      /*
-      point *= focalDepth;
-      vec3 rand_eye = vec3(r3*aperture_radius, r4*aperture_radius, 0);//Get random point
-      vec3 d = point - rand_eye;
-      d = camera.transform_c2w_rotate(d);
-      rand_eye = camera.transform_c2w_rotate(rand_eye) + camera.pos;
-      */
+
       //d = glm::normalize(d);
       d /= focalLength;
 
@@ -171,25 +165,3 @@ vec3 Raytracer::DOFRay(const int x, const int y)
   return colour;
 }
 
-vec3 Raytracer::NormalRay(const int x, const int y)
-{
-  vec3 d(x - width / 2.0f, -(y - height / 2.0f), focalLength);
-
-  //d = d*camera.r_y*camera.R_x;
-  d = camera.transform_c2w_rotate(d);
-
-  Intersection inter;
-  inter.distance = numeric_limits<float>::max();
-  vec3 colour;
-  Ray ray = {camera.pos, d};
-  if (ClosestIntersection(ray, triangles, inter, -1))
-  {
-      colour = triangles[inter.triangleIndex].color;
-      colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
-  }
-  else
-  { 
-      colour = vec3(0, 0, 0);
-  }
-  return colour;
-}

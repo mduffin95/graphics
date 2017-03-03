@@ -30,7 +30,7 @@ int main(int argc, char* argv[] )
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);
 
-  Raytracer r (screen, camera, lighting, triangles, Raytracer::DepthOfField) ;
+  Raytracer r (screen, camera, lighting, triangles, 1) ;
   //Rasteriser r (screen, camera, lighting, triangles) ;
 
 	//A bit of a hack to flush initial events
