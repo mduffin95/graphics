@@ -5,7 +5,7 @@
 
 struct Intersection
 {
-  vec3 position;
+  vec3 pos;
   float distance;
   int triangleIndex;
 };

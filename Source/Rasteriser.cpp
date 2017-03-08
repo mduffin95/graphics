@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include "TestModel.h"
 #include "Camera.h"
-#include "Lighting.h"
+#include "Light.h"
 #include "Rasteriser.h"
 
 
@@ -23,7 +23,7 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, Lighting &lighting, vector<Triangle> &triangles) : Renderer(screen, camera, lighting, triangles) {
+Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light>& lights, vector<Triangle> &triangles) : Renderer(screen, camera, lights, triangles) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
@@ -63,9 +63,10 @@ void Rasteriser::DrawPolygon(const Triangle &t) {
 	}
 
 	//Transform to camera coordinates
-	vec3 v0_dash_c = lighting.transform(v0_dash);
-	vec3 v1_dash_c = lighting.transform(v1_dash);
-	vec3 v2_dash_c = lighting.transform(v2_dash);
+  //0th camera is temporary
+	vec3 v0_dash_c = lights[0].transform(v0_dash);
+	vec3 v1_dash_c = lights[0].transform(v1_dash);
+	vec3 v2_dash_c = lights[0].transform(v2_dash);
 
 	//Matrix of vertices
 	mat3 M_l(v0_dash_c, v1_dash_c, v2_dash_c);

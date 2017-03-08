@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 #include "Rasteriser.h"
 #include "TestModel.h"
-#include "Lighting.h"
+#include "Light.h"
 
 bool ProcessInput(int& t, Camera & camera);
 using namespace std;
@@ -16,11 +16,11 @@ int main(int argc, char* argv[] )
 {
 	vector<Triangle> triangles;
 
-	vec3 cameraPos(0,0,-3);
-  vec3 lightingPos(1,1,-3);
-  vec3 lightColour(10,10,10);
-	Camera camera(cameraPos);
-	Lighting lighting(lightingPos, lightColour);
+  vec3 lightColour(100,100,100);
+	Camera camera(vec3(0,0,-3));
+	Light light1(vec3(1,1,-3), lightColour);
+	Light light2(vec3(0,0,0), lightColour);
+  vector<Light> lights = {light1, light2};
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 	int t = SDL_GetTicks();	// Set start value for timer.
@@ -30,8 +30,8 @@ int main(int argc, char* argv[] )
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);
 
-  Raytracer r (screen, camera, lighting, triangles, 1) ;
-  //Rasteriser r (screen, camera, lighting, triangles) ;
+  //Raytracer r (screen, camera, lights, triangles, 1) ;
+  Rasteriser r (screen, camera, lights, triangles) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;

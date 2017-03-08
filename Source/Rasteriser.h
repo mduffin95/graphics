@@ -2,7 +2,7 @@
 #define RASTERISER_H
 
 #include "Renderer.h"
-#include "Lighting.h"
+#include "Light.h"
 #include "TestModel.h"
 
 
@@ -13,7 +13,7 @@ using glm::ivec2;
 class Rasteriser : public Renderer {
 
 public:
-  Rasteriser(SDL_Surface *screen, Camera& camera, Lighting &lighting, vector<Triangle> &triangles);
+  Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light> &lights, vector<Triangle> &triangles);
   void Draw();
 
 private:

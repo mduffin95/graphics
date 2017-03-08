@@ -1,11 +1,11 @@
 #include "Raytracer.h"
-#include "Lighting.h"
+#include "Light.h"
 #include <cstdlib>
 #include <ctime>
 
 #define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, int dofSamples) : Renderer(screen, camera, lighting, triangles), lightPos( 0, -0.5, -0.7 ), lightColour(70, 70, 70), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type), dofSamples(dofSamples)
+Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights, vector<Triangle>& triangles, int dofSamples) : Renderer(screen, camera, lights, triangles), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), type(type), dofSamples(dofSamples)
 {
   srand (static_cast <unsigned> (time(0)));
 }
@@ -50,7 +50,7 @@ bool Raytracer::ClosestIntersection(
 				i != index )
     {
       closestIntersection.distance = t;
-      closestIntersection.position = ray.origin + t * ray.direction;
+      closestIntersection.pos = ray.origin + t * ray.direction;
       closestIntersection.triangleIndex = i;
       result = true;
     }
@@ -58,25 +58,31 @@ bool Raytracer::ClosestIntersection(
   return result;
 }
 
-vec3 Raytracer::DirectLight( const Intersection& i, const vector<Triangle>& triangles ){
+vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& triangles ){
 
-	vec3 r = lightPos - i.position ;
-	vec3 r_normal = normalize(r);
-	float light_distance  = r.length();
+  vec3 illuminationColour(0,0,0);
+  for (unsigned i=0; i<lights.size(); i++)
+  {
+    vec3 r = lights[i].pos - isec.pos;
 
-	//Check closest intersection between camera position
-	Intersection lightIntersection;
-	lightIntersection.distance = 1;
-  Ray ray = {i.position, r};
-	if(ClosestIntersection(ray,triangles,lightIntersection, i.triangleIndex)){
-		return vec3(0,0,0);
-	}
+    //Check closest intersection between camera position
+    Intersection lightIntersection;
+    lightIntersection.distance = 1;
+    Ray ray = {isec.pos, r};
+    //This doesn't need to be the closest, can return after any intersection
+    if(ClosestIntersection(ray,triangles,lightIntersection, isec.triangleIndex)){
+      continue;
+    }
 
-	float max1 =  max((float)dot(triangles[i.triangleIndex].normal , r_normal),0.0f);
+    vec3 r_normal = normalize(r);
+    float light_distance  = r.length();
 
-	vec3 illuminationColour = max1 * lightColour / ( 4.0f * powf(light_distance,2) * PI )  ;
+    float max1 =  max((float)dot(triangles[isec.triangleIndex].normal , r_normal),0.0f);
 
-	return illuminationColour;
+    illuminationColour += max1 * lights[i].colour / ( 4.0f * powf(light_distance,2) * PI );
+
+  }
+  return illuminationColour;
 }
 
 void Raytracer::Draw()

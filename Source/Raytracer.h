@@ -15,7 +15,7 @@ public:
     Normal, DepthOfField
   };
 
-  Raytracer(SDL_Surface* screen, Camera &camera, Lighting &lighting, vector<Triangle>& triangles, int dofSamples);
+  Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lighting, vector<Triangle>& triangles, int dofSamples);
   void Draw();
 
 private:
@@ -24,8 +24,6 @@ private:
   vec3 DirectLight( const Intersection& i, const vector<Triangle>& triangles );
   vec3 CastAtPixel(const int x, const int y);
   vec3 CastRay(const Ray ray);
-  vec3 lightPos;
-  vec3 lightColour;
   int focalLength;
   vec3 indirectLight;
   RenderType type;
