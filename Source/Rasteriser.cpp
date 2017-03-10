@@ -111,7 +111,7 @@ void Rasteriser::Draw()
 		colourBuffer[i] = vec3(0,0,0);
 	}
 
-	for( int i=0; i<triangles.size(); ++i )
+	for( unsigned i=0; i<triangles.size(); ++i )
 	{
 		DrawPolygon(triangles[i]);
 	}

@@ -42,8 +42,8 @@ Intersection Raytracer::CheckIntersection( const Ray ray, const Triangle *triang
   return result;
 }
 
-Intersection Raytracer::AnyIntersection(
-  Ray ray, 
+Intersection Raytracer::ShadowIntersection(
+  Ray ray, //Needs to be a ray from the point to the light (not normalised) 
   const vector<Triangle>& triangles,
   const Triangle *exclude)
 {
@@ -52,7 +52,7 @@ Intersection Raytracer::AnyIntersection(
     if (&triangles[i] == exclude)
       continue;
     Intersection isec = CheckIntersection(ray, &triangles[i]);
-    if (isec.didIntersect)
+    if (isec.didIntersect && (isec.distance <= 1))
       return isec;
   }
   return Intersection();
@@ -62,13 +62,12 @@ Intersection Raytracer::ClosestIntersection(
   Ray ray,  
   const vector<Triangle>& triangles)
 {
-  bool result = false;
   Intersection closest;
   closest.distance = numeric_limits<float>::max();
   for (unsigned i=0; i<triangles.size(); i++)
   {
     Intersection isec = CheckIntersection(ray, &triangles[i]);
-    if (isec.didIntersect && (isec.distance < closest.distance))
+    if (isec.didIntersect && (isec.distance <= closest.distance))
     {
       closest = isec;
     }
@@ -86,7 +85,7 @@ vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& t
     //Check closest intersection between camera position
     Ray ray = {isec.pos, r};
     //This doesn't need to be the closest, can return after any intersection
-    Intersection shadow = AnyIntersection(ray, triangles, isec.triangle);
+    Intersection shadow = ShadowIntersection(ray, triangles, isec.triangle);
     if (shadow.didIntersect) {
       continue;
     }
@@ -127,7 +126,7 @@ vec3 Raytracer::CastRay(const Ray ray)
 {
   float apertureRadius = 0.1f;
   float focalDepth = 3.0f;
-  float sampleWeight = 1/dofSamples;
+  float sampleWeight = 1.0f / dofSamples;
   vec3 point = ray.direction * focalDepth;
   Ray new_ray = ray;
   vec3 colour = vec3(0,0,0);

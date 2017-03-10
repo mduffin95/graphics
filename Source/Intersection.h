@@ -9,7 +9,7 @@ class Triangle;
 class Intersection {
 public:
   Intersection() 
-    : triangle(NULL), didIntersect(false), distance(1) {}
+    : didIntersect(false), pos(vec3(0,0,0)), distance(1), triangle(NULL) {}
   bool didIntersect;
   vec3 pos;
   float distance;

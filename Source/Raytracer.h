@@ -19,7 +19,7 @@ public:
 private:
   Intersection CheckIntersection( const Ray, const Triangle*);
   Intersection ClosestIntersection(Ray, const vector<Triangle>&);
-  Intersection AnyIntersection(Ray, const vector<Triangle>&, const Triangle*);
+  Intersection ShadowIntersection(Ray, const vector<Triangle>&, const Triangle*);
   vec3 DirectLight( const Intersection& i, const vector<Triangle>& triangles );
   vec3 CastAtPixel(const int x, const int y);
   vec3 CastRay(const Ray ray);
