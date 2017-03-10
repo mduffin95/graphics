@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include "Object.h"
-class Triangle// : public Object
+class Triangle : public Object
 {
 public:
 	glm::vec3 v0;
@@ -13,7 +13,8 @@ public:
 	glm::vec3 color;
 	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 color );
 	void ComputeNormal();
+
+  Intersection Intersect(Ray) const override;  
 };
 
-class Triangle;
 #endif

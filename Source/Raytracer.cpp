@@ -2,6 +2,8 @@
 #include "Light.h"
 #include <cstdlib>
 #include <ctime>
+#include <glm/glm.hpp>
+using glm::vec3;
 
 #define PI 3.141592653f
 
@@ -10,37 +12,6 @@ Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights,
   srand (static_cast <unsigned> (time(0)));
 }
 
-Intersection Raytracer::CheckIntersection( const Ray ray, const Triangle *triangle)
-{
-  Intersection result;
-  //TODO: Convert this function to return an intersection
-  vec3 v0 = triangle->v0;
-  vec3 v1 = triangle->v1;
-  vec3 v2 = triangle->v2;
-
-  vec3 e1 = v1 - v0;
-  vec3 e2 = v2 - v0;
-  vec3 b = ray.origin - v0;
-
-  mat3 A( -ray.direction, e1, e2 );
-  vec3 x = glm::inverse( A ) * b;      
-  float t = x.x;
-  float u = x.y;
-  float v = x.z;
-  //Changed t < d to t <= d, to fix shadow bug
-  if (
-      t >= 0 &&
-      u >= 0 &&
-      v >= 0 &&
-      u + v <= 1)
-  {
-    result.distance = t;
-    result.pos = ray.origin + t * ray.direction;
-    result.triangle = triangle;
-    result.didIntersect = true;
-  }
-  return result;
-}
 
 Intersection Raytracer::ShadowIntersection(
   Ray ray, //Needs to be a ray from the point to the light (not normalised) 
@@ -49,9 +20,9 @@ Intersection Raytracer::ShadowIntersection(
 {
   for (unsigned i=0; i<triangles.size(); i++)
   {
-    if (&triangles[i] == exclude)
+    if (&triangles[i] == exclude) //Prevents self-intersections
       continue;
-    Intersection isec = CheckIntersection(ray, &triangles[i]);
+    Intersection isec = triangles[i].Intersect(ray);//CheckIntersection(ray, &triangles[i]);
     if (isec.didIntersect && (isec.distance <= 1))
       return isec;
   }
@@ -66,7 +37,7 @@ Intersection Raytracer::ClosestIntersection(
   closest.distance = numeric_limits<float>::max();
   for (unsigned i=0; i<triangles.size(); i++)
   {
-    Intersection isec = CheckIntersection(ray, &triangles[i]);
+    Intersection isec = triangles[i].Intersect(ray);//CheckIntersection(ray, &triangles[i]);
     if (isec.didIntersect && (isec.distance <= closest.distance))
     {
       closest = isec;

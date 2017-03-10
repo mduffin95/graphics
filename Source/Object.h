@@ -8,7 +8,7 @@ class Object {
 
 public:
   //Something for checking intersections
-  virtual Intersection intersect(Ray ray) = 0;
+  virtual Intersection Intersect(Ray ray) const = 0;
 
   //TODO: Bounding box
 };

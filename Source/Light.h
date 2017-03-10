@@ -6,8 +6,8 @@
 #define COMPUTER_GRAPHICS_LIGHTING_H
 
 #include <glm/glm.hpp>
-using namespace std;
 using glm::vec3;
+
 class Light {
 
   public:

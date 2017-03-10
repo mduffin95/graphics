@@ -17,7 +17,7 @@ public:
   void Draw();
 
 private:
-  Intersection CheckIntersection( const Ray, const Triangle*);
+  //Intersection CheckIntersection( const Ray, const Triangle*);
   Intersection ClosestIntersection(Ray, const vector<Triangle>&);
   Intersection ShadowIntersection(Ray, const vector<Triangle>&, const Triangle*);
   vec3 DirectLight( const Intersection& i, const vector<Triangle>& triangles );
