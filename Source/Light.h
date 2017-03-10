@@ -11,7 +11,8 @@ using glm::vec3;
 class Light {
 
   public:
-  Light (vec3 pos, vec3 colour);
+  Light (vec3 pos, vec3 colour, float radius) : radius(radius), pos(pos), colour(colour) {}
+  float radius;
   vec3 pos;
   vec3 colour;
 

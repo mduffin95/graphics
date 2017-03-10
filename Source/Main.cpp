@@ -18,8 +18,8 @@ int main(int argc, char* argv[] )
 
   vec3 lightColour(100,100,100);
 	Camera camera(vec3(0,0,-3));
-	Light light1(vec3(1,1,-3), lightColour);
-	Light light2(vec3(0,0,0), lightColour);
+	Light light1(vec3(1,1,-3), lightColour, 0.01f);
+	Light light2(vec3(0,0,0), lightColour, 0.01f);
   vector<Light> lights = {light1, light2};
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );

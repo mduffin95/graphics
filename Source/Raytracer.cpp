@@ -46,6 +46,19 @@ Intersection Raytracer::ClosestIntersection(
   return closest;
 }
 
+vec3 perp_vec(vec3 in, float radius)
+{
+  float a = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+  float b = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
+
+  float c = -(a*in.x + b*in.y) / in.z;
+
+  vec3 v(a, b, c);
+  v = normalize(v);
+  v *= radius;
+  return v;
+}
+
 vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& triangles )
 {
   vec3 illuminationColour(0,0,0);
@@ -53,19 +66,24 @@ vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& t
   {
     vec3 r = lights[i].pos - isec.pos;
 
-    //Check closest intersection between camera position
-    Ray ray = {isec.pos, r};
-    //This doesn't need to be the closest, can return after any intersection
-    Intersection shadow = ShadowIntersection(ray, triangles, isec.triangle);
-    if (shadow.didIntersect) {
-      continue;
+    //Number of feeler rays that don't hit obstacles
+    int count = 0;
+    for (int s=0; s<SHADOW_SAMPLES; s++)
+    {
+      vec3 p = perp_vec(r, lights[i].radius);       
+      Ray ray = {isec.pos, r + p};
+      
+      Intersection shadow = ShadowIntersection(ray, triangles, isec.triangle);
+      if (!shadow.didIntersect) {
+        count++;
+      }
     }
 
     vec3 r_normal = normalize(r);
 
     float max1 =  max((float)dot(isec.triangle->normal , r_normal),0.0f);
 
-    illuminationColour += max1 * lights[i].colour / ( 4.0f * powf(r.length(),2) * PI );
+    illuminationColour += (count / (float) SHADOW_SAMPLES) * max1 * lights[i].colour / ( 4.0f * powf(r.length(),2) * PI );
 
   }
   return illuminationColour;

@@ -1,16 +1,4 @@
-//
-// Created by John Griffith on 20/02/2017.
-//
-
 #include "Light.h"
-
-
-
-
-Light::Light (vec3 pos, vec3 colour) : pos(pos), colour(colour)
-{
-
-}
 
 void Light::move (vec3 movement)
 {
