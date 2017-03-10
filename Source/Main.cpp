@@ -27,11 +27,11 @@ int main(int argc, char* argv[] )
 
 	LoadTestModel( triangles );
 
-	SDL_WM_GrabInput( SDL_GRAB_ON );
-	SDL_ShowCursor(0);
+	//SDL_WM_GrabInput( SDL_GRAB_ON );
+	//SDL_ShowCursor(0);
 
-  //Raytracer r (screen, camera, lights, triangles, 1) ;
-  Rasteriser r (screen, camera, lights, triangles) ;
+  Raytracer r (screen, camera, lights, triangles, 1) ;
+  //Rasteriser r (screen, camera, lights, triangles) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;
