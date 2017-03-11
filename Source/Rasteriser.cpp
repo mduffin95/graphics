@@ -33,8 +33,8 @@ Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light>& light
 void Rasteriser::DrawPolygon(const shared_ptr<IObject> obj) {
 	//Transform to camera coordinates
 	vec3 v0_dash = camera.transform_w2c(obj->get_v0());
-	vec3 v1_dash = camera.transform_w2c(obj->get_v0());
-	vec3 v2_dash = camera.transform_w2c(obj->get_v0());
+	vec3 v1_dash = camera.transform_w2c(obj->get_v1());
+	vec3 v2_dash = camera.transform_w2c(obj->get_v2());
 
 	//Matrix of vertices
 	mat3 M(v0_dash, v1_dash, v2_dash);
