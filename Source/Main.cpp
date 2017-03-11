@@ -2,6 +2,7 @@
 #include "Rasteriser.h"
 #include "TestModel.h"
 #include "Light.h"
+#include <memory>
 
 bool ProcessInput(int& t, Camera & camera);
 using namespace std;
@@ -14,7 +15,7 @@ const int SCREEN_HEIGHT = 500;
 
 int main(int argc, char* argv[] )
 {
-	vector<Triangle> triangles;
+  vector<shared_ptr<IObject>> objects;
 
   vec3 lightColour(100,100,100);
 	Camera camera(vec3(0,0,-3));
@@ -25,13 +26,13 @@ int main(int argc, char* argv[] )
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 	int t = SDL_GetTicks();	// Set start value for timer.
 
-	LoadTestModel( triangles );
+	LoadTestModel( objects );
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );
 	//SDL_ShowCursor(0);
 
-  Raytracer r (screen, camera, lights, triangles, 1) ;
-  //Rasteriser r (screen, camera, lights, triangles) ;
+  //Raytracer r (screen, camera, lights, objects, 1) ;
+  Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events
 	SDL_Event e;

@@ -12,10 +12,10 @@ protected:
     SDL_Surface * screen;
     Camera &camera;
     vector<Light>& lights;
-    vector<Triangle>& triangles;
+    vector<shared_ptr<IObject>>& objects;
     int width;
     int height;
-    Renderer(SDL_Surface*, Camera&, vector<Light>&, vector<Triangle>&);
+    Renderer(SDL_Surface*, Camera&, vector<Light>&, vector<shared_ptr<IObject>>&);
 
 public:
 		virtual void Draw() = 0;

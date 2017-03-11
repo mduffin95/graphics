@@ -15,7 +15,7 @@ SDL_Surface* InitializeSDL( int width, int height, bool fullscreen = false );
 // as no quit event has been received.
 bool NoQuitMessageSDL();
 
-// Draw a pixel on a SDL_Surface. The color is represented by a glm:vec3 which
+// Draw a pixel on a SDL_Surface. The colour is represented by a glm:vec3 which
 // specifies the red, green and blue component with numbers between zero and
 // one. Before calling this function you should call:
 // if( SDL_MUSTLOCK( surface ) )
@@ -24,7 +24,7 @@ bool NoQuitMessageSDL();
 // if( SDL_MUSTLOCK( surface ) )
 //     SDL_UnlockSurface( surface );
 // SDL_UpdateRect( surface, 0, 0, 0, 0 );
-void PutPixelSDL( SDL_Surface* surface, int x, int y, glm::vec3 color );
+void PutPixelSDL( SDL_Surface* surface, int x, int y, glm::vec3 colour );
 
 
 #endif

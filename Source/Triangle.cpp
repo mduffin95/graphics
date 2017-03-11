@@ -3,8 +3,8 @@
 using glm::vec3;
 using glm::mat3;
 
-Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 color)
-:v0(v0), v1(v1), v2(v2), color(color){
+Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 colour)
+:v0(v0), v1(v1), v2(v2), colour(colour){
 	ComputeNormal();
 }
 
@@ -37,10 +37,31 @@ Intersection Triangle::Intersect(Ray ray) const
   {
     result.distance = t;
     result.pos = ray.origin + t * ray.direction;
-    result.triangle = this;
+    result.normal = normal;
+    result.colour = colour;
+    result.object = this;
     result.didIntersect = true;
   }
   return result;
 
 }
 
+vec3 Triangle::get_v0() const
+{
+  return v0;
+}
+
+vec3 Triangle::get_v1() const
+{
+  return v1;
+}
+
+vec3 Triangle::get_v2() const
+{
+  return v2;
+}
+
+vec3 Triangle::get_colour() const
+{
+  return colour;
+}

@@ -6,7 +6,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "Triangle.h"
+#include <memory>
 
-void LoadTestModel( std::vector<Triangle>& triangles );
+void LoadTestModel( std::vector<std::shared_ptr<IObject>>& objects);
 
 #endif

@@ -4,6 +4,8 @@
 
 #include "TestModel.h"
 #include "Triangle.h"
+#include "IObject.h"
+#include <memory>
 
 
 
@@ -11,11 +13,13 @@
 // -1 <= x <= +1
 // -1 <= y <= +1
 // -1 <= z <= +1
-void LoadTestModel( std::vector<Triangle>& triangles )
+void LoadTestModel( std::vector<std::shared_ptr<IObject>>& objects)
 {
 	using glm::vec3;
 
-	// Defines colors:
+  std::vector<Triangle> triangles;
+
+	// Defines colours:
 	vec3 red(    0.75f, 0.15f, 0.15f );
 	vec3 yellow( 0.75f, 0.75f, 0.15f );
 	vec3 green(  0.15f, 0.75f, 0.15f );
@@ -151,5 +155,8 @@ void LoadTestModel( std::vector<Triangle>& triangles )
 		triangles[i].v2.y *= 1;
 
 		triangles[i].ComputeNormal();
+
+    auto obj = std::make_shared<Triangle>(triangles[i]);
+    objects.push_back(obj);
 	}
 }

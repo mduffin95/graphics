@@ -7,7 +7,7 @@ using glm::vec3;
 
 #define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights, vector<Triangle>& triangles, int dofSamples) : Renderer(screen, camera, lights, triangles), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
+Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights, vector<shared_ptr<IObject>>& objects, int dofSamples) : Renderer(screen, camera, lights, objects), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
 {
   srand (static_cast <unsigned> (time(0)));
 }
@@ -15,14 +15,14 @@ Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights,
 
 Intersection Raytracer::ShadowIntersection(
   Ray ray, //Needs to be a ray from the point to the light (not normalised) 
-  const vector<Triangle>& triangles,
-  const Triangle *exclude)
+  const vector<shared_ptr<IObject>>& objects,
+  const IObject *exclude)
 {
-  for (unsigned i=0; i<triangles.size(); i++)
+  for (unsigned i=0; i<objects.size(); i++)
   {
-    if (&triangles[i] == exclude) //Prevents self-intersections
+    if (objects[i].get() == exclude) //Prevents self-intersections
       continue;
-    Intersection isec = triangles[i].Intersect(ray);//CheckIntersection(ray, &triangles[i]);
+    Intersection isec = objects[i]->Intersect(ray);
     if (isec.didIntersect && (isec.distance <= 1))
       return isec;
   }
@@ -31,13 +31,13 @@ Intersection Raytracer::ShadowIntersection(
 
 Intersection Raytracer::ClosestIntersection(
   Ray ray,  
-  const vector<Triangle>& triangles)
+  const vector<shared_ptr<IObject>>& objects)
 {
   Intersection closest;
   closest.distance = numeric_limits<float>::max();
-  for (unsigned i=0; i<triangles.size(); i++)
+  for (unsigned i=0; i<objects.size(); i++)
   {
-    Intersection isec = triangles[i].Intersect(ray);//CheckIntersection(ray, &triangles[i]);
+    Intersection isec = objects[i]->Intersect(ray);
     if (isec.didIntersect && (isec.distance <= closest.distance))
     {
       closest = isec;
@@ -59,7 +59,7 @@ vec3 perp_vec(vec3 in, float radius)
   return v;
 }
 
-vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& triangles )
+vec3 Raytracer::DirectLight( const Intersection& isec, const vector<shared_ptr<IObject>>& objects )
 {
   vec3 illuminationColour(0,0,0);
   for (unsigned i=0; i<lights.size(); i++)
@@ -73,7 +73,7 @@ vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& t
       vec3 p = perp_vec(r, lights[i].radius);       
       Ray ray = {isec.pos, r + p};
       
-      Intersection shadow = ShadowIntersection(ray, triangles, isec.triangle);
+      Intersection shadow = ShadowIntersection(ray, objects, isec.object);
       if (!shadow.didIntersect) {
         count++;
       }
@@ -81,7 +81,7 @@ vec3 Raytracer::DirectLight( const Intersection& isec, const vector<Triangle>& t
 
     vec3 r_normal = normalize(r);
 
-    float max1 =  max((float)dot(isec.triangle->normal , r_normal),0.0f);
+    float max1 =  max((float)dot(isec.normal , r_normal),0.0f);
 
     illuminationColour += (count / (float) SHADOW_SAMPLES) * max1 * lights[i].colour / ( 4.0f * powf(r.length(),2) * PI );
 
@@ -100,7 +100,7 @@ void Raytracer::Draw()
 		for( int x=0; x<width; ++x )
 		{
       colour = CastAtPixel(x, y);
-      //vec3 color( 1.0, 0.0, 0.0 );
+      //vec3 colour( 1.0, 0.0, 0.0 );
       PutPixelSDL( screen, x, y, colour );
 		}
 	}
@@ -134,12 +134,13 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.direction = camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
-    Intersection inter = ClosestIntersection(new_ray, triangles);
+    //TODO: Don't pass objects as it's available as a member variable
+    Intersection inter = ClosestIntersection(new_ray, objects);
 
     if (inter.didIntersect)
     {
-        vec3 tmp_colour = inter.triangle->color;
-        tmp_colour *= 0.75f*(DirectLight(inter, triangles)+indirectLight);
+        vec3 tmp_colour = inter.colour;
+        tmp_colour *= 0.75f*(DirectLight(inter, objects)+indirectLight);
         colour += tmp_colour * sampleWeight;
     }
   }

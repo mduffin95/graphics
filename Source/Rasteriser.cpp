@@ -23,18 +23,18 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light>& lights, vector<Triangle> &triangles) : Renderer(screen, camera, lights, triangles) {
+Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light>& lights, vector<shared_ptr<IObject>>& objects) : Renderer(screen, camera, lights, objects) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
 }
 
 
-void Rasteriser::DrawPolygon(const Triangle &t) {
+void Rasteriser::DrawPolygon(const shared_ptr<IObject> obj) {
 	//Transform to camera coordinates
-	vec3 v0_dash = camera.transform_w2c(t.v0);
-	vec3 v1_dash = camera.transform_w2c(t.v1);
-	vec3 v2_dash = camera.transform_w2c(t.v2);
+	vec3 v0_dash = camera.transform_w2c(obj->get_v0());
+	vec3 v1_dash = camera.transform_w2c(obj->get_v0());
+	vec3 v2_dash = camera.transform_w2c(obj->get_v0());
 
 	//Matrix of vertices
 	mat3 M(v0_dash, v1_dash, v2_dash);
@@ -56,7 +56,7 @@ void Rasteriser::DrawPolygon(const Triangle &t) {
 				float W = 1 / glm::dot(w, p);
 				if (depthBufferCamera[C(x, y, width, height)] > W) {
 					depthBufferCamera[C(x, y, width, height)] = W;
-					colourBuffer[C(x, y, width, height)] = t.color;
+					colourBuffer[C(x, y, width, height)] = obj->get_colour();
 				}
 			}
 		}
@@ -111,9 +111,9 @@ void Rasteriser::Draw()
 		colourBuffer[i] = vec3(0,0,0);
 	}
 
-	for( unsigned i=0; i<triangles.size(); ++i )
+	for( unsigned i=0; i<objects.size(); ++i )
 	{
-		DrawPolygon(triangles[i]);
+		DrawPolygon(objects[i]);
 	}
 
 
