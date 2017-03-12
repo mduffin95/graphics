@@ -5,17 +5,18 @@
 #include "SDLauxiliary.h"
 #include "Camera.h"
 #include "Light.h"
+#include <memory>
 
 class Renderer {
 
 protected:
     SDL_Surface * screen;
     Camera &camera;
-    vector<Light>& lights;
-    vector<shared_ptr<IObject>>& objects;
+    std::vector<Light>& lights;
+    std::vector<std::shared_ptr<Object>>& objects;
     int width;
     int height;
-    Renderer(SDL_Surface*, Camera&, vector<Light>&, vector<shared_ptr<IObject>>&);
+    Renderer(SDL_Surface*, Camera&, std::vector<Light>&, std::vector<std::shared_ptr<Object>>&);
 
 public:
 		virtual void Draw() = 0;

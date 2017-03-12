@@ -3,38 +3,25 @@
 #include <cstdlib>
 #include <ctime>
 #include <glm/glm.hpp>
+#include "Object.h"
+#include <SDL.h>
+#include "Material.h"
 using glm::vec3;
 
-#define PI 3.141592653f
 
-Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, vector<Light>& lights, vector<shared_ptr<IObject>>& objects, int dofSamples) : Renderer(screen, camera, lights, objects), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
+Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, std::vector<Light>& lights, std::vector<std::shared_ptr<Object>>& objects, int dofSamples) : Renderer(screen, camera, lights, objects), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
 {
   srand (static_cast <unsigned> (time(0)));
 }
 
 
-Intersection Raytracer::ShadowIntersection(
-  Ray ray, //Needs to be a ray from the point to the light (not normalised) 
-  const vector<shared_ptr<IObject>>& objects,
-  const IObject *exclude)
-{
-  for (unsigned i=0; i<objects.size(); i++)
-  {
-    if (objects[i].get() == exclude) //Prevents self-intersections
-      continue;
-    Intersection isec = objects[i]->Intersect(ray);
-    if (isec.didIntersect && (isec.distance <= 1))
-      return isec;
-  }
-  return Intersection();
-}
 
 Intersection Raytracer::ClosestIntersection(
   Ray ray,  
-  const vector<shared_ptr<IObject>>& objects)
+  const std::vector<std::shared_ptr<Object>>& objects)
 {
   Intersection closest;
-  closest.distance = numeric_limits<float>::max();
+  closest.distance = std::numeric_limits<float>::max();
   for (unsigned i=0; i<objects.size(); i++)
   {
     Intersection isec = objects[i]->Intersect(ray);
@@ -46,48 +33,6 @@ Intersection Raytracer::ClosestIntersection(
   return closest;
 }
 
-vec3 perp_vec(vec3 in, float radius)
-{
-  float a = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-  float b = -1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/2.0f));
-
-  float c = -(a*in.x + b*in.y) / in.z;
-
-  vec3 v(a, b, c);
-  v = normalize(v);
-  v *= radius;
-  return v;
-}
-
-vec3 Raytracer::DirectLight( const Intersection& isec, const vector<shared_ptr<IObject>>& objects )
-{
-  vec3 illuminationColour(0,0,0);
-  for (unsigned i=0; i<lights.size(); i++)
-  {
-    vec3 r = lights[i].pos - isec.pos;
-
-    //Number of feeler rays that don't hit obstacles
-    int count = 0;
-    for (int s=0; s<SHADOW_SAMPLES; s++)
-    {
-      vec3 p = perp_vec(r, lights[i].radius);       
-      Ray ray = {isec.pos, r + p};
-      
-      Intersection shadow = ShadowIntersection(ray, objects, isec.object);
-      if (!shadow.didIntersect) {
-        count++;
-      }
-    }
-
-    vec3 r_normal = normalize(r);
-
-    float max1 =  max((float)dot(isec.normal , r_normal),0.0f);
-
-    illuminationColour += (count / (float) SHADOW_SAMPLES) * max1 * lights[i].colour / ( 4.0f * powf(r.length(),2) * PI );
-
-  }
-  return illuminationColour;
-}
 
 void Raytracer::Draw()
 {
@@ -134,13 +79,14 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.direction = camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
-    //TODO: Don't pass objects as it's available as a member variable
-    Intersection inter = ClosestIntersection(new_ray, objects);
+    //TODO: Don't pass 'objects' as it's available as a member variable
+    Intersection isec = ClosestIntersection(new_ray, objects);
 
-    if (inter.didIntersect)
+    if (isec.didIntersect)
     {
-        vec3 tmp_colour = inter.colour;
-        tmp_colour *= 0.75f*(DirectLight(inter, objects)+indirectLight);
+        //vec3 tmp_colour = inter.colour;
+        //tmp_colour *= 0.75f*(DirectLight(inter, objects)+indirectLight);
+        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, lights, objects);
         colour += tmp_colour * sampleWeight;
     }
   }

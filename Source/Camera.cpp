@@ -34,7 +34,7 @@ vec3 Camera::transform_c2w_rotate(const vec3 p) const
 	return R_y*R_x*p;
 }
 
-ostream& operator<<(ostream& os, const Camera& cam)
+std::ostream& operator<<(std::ostream& os, const Camera& cam)
 {
 	os << "(" << cam.pos.x
 		 << "," << cam.pos.y

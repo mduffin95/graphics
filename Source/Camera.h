@@ -5,7 +5,6 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-using namespace std;
 using glm::vec3;
 using glm::mat3;
 
@@ -22,7 +21,7 @@ public:
 
     vec3 transform_w2c(const vec3) const;
     vec3 transform_c2w_rotate(const vec3) const;
-    friend ostream& operator<<(ostream& os, const Camera& cam);
+    friend std::ostream& operator<<(std::ostream& os, const Camera& cam);
 };
 
 

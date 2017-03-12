@@ -13,7 +13,7 @@ using glm::ivec2;
 class Rasteriser : public Renderer {
 
 public:
-  Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light> &lights, vector<shared_ptr<IObject>> &objects);
+  Rasteriser(SDL_Surface *screen, Camera& camera, std::vector<Light> &lights, std::vector<std::shared_ptr<Object>> &objects);
   void Draw();
 
 private:
@@ -21,7 +21,7 @@ private:
   float *depthBufferLight;
   vec3 *colourBuffer;
   vec3 getPoint(int x, int y, int w, int h);
-  void DrawPolygon(const shared_ptr<IObject> obj);
+  void DrawPolygon(const std::shared_ptr<Object> obj);
 };
 
 

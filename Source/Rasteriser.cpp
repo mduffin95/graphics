@@ -23,14 +23,14 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, vector<Light>& lights, vector<shared_ptr<IObject>>& objects) : Renderer(screen, camera, lights, objects) {
+Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, std::vector<Light>& lights, std::vector<std::shared_ptr<Object>>& objects) : Renderer(screen, camera, lights, objects) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
 }
 
 
-void Rasteriser::DrawPolygon(const shared_ptr<IObject> obj) {
+void Rasteriser::DrawPolygon(const std::shared_ptr<Object> obj) {
 	//Transform to camera coordinates
 	vec3 v0_dash = camera.transform_w2c(obj->get_v0());
 	vec3 v1_dash = camera.transform_w2c(obj->get_v1());

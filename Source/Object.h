@@ -3,10 +3,20 @@
 
 #include "Ray.h"
 #include "Intersection.h"
+#include "Material.h"
+#include <memory>
 
-class IObject {
+class Intersection;
+class Material;
+
+class Object {
 
 public:
+
+  Object(std::shared_ptr<Material> material) : material(material) {}
+  //virtual destructor
+  virtual ~Object() {};
+
   //Something for checking intersections
   virtual Intersection Intersect(Ray ray) const = 0;
 
@@ -17,6 +27,8 @@ public:
 
   virtual vec3 get_colour() const = 0;
   //TODO: Bounding box
+protected:
+  std::shared_ptr<Material> material;
 };
 
 #endif

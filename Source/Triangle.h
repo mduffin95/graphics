@@ -2,16 +2,15 @@
 #define TRIANGLE_H
 
 #include <glm/glm.hpp>
-#include "IObject.h"
-class Triangle : public IObject
+#include "Object.h"
+class Triangle : public Object
 {
 public:
 	glm::vec3 v0;
 	glm::vec3 v1;
 	glm::vec3 v2;
 	glm::vec3 normal;
-	glm::vec3 colour;
-	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 colour );
+	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_ptr<Material> material);
 	void ComputeNormal();
 
   Intersection Intersect(Ray) const override;  

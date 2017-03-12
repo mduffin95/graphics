@@ -4,7 +4,8 @@
 
 #include "TestModel.h"
 #include "Triangle.h"
-#include "IObject.h"
+#include "Object.h"
+#include "Material.h"
 #include <memory>
 
 
@@ -13,22 +14,37 @@
 // -1 <= x <= +1
 // -1 <= y <= +1
 // -1 <= z <= +1
-void LoadTestModel( std::vector<std::shared_ptr<IObject>>& objects)
+void LoadTestModel( std::vector<std::shared_ptr<Object>>& objects, std::vector<std::shared_ptr<Material>>& materials)
 {
 	using glm::vec3;
 
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	vec3 red(    0.75f, 0.15f, 0.15f );
-	vec3 yellow( 0.75f, 0.75f, 0.15f );
-	vec3 green(  0.15f, 0.75f, 0.15f );
-	vec3 cyan(   0.15f, 0.75f, 0.75f );
-	vec3 blue(   0.15f, 0.15f, 0.75f );
-	vec3 purple( 0.75f, 0.15f, 0.75f );
-	vec3 white(  0.75f, 0.75f, 0.75f );
+	vec3 red_colour(    0.75f, 0.15f, 0.15f );
+	vec3 yellow_colour( 0.75f, 0.75f, 0.15f );
+	vec3 green_colour(  0.15f, 0.75f, 0.15f );
+	vec3 cyan_colour(   0.15f, 0.75f, 0.75f );
+	vec3 blue_colour(   0.15f, 0.15f, 0.75f );
+	vec3 purple_colour( 0.75f, 0.15f, 0.75f );
+	vec3 white_colour(  0.75f, 0.75f, 0.75f );
 
-	triangles.clear();
+  auto red = std::make_shared<DefaultMat>( DefaultMat(red_colour) );
+  materials.push_back(red);
+  auto yellow = std::make_shared<DefaultMat>( DefaultMat(yellow_colour) );
+  materials.push_back(yellow);
+  auto green = std::make_shared<DefaultMat>( DefaultMat(green_colour) );
+  materials.push_back(green);
+  auto cyan = std::make_shared<DefaultMat>( DefaultMat(cyan_colour) );
+  materials.push_back(cyan);
+  auto blue = std::make_shared<DefaultMat>( DefaultMat(blue_colour) );
+  materials.push_back(blue);
+  auto purple = std::make_shared<DefaultMat>( DefaultMat(purple_colour) );
+  materials.push_back(purple);
+  auto white = std::make_shared<DefaultMat>( DefaultMat(white_colour) );
+  materials.push_back(white);
+
+	objects.clear();
 	triangles.reserve( 5*2*3 );
 
 	// ---------------------------------------------------------------------------
