@@ -15,7 +15,7 @@ public:
   void Draw();
 
 private:
-  Intersection ClosestIntersection(Ray, const std::vector<std::shared_ptr<Object>>&);
+  Intersection ClosestIntersection(Ray);
   vec3 CastAtPixel(const int x, const int y);
   vec3 CastRay(const Ray ray);
   int focalLength;

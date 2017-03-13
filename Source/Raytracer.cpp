@@ -16,9 +16,7 @@ Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, std::vector<Light>& li
 
 
 
-Intersection Raytracer::ClosestIntersection(
-  Ray ray,  
-  const std::vector<std::shared_ptr<Object>>& objects)
+Intersection Raytracer::ClosestIntersection(Ray ray) 
 {
   Intersection closest;
   closest.distance = std::numeric_limits<float>::max();
@@ -80,7 +78,7 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.origin = ray.origin + randomise;
 
     //TODO: Don't pass 'objects' as it's available as a member variable
-    Intersection isec = ClosestIntersection(new_ray, objects);
+    Intersection isec = ClosestIntersection(new_ray);
 
     if (isec.didIntersect)
     {

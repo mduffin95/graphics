@@ -33,7 +33,7 @@ int main(int argc, char* argv[] )
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);
 
-  Raytracer r (screen, camera, lights, objects, 10) ;
+  Raytracer r (screen, camera, lights, objects, 1) ;
   //Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events
