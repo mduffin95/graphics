@@ -4,8 +4,7 @@
 #include "Renderer.h"
 #include "Light.h"
 #include "TestModel.h"
-
-
+#include "Scene.h"
 
 
 using glm::vec3;
@@ -13,7 +12,7 @@ using glm::ivec2;
 class Rasteriser : public Renderer {
 
 public:
-  Rasteriser(SDL_Surface *screen, Camera& camera, std::vector<Light> &lights, std::vector<std::shared_ptr<Object>> &objects);
+  Rasteriser(SDL_Surface *screen, Scene& scene);
   void Draw();
 
 private:

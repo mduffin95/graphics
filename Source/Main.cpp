@@ -25,6 +25,8 @@ int main(int argc, char* argv[] )
   std::vector<Light> lights = {light1, light2};
   std::vector<std::shared_ptr<Material>> materials;
 
+  Scene scene(camera, lights, objects);
+
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 	int t = SDL_GetTicks();	// Set start value for timer.
 
@@ -33,7 +35,7 @@ int main(int argc, char* argv[] )
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);
 
-  Raytracer r (screen, camera, lights, objects, 1) ;
+  Raytracer r (screen, scene, 1) ;
   //Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events

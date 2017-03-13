@@ -11,7 +11,7 @@ class Raytracer : public Renderer {
 
 public:
 
-  Raytracer(SDL_Surface* screen, Camera &camera, std::vector<Light>& lighting, std::vector<std::shared_ptr<Object>>& objects, int dofSamples);
+  Raytracer(SDL_Surface* screen, Scene& scene, int dofSamples);
   void Draw();
 
 private:

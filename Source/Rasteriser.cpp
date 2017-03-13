@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Rasteriser.h"
+#include "Scene.h"
 
 
 using namespace std;
@@ -23,7 +24,7 @@ vec3 Rasteriser::getPoint(int x, int y, int w, int h)
 }
 
 
-Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, std::vector<Light>& lights, std::vector<std::shared_ptr<Object>>& objects) : Renderer(screen, camera, lights, objects) {
+Rasteriser::Rasteriser(SDL_Surface *screen, Scene& scene) : Renderer(screen, scene) {
 	depthBufferCamera = (float*)malloc(sizeof(float)*height*width);
 	depthBufferLight = (float*)malloc(sizeof(float)*height*width);
 	colourBuffer = (vec3*)malloc(sizeof(vec3)*height*width);
@@ -31,10 +32,10 @@ Rasteriser::Rasteriser(SDL_Surface *screen, Camera& camera, std::vector<Light>& 
 
 
 void Rasteriser::DrawPolygon(const std::shared_ptr<Object> obj) {
-	//Transform to camera coordinates
-	vec3 v0_dash = camera.transform_w2c(obj->get_v0());
-	vec3 v1_dash = camera.transform_w2c(obj->get_v1());
-	vec3 v2_dash = camera.transform_w2c(obj->get_v2());
+	//Transform to scene.camera coordinates
+	vec3 v0_dash = scene.camera.transform_w2c(obj->get_v0());
+	vec3 v1_dash = scene.camera.transform_w2c(obj->get_v1());
+	vec3 v2_dash = scene.camera.transform_w2c(obj->get_v2());
 
 	//Matrix of vertices
 	mat3 M(v0_dash, v1_dash, v2_dash);
@@ -62,11 +63,11 @@ void Rasteriser::DrawPolygon(const std::shared_ptr<Object> obj) {
 		}
 	}
 
-	//Transform to camera coordinates
-  //0th camera is temporary
-	vec3 v0_dash_c = lights[0].transform(v0_dash);
-	vec3 v1_dash_c = lights[0].transform(v1_dash);
-	vec3 v2_dash_c = lights[0].transform(v2_dash);
+	//Transform to scene.camera coordinates
+  //0th scene.camera is temporary
+	vec3 v0_dash_c = scene.lights[0].transform(v0_dash);
+	vec3 v1_dash_c = scene.lights[0].transform(v1_dash);
+	vec3 v2_dash_c = scene.lights[0].transform(v2_dash);
 
 	//Matrix of vertices
 	mat3 M_l(v0_dash_c, v1_dash_c, v2_dash_c);
@@ -111,9 +112,9 @@ void Rasteriser::Draw()
 		colourBuffer[i] = vec3(0,0,0);
 	}
 
-	for( unsigned i=0; i<objects.size(); ++i )
+	for( unsigned i=0; i<scene.objects.size(); ++i )
 	{
-		DrawPolygon(objects[i]);
+		DrawPolygon(scene.objects[i]);
 	}
 
 

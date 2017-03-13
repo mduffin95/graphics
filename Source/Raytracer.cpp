@@ -9,20 +9,18 @@
 using glm::vec3;
 
 
-Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, std::vector<Light>& lights, std::vector<std::shared_ptr<Object>>& objects, int dofSamples) : Renderer(screen, camera, lights, objects), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
+Raytracer::Raytracer(SDL_Surface* screen, Scene& scene, int dofSamples) : Renderer(screen, scene), focalLength(width), indirectLight( 0.5f, 0.5f, 0.5f), dofSamples(dofSamples)
 {
   srand (static_cast <unsigned> (time(0)));
 }
-
-
 
 Intersection Raytracer::ClosestIntersection(Ray ray) 
 {
   Intersection closest;
   closest.distance = std::numeric_limits<float>::max();
-  for (unsigned i=0; i<objects.size(); i++)
+  for (unsigned i=0; i<scene.objects.size(); i++)
   {
-    Intersection isec = objects[i]->Intersect(ray);
+    Intersection isec = scene.objects[i]->Intersect(ray);
     if (isec.didIntersect && (isec.distance <= closest.distance))
     {
       closest = isec;
@@ -74,7 +72,7 @@ vec3 Raytracer::CastRay(const Ray ray)
     }
 
     vec3 randomise = vec3(r1*apertureRadius, r2*apertureRadius, 0);
-    new_ray.direction = camera.transform_c2w_rotate(point - randomise);
+    new_ray.direction = scene.camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
     Intersection isec = ClosestIntersection(new_ray);
@@ -82,8 +80,8 @@ vec3 Raytracer::CastRay(const Ray ray)
     if (isec.didIntersect)
     {
         //vec3 tmp_colour = inter.colour;
-        //tmp_colour *= 0.75f*(DirectLight(inter, objects)+indirectLight);
-        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, lights, objects);
+        //tmp_colour *= 0.75f*(DirectLight(inter, scene.objects)+indirectLight);
+        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, scene.lights, scene.objects);
         colour += tmp_colour * sampleWeight;
     }
   }
@@ -109,8 +107,8 @@ vec3 Raytracer::CastAtPixel(const int x, const int y)
       //d = glm::normalize(d);
       d /= focalLength;
 
-      //d = d*camera.r_y*camera.R_x;
-      Ray ray = {camera.pos, d};
+      //d = d*scene.camera.r_y*scene.camera.R_x;
+      Ray ray = {scene.camera.pos, d};
       colour += CastRay(ray) * sampleWeight;
     }
   }
