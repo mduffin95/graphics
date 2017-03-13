@@ -20,12 +20,12 @@ vec3 perp_vec(vec3 in, float radius)
 
 Intersection ShadowIntersection(
   Ray ray, //Needs to be a ray from the point to the light (not normalised) 
-  const std::vector<std::shared_ptr<Object>>& objects,
+  const std::vector<Object*>& objects,
   const Object *exclude)
 {
   for (unsigned i=0; i<objects.size(); i++)
   {
-    if (objects[i].get() == exclude) //Prevents self-intersections
+    if (objects[i] == exclude) //Prevents self-intersections
       continue;
     Intersection isec = objects[i]->Intersect(ray);
     if (isec.didIntersect && (isec.distance <= 1))
@@ -34,7 +34,7 @@ Intersection ShadowIntersection(
   return Intersection();
 }
 
-vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<std::shared_ptr<Object>>& objects, float Kd, float Ks) const
+vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects, float Kd, float Ks) const
 {
   vec3 i_amb = indirectLight * colour;
   vec3 i_diff(0,0,0);
@@ -85,13 +85,13 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
   return i_amb + i_diff * Kd + i_spec * Ks;
 }
 
-vec3 DefaultMat::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<std::shared_ptr<Object>>& objects) const
+vec3 DefaultMat::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects) const
 {
   //(DirectLight(inter, objects)+indirectLight)
   return DirectLight(isec, indirectLight, lights, objects, 1.0f, 0.0f);
 }
 
-vec3 Phong::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<std::shared_ptr<Object>>& objects) const
+vec3 Phong::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects) const
 {
   return DirectLight(isec, indirectLight, lights, objects, 1.0f, 1.0f);
 }

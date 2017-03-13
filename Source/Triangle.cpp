@@ -3,7 +3,7 @@
 using glm::vec3;
 using glm::mat3;
 
-Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_ptr<Material> material) : Object(material), v0(v0), v1(v1), v2(v2) {
+Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material) : Object(material), v0(v0), v1(v1), v2(v2) {
 	ComputeNormal();
 }
 
@@ -22,22 +22,22 @@ Intersection Triangle::Intersect(Ray ray) const
   vec3 e2 = v1 - v0;
   vec3 pvec = cross(ray.direction, e2);
   float det = dot(e1, pvec);
-  
+  float invdet = 1 / det;
   if (det < 0.01f) return result;
   
   //Not doing any culling yet
-  float invdet = 1 / det;
   vec3 tvec = ray.origin - v0;
-  u = dot(tvec, pvec) * invdet;
-  if (u<0 || u>1) return result;
+  u = dot(tvec, pvec);
+  if (u<0 || u>det) return result;
 
   vec3 qvec = cross(tvec, e1);
-  v = dot(ray.direction, qvec) * invdet;
-  if (v<0 || u+v>1) return result;
+  v = dot(ray.direction, qvec);
+  if (v<0 || u+v>det) return result;
 
-  t = dot(e2, qvec) * invdet;
+  t = dot(e2, qvec);
   if (t < 0) return result;
-
+  
+  t *= invdet;
   result.distance = t;
   result.pos = ray.origin + t * ray.direction;
   result.normal = normal;

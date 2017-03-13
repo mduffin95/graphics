@@ -18,7 +18,7 @@ public:
   Ray ray;
   float distance;
   const Object *object;
-  std::shared_ptr<Material> material;
+  Material* material;
 
 };
 

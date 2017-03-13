@@ -31,7 +31,7 @@ Rasteriser::Rasteriser(SDL_Surface *screen, Scene& scene) : Renderer(screen, sce
 }
 
 
-void Rasteriser::DrawPolygon(const std::shared_ptr<Object> obj) {
+void Rasteriser::DrawPolygon(const Object* obj) {
 	//Transform to scene.camera coordinates
 	vec3 v0_dash = scene.camera.transform_w2c(obj->get_v0());
 	vec3 v1_dash = scene.camera.transform_w2c(obj->get_v1());

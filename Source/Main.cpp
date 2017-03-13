@@ -16,14 +16,14 @@ const int SCREEN_HEIGHT = 500;
 
 int main(int argc, char* argv[] )
 {
-  std::vector<std::shared_ptr<Object>> objects;
+  std::vector<Object*> objects;
 
   vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
 	Light light1(vec3(1,1,-3), lightColour, 100, 0.01f);
 	Light light2(vec3(0,-0.5,-0.8), lightColour, 100, 0.01f);
   std::vector<Light> lights = {light1, light2};
-  std::vector<std::shared_ptr<Material>> materials;
+  std::vector<Material*> materials;
 
   Scene scene(camera, lights, objects);
 
@@ -58,7 +58,7 @@ bool ProcessInput(int& t, Camera & camera )
 	float dt = float(t2-t);
 	t = t2;
 	float sf = 0.002f;
-	//cout << "Render time: " << dt << " ms." << endl;
+	cout << "Render time: " << dt << " ms." << endl;
 	cout << "Camera pos: " << camera << endl;
 	Uint8* keystate = SDL_GetKeyState( 0 );
 

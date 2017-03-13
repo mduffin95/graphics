@@ -13,7 +13,7 @@ class Object {
 
 public:
 
-  Object(std::shared_ptr<Material> material) : material(material) {}
+  Object(Material* material) : material(material) {}
   //virtual destructor
   virtual ~Object() {};
 
@@ -28,7 +28,7 @@ public:
   virtual vec3 get_colour() const = 0;
   //TODO: Bounding box
 protected:
-  std::shared_ptr<Material> material;
+  Material* material;
 };
 
 #endif

@@ -3,10 +3,10 @@
 
 struct Scene
 {
-  Scene(Camera& camera, std::vector<Light>& lights, std::vector<std::shared_ptr<Object>>& objects) : camera(camera), lights(lights), objects(objects) {}
+  Scene(Camera& camera, std::vector<Light>& lights, std::vector<Object*>& objects) : camera(camera), lights(lights), objects(objects) {}
   Camera& camera;
   std::vector<Light>& lights;
-  std::vector<std::shared_ptr<Object>>& objects;
+  std::vector<Object*>& objects;
 };
 
 #endif

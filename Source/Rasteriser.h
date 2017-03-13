@@ -20,7 +20,7 @@ private:
   float *depthBufferLight;
   vec3 *colourBuffer;
   vec3 getPoint(int x, int y, int w, int h);
-  void DrawPolygon(const std::shared_ptr<Object> obj);
+  void DrawPolygon(const Object* obj);
 };
 
 

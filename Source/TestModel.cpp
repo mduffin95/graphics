@@ -14,34 +14,27 @@
 // -1 <= x <= +1
 // -1 <= y <= +1
 // -1 <= z <= +1
-void LoadTestModel( std::vector<std::shared_ptr<Object>>& objects, std::vector<std::shared_ptr<Material>>& materials)
+void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& materials)
 {
 	using glm::vec3;
 
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	vec3 red_colour(    0.75f, 0.15f, 0.15f );
-	vec3 yellow_colour( 0.75f, 0.75f, 0.15f );
-	vec3 green_colour(  0.15f, 0.75f, 0.15f );
-	vec3 cyan_colour(   0.15f, 0.75f, 0.75f );
-	vec3 blue_colour(   0.15f, 0.15f, 0.75f );
-	vec3 purple_colour( 0.75f, 0.15f, 0.75f );
-	vec3 white_colour(  0.75f, 0.75f, 0.75f );
+	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *yellow = new Phong(vec3( 0.75f, 0.75f, 0.15f ));
+	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *cyan = new Phong(vec3(   0.15f, 0.75f, 0.75f ));
+	Material *blue = new Phong(vec3(   0.15f, 0.15f, 0.75f ));
+	Material *purple = new Phong(vec3( 0.75f, 0.15f, 0.75f ));
+	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
 
-  auto red = std::make_shared<Phong>( Phong(red_colour) );
   materials.push_back(red);
-  auto yellow = std::make_shared<Phong>( Phong(yellow_colour) );
   materials.push_back(yellow);
-  auto green = std::make_shared<Phong>( Phong(green_colour) );
   materials.push_back(green);
-  auto cyan = std::make_shared<Phong>( Phong(cyan_colour) );
   materials.push_back(cyan);
-  auto blue = std::make_shared<Phong>( Phong(blue_colour) );
   materials.push_back(blue);
-  auto purple = std::make_shared<Phong>( Phong(purple_colour) );
   materials.push_back(purple);
-  auto white = std::make_shared<Phong>( Phong(white_colour) );
   materials.push_back(white);
 
 	objects.clear();
@@ -172,7 +165,6 @@ void LoadTestModel( std::vector<std::shared_ptr<Object>>& objects, std::vector<s
 
 		triangles[i].ComputeNormal();
 
-    auto obj = std::make_shared<Triangle>(triangles[i]);
-    objects.push_back(obj);
+    objects.push_back(new Triangle(triangles[i]));
 	}
 }
