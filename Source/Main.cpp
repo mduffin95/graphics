@@ -3,7 +3,7 @@
 #include "TestModel.h"
 #include "Light.h"
 #include "Material.h"
-#include <memory>
+#include "KDNode.h"
 
 bool ProcessInput(int& t, Camera & camera);
 using namespace std;
@@ -31,6 +31,9 @@ int main(int argc, char* argv[] )
 	int t = SDL_GetTicks();	// Set start value for timer.
 
 	LoadTestModel( objects, materials );
+
+  AABB aabb(vec3(-1,-1,-1), vec3(2,2,2));
+  KDNode *tree = new KDNode(aabb, objects, 3);
 
 	SDL_WM_GrabInput( SDL_GRAB_ON );
 	SDL_ShowCursor(0);

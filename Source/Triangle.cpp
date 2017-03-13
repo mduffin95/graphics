@@ -48,6 +48,15 @@ Intersection Triangle::Intersect(Ray ray) const
   return result;
 }
 
+int Triangle::CheckPlaneIntersection(int axis, float value) const
+{
+  if (v0[axis] < value && v1[axis] < value && v2[axis] < value)
+    return -1;
+  if (v0[axis] > value && v1[axis] > value && v2[axis] > value)
+    return 1;
+  return 0;
+}
+
 vec3 Triangle::get_v0() const
 {
   return v0;
