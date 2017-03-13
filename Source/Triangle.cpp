@@ -1,4 +1,5 @@
 #include "Triangle.h"
+#include "Intersection.h"
 #include <glm/glm.hpp>
 using glm::vec3;
 using glm::mat3;
@@ -14,15 +15,15 @@ void Triangle::ComputeNormal()
 	normal = glm::normalize( glm::cross( e2, e1 ) );
 }
 
-Intersection Triangle::Intersect(Ray ray) const
+Intersection Triangle::Intersect(const Intersection& isec) const
 {
-  Intersection result;
+	Intersection result; 
 
   vec3 e1 = v1 - v0;
   vec3 e2 = v2 - v0;
-  vec3 b = ray.origin - v0;
+  vec3 b = isec.ray.origin - v0;
 
-  mat3 A( -ray.direction, e1, e2 );
+  mat3 A( -isec.ray.direction, e1, e2 );
   vec3 x = glm::inverse( A ) * b;      
   float t = x.x;
   float u = x.y;
@@ -35,11 +36,10 @@ Intersection Triangle::Intersect(Ray ray) const
       u + v <= 1)
   {
     result.distance = t;
-    result.pos = ray.origin + t * ray.direction;
+    result.pos = isec.ray.origin + t * isec.ray.direction;
     result.normal = normal;
     result.object = this;
     result.material = material;
-    result.ray = ray;
     result.didIntersect = true;
   }
   return result;

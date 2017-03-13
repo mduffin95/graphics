@@ -4,6 +4,7 @@
 #include <ctime>
 #include <glm/glm.hpp>
 #include "Object.h"
+#include "Intersection.h"
 #include <SDL.h>
 #include "Material.h"
 using glm::vec3;
@@ -16,21 +17,19 @@ Raytracer::Raytracer(SDL_Surface* screen, Camera &camera, std::vector<Light>& li
 
 
 
-Intersection Raytracer::ClosestIntersection(
-  Ray ray,  
-  const std::vector<std::shared_ptr<Object>>& objects)
+void Raytracer::ClosestIntersection(Intersection& closest)  
 {
-  Intersection closest;
+  Intersection tmp = closest;
   closest.distance = std::numeric_limits<float>::max();
   for (unsigned i=0; i<objects.size(); i++)
   {
-    Intersection isec = objects[i]->Intersect(ray);
-    if (isec.didIntersect && (isec.distance <= closest.distance))
+    tmp.didIntersect = false;
+    objects[i]->Intersect(tmp);
+    if (tmp.didIntersect && (tmp.distance <= closest.distance))
     {
-      closest = isec;
+      closest = tmp;
     }
   }
-  return closest;
 }
 
 
@@ -62,7 +61,6 @@ vec3 Raytracer::CastRay(const Ray ray)
   float focalDepth = 3.0f;
   float sampleWeight = 1.0f / dofSamples;
   vec3 point = ray.direction * focalDepth;
-  Ray new_ray = ray;
   vec3 colour = vec3(0,0,0);
   float r1 = 0;
   float r2 = 0;
@@ -76,17 +74,16 @@ vec3 Raytracer::CastRay(const Ray ray)
     }
 
     vec3 randomise = vec3(r1*apertureRadius, r2*apertureRadius, 0);
-    new_ray.direction = camera.transform_c2w_rotate(point - randomise);
-    new_ray.origin = ray.origin + randomise;
+    Intersection isec;
+    isec.ray.direction = camera.transform_c2w_rotate(point - randomise);
+    isec.ray.origin = ray.origin + randomise;
 
-    //TODO: Don't pass 'objects' as it's available as a member variable
-    Intersection isec = ClosestIntersection(new_ray, objects);
+    ClosestIntersection(isec);
 
     if (isec.didIntersect)
     {
-        //vec3 tmp_colour = inter.colour;
-        //tmp_colour *= 0.75f*(DirectLight(inter, objects)+indirectLight);
-        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, lights, objects);
+        isec.renderer = this;
+        vec3 tmp_colour = isec.material->Shade(isec, indirectLight);
         colour += tmp_colour * sampleWeight;
     }
   }

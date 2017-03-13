@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 #include "Object.h"
+#include "Intersection.h"
+
 class Triangle : public Object
 {
 public:
@@ -13,7 +15,7 @@ public:
 	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, std::shared_ptr<Material> material);
 	void ComputeNormal();
 
-  Intersection Intersect(Ray) const override;  
+  Intersection Intersect(const Intersection& isec) const override;  
   vec3 get_v0() const override;
   vec3 get_v1() const override;
   vec3 get_v2() const override;
