@@ -18,10 +18,12 @@ Intersection Triangle::Intersect(Ray ray) const
 {
   Intersection result;
   float t, u, v;
-  vec3 e1 = v1 - v0;
-  vec3 e2 = v2 - v0;
+  vec3 e1 = v2 - v0;
+  vec3 e2 = v1 - v0;
   vec3 pvec = cross(ray.direction, e2);
   float det = dot(e1, pvec);
+  
+  if (det < 0.01f) return result;
   
   //Not doing any culling yet
   float invdet = 1 / det;

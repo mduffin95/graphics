@@ -8,6 +8,8 @@
 * Anti-aliasing
 * Extensible design
 * Phong lighting
+* Moller-Trumbore intersection
+* Back-face culling
 
 ##Rasteriser
 ###Features
