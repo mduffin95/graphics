@@ -77,7 +77,6 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.direction = camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
-    //TODO: Don't pass 'objects' as it's available as a member variable
     Intersection isec = ClosestIntersection(new_ray);
 
     if (isec.didIntersect)

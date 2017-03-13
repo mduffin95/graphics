@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 
-#define PI 3.141592653f
 
 vec3 perp_vec(vec3 in, float radius)
 {
@@ -71,7 +70,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
 
     if (dot > 0)
     {
-      i_diff += (count / (float) SHADOW_SAMPLES) * dot * lights[i].colour / ( 4.0f * powf(l.length(),2) * PI );
+      i_diff += (count / (float) SHADOW_SAMPLES) * dot * lights[i].GetColour(l.length());
     }
 
     vec3 l_norm = normalize(l);
@@ -79,9 +78,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
     dot = glm::dot(r, v);
     if (dot > 0)
     {
-      //TODO: Break distance attenuation out into method of Light
-      //TODO: Light colour should be less than one in all dimensions. Add an intensity.
-      i_spec += (count / (float) SHADOW_SAMPLES) * powf(dot, 20) * lights[i].colour / ( 4.0f * powf(l.length(),2) * PI );
+      i_spec += (count / (float) SHADOW_SAMPLES) * powf(dot, 20) * lights[i].GetColour(l.length());
     }
   }
   i_diff *= colour;

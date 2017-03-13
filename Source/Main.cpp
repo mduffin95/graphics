@@ -18,10 +18,10 @@ int main(int argc, char* argv[] )
 {
   std::vector<std::shared_ptr<Object>> objects;
 
-  vec3 lightColour(100,100,100);
+  vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
-	Light light1(vec3(1,1,-3), lightColour, 0.01f);
-	Light light2(vec3(0,-0.5,-0.8), lightColour, 0.01f);
+	Light light1(vec3(1,1,-3), lightColour, 100, 0.01f);
+	Light light2(vec3(0,-0.5,-0.8), lightColour, 100, 0.01f);
   std::vector<Light> lights = {light1, light2};
   std::vector<std::shared_ptr<Material>> materials;
 
