@@ -17,33 +17,33 @@ void Triangle::ComputeNormal()
 Intersection Triangle::Intersect(Ray ray) const
 {
   Intersection result;
-
+  float t, u, v;
   vec3 e1 = v1 - v0;
   vec3 e2 = v2 - v0;
-  vec3 b = ray.origin - v0;
+  vec3 pvec = cross(ray.direction, e2);
+  float det = dot(e1, pvec);
+  
+  //Not doing any culling yet
+  float invdet = 1 / det;
+  vec3 tvec = ray.origin - v0;
+  u = dot(tvec, pvec) * invdet;
+  if (u<0 || u>1) return result;
 
-  mat3 A( -ray.direction, e1, e2 );
-  vec3 x = glm::inverse( A ) * b;      
-  float t = x.x;
-  float u = x.y;
-  float v = x.z;
-  //Changed t < d to t <= d, to fix shadow bug
-  if (
-      t >= 0 &&
-      u >= 0 &&
-      v >= 0 &&
-      u + v <= 1)
-  {
-    result.distance = t;
-    result.pos = ray.origin + t * ray.direction;
-    result.normal = normal;
-    result.object = this;
-    result.material = material;
-    result.ray = ray;
-    result.didIntersect = true;
-  }
+  vec3 qvec = cross(tvec, e1);
+  v = dot(ray.direction, qvec) * invdet;
+  if (v<0 || u+v>1) return result;
+
+  t = dot(e2, qvec) * invdet;
+  if (t < 0) return result;
+
+  result.distance = t;
+  result.pos = ray.origin + t * ray.direction;
+  result.normal = normal;
+  result.object = this;
+  result.material = material;
+  result.ray = ray;
+  result.didIntersect = true;
   return result;
-
 }
 
 vec3 Triangle::get_v0() const
