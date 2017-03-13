@@ -39,6 +39,7 @@ Intersection Triangle::Intersect(Ray ray) const
     result.normal = normal;
     result.object = this;
     result.material = material;
+    result.ray = ray;
     result.didIntersect = true;
   }
   return result;

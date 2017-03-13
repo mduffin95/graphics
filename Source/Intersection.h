@@ -15,6 +15,7 @@ public:
   bool didIntersect;
   vec3 pos;
   vec3 normal; //Normal of the surface at the intersection point
+  Ray ray;
   float distance;
   const Object *object;
   std::shared_ptr<Material> material;

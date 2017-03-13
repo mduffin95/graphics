@@ -29,19 +29,19 @@ void LoadTestModel( std::vector<std::shared_ptr<Object>>& objects, std::vector<s
 	vec3 purple_colour( 0.75f, 0.15f, 0.75f );
 	vec3 white_colour(  0.75f, 0.75f, 0.75f );
 
-  auto red = std::make_shared<DefaultMat>( DefaultMat(red_colour) );
+  auto red = std::make_shared<Phong>( Phong(red_colour) );
   materials.push_back(red);
-  auto yellow = std::make_shared<DefaultMat>( DefaultMat(yellow_colour) );
+  auto yellow = std::make_shared<Phong>( Phong(yellow_colour) );
   materials.push_back(yellow);
-  auto green = std::make_shared<DefaultMat>( DefaultMat(green_colour) );
+  auto green = std::make_shared<Phong>( Phong(green_colour) );
   materials.push_back(green);
-  auto cyan = std::make_shared<DefaultMat>( DefaultMat(cyan_colour) );
+  auto cyan = std::make_shared<Phong>( Phong(cyan_colour) );
   materials.push_back(cyan);
-  auto blue = std::make_shared<DefaultMat>( DefaultMat(blue_colour) );
+  auto blue = std::make_shared<Phong>( Phong(blue_colour) );
   materials.push_back(blue);
-  auto purple = std::make_shared<DefaultMat>( DefaultMat(purple_colour) );
+  auto purple = std::make_shared<Phong>( Phong(purple_colour) );
   materials.push_back(purple);
-  auto white = std::make_shared<DefaultMat>( DefaultMat(white_colour) );
+  auto white = std::make_shared<Phong>( Phong(white_colour) );
   materials.push_back(white);
 
 	objects.clear();
