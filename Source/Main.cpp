@@ -1,5 +1,4 @@
 #include "Raytracer.h"
-#include "Rasteriser.h"
 #include "TestModel.h"
 #include "Light.h"
 #include "Material.h"
@@ -25,18 +24,18 @@ int main(int argc, char* argv[] )
   std::vector<Light> lights = {light1, light2};
   std::vector<Material*> materials;
 
-  Scene scene(camera, lights, objects);
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 	int t = SDL_GetTicks();	// Set start value for timer.
 
 	LoadTestModel( objects, materials );
 
-  AABB aabb(vec3(-1,-1,-1), vec3(2,2,2));
+  AABB aabb(vec3(-1.05,-1.05,-1.05), vec3(1.05,1.05,1.05));
   KDNode *tree = new KDNode(aabb, objects, 3);
+  Scene scene(camera, lights, tree);
 
-	SDL_WM_GrabInput( SDL_GRAB_ON );
-	SDL_ShowCursor(0);
+	//SDL_WM_GrabInput( SDL_GRAB_ON );
+	//SDL_ShowCursor(0);
 
   Raytracer r (screen, scene, 1) ;
   //Rasteriser r (screen, camera, lights, objects) ;

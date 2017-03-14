@@ -16,6 +16,7 @@ Raytracer::Raytracer(SDL_Surface* screen, Scene& scene, int dofSamples) : Render
 
 Intersection Raytracer::ClosestIntersection(Ray ray) 
 {
+  /*
   Intersection closest;
   closest.distance = std::numeric_limits<float>::max();
   for (unsigned i=0; i<scene.objects.size(); i++)
@@ -27,6 +28,8 @@ Intersection Raytracer::ClosestIntersection(Ray ray)
     }
   }
   return closest;
+  */
+  return scene.tree->ClosestIntersection(ray);
 }
 
 
@@ -81,7 +84,7 @@ vec3 Raytracer::CastRay(const Ray ray)
     {
         //vec3 tmp_colour = inter.colour;
         //tmp_colour *= 0.75f*(DirectLight(inter, scene.objects)+indirectLight);
-        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, scene.lights, scene.objects);
+        vec3 tmp_colour = isec.material->Shade(isec, indirectLight, scene.lights, scene.tree);
         colour += tmp_colour * sampleWeight;
     }
   }

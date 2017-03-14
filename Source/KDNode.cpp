@@ -3,6 +3,7 @@
 
 int AABB::GetLongestAxis()
 {
+	vec3 size = rt - lb;
   if (size.x > size.y)
   {
     if (size.x > size.z)
@@ -15,6 +16,45 @@ int AABB::GetLongestAxis()
       return 1; //y
     return 2; //z
   }
+}
+
+//Adapted from http://gamedev.stackexchange.com/questions/18436
+bool AABB::Intersect(Ray& ray, float& t)
+{
+	// r.dir is unit direction vector of ray
+  vec3 rdir = normalize(ray.direction);
+  vec3 dirfrac;
+	dirfrac.x = 1.0f / rdir.x;
+	dirfrac.y = 1.0f / rdir.y;
+	dirfrac.z = 1.0f / rdir.z;
+	// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+	// ray.origin is origin of ray
+	float t1 = (lb.x - ray.origin.x)*dirfrac.x;
+	float t2 = (rt.x - ray.origin.x)*dirfrac.x;
+	float t3 = (lb.y - ray.origin.y)*dirfrac.y;
+	float t4 = (rt.y - ray.origin.y)*dirfrac.y;
+	float t5 = (lb.z - ray.origin.z)*dirfrac.z;
+	float t6 = (rt.z - ray.origin.z)*dirfrac.z;
+
+	float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
+	float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+
+	// if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
+	if (tmax < 0)
+	{
+			t = tmax;
+			return false;
+	}
+
+	// if tmin > tmax, ray doesn't intersect AABB
+	if (tmin > tmax)
+	{
+			t = tmax;
+			return false;
+	}
+
+	t = tmin;
+	return true;
 }
 
 KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
@@ -30,15 +70,15 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
   } 
   int axis = aabb.GetLongestAxis();
   //current size
-  vec3 sz = aabb.size;
+  vec3 sz = aabb.rt - aabb.lb;
   //Halve along longest axis
   sz[axis] /= 2.0f;
   //Create two new AABBs
-  AABB left_aabb(aabb.min, sz);
-  AABB right_aabb(aabb.min, sz);
+  AABB left_aabb(aabb.lb, aabb.lb + sz);
+  AABB right_aabb(aabb.lb, aabb.lb + sz);
   //Move one along
-  float value = aabb.min[axis] + sz[axis];
-  right_aabb.min[axis] = value;
+  float value = aabb.lb[axis] + sz[axis];
+  right_aabb.lb[axis] = value;
 
   std::vector<Object*> left_objects;
   std::vector<Object*> right_objects;
@@ -67,11 +107,11 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
   right = new KDNode(right_aabb, right_objects, depth-1);
 }
 
-Intersection KDNode::ClosestIntersection(Ray ray)
+Intersection KDNode::ClosestIntersection(Ray& ray)
 {
-  if(NULL == left && NULL == right)
+  Intersection closest;
+  if(NULL == left && NULL == right) //At a leaf
   {
-    Intersection closest;
     closest.distance = std::numeric_limits<float>::max();
     for (unsigned i=0; i<objects.size(); i++)
     {
@@ -82,7 +122,23 @@ Intersection KDNode::ClosestIntersection(Ray ray)
       }
     }
     return closest;
-
   }
+
+  //This is just for testing
+  float tl, tr;
+  bool lhit = left->aabb.Intersect(ray, tl); 
+  bool rhit = right->aabb.Intersect(ray, tr); 
+  if (lhit && rhit)
+  {
+    closest = (tl < tr) ? left->ClosestIntersection(ray) : right->ClosestIntersection(ray);
+    if (closest.didIntersect)
+      return closest;
+    closest = (tl >= tr) ? left->ClosestIntersection(ray) : right->ClosestIntersection(ray);
+    return closest;
+  }
+  if (lhit)
+    return left->ClosestIntersection(ray);
+  if (rhit)
+    return right->ClosestIntersection(ray);
   return Intersection();
 }

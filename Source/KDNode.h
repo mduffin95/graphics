@@ -8,14 +8,16 @@ using glm::vec3;
 
 struct AABB
 {
-  vec3 min;
-  vec3 size;
-  AABB(vec3 min, vec3 size) : min(min), size(size) {}
+  vec3 lb;
+	vec3 rt;
+  AABB(vec3 lb, vec3 rt) : lb(lb), rt(rt) {}
 
   int GetLongestAxis();
+  bool Intersect(Ray& ray, float& t);
 };
 
-
+class Intersection;
+class Object;
 class KDNode
 {
 private:
@@ -27,7 +29,7 @@ private:
 public:
   KDNode(AABB aabb, std::vector<Object*> objects, int depth);
 
-  Intersection ClosestIntersection(Ray);
+  Intersection ClosestIntersection(Ray&);
 };
 
 #endif

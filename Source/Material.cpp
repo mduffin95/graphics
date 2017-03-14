@@ -20,9 +20,12 @@ vec3 perp_vec(vec3 in, float radius)
 
 Intersection ShadowIntersection(
   Ray ray, //Needs to be a ray from the point to the light (not normalised) 
-  const std::vector<Object*>& objects,
+  KDNode *tree,
   const Object *exclude)
 {
+  //This wil currently cause self-intersections
+  return tree->ClosestIntersection(ray);
+  /*
   for (unsigned i=0; i<objects.size(); i++)
   {
     if (objects[i] == exclude) //Prevents self-intersections
@@ -32,9 +35,10 @@ Intersection ShadowIntersection(
       return isec;
   }
   return Intersection();
+  */
 }
 
-vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects, float Kd, float Ks) const
+vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree, float Kd, float Ks) const
 {
   vec3 i_amb = indirectLight * colour;
   vec3 i_diff(0,0,0);
@@ -60,7 +64,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
 
       Ray ray = {isec.pos, l + p};
       
-      Intersection shadow = ShadowIntersection(ray, objects, isec.object);
+      Intersection shadow = ShadowIntersection(ray, tree, isec.object);
       if (!shadow.didIntersect) {
         count++;
       }
@@ -85,13 +89,13 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
   return i_amb + i_diff * Kd + i_spec * Ks;
 }
 
-vec3 DefaultMat::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects) const
+vec3 DefaultMat::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const
 {
   //(DirectLight(inter, objects)+indirectLight)
-  return DirectLight(isec, indirectLight, lights, objects, 1.0f, 0.0f);
+  return DirectLight(isec, indirectLight, lights, tree, 1.0f, 0.0f);
 }
 
-vec3 Phong::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, const std::vector<Object*>& objects) const
+vec3 Phong::Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const
 {
-  return DirectLight(isec, indirectLight, lights, objects, 1.0f, 1.0f);
+  return DirectLight(isec, indirectLight, lights, tree, 1.0f, 1.0f);
 }
