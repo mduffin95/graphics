@@ -23,8 +23,11 @@ Intersection ShadowIntersection(
   KDNode *tree,
   const Object *exclude)
 {
-  //This wil currently cause self-intersections
-  return tree->ClosestIntersection(ray);
+  Intersection isec = tree->ClosestIntersection(ray);
+  if (isec.distance <= 1)
+    return isec;
+  return Intersection();
+  //This will currently cause self-intersections
   /*
   for (unsigned i=0; i<objects.size(); i++)
   {
