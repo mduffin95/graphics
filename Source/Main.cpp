@@ -31,7 +31,7 @@ int main(int argc, char* argv[] )
 	LoadTestModel( objects, materials );
 
   AABB aabb(vec3(-1.05,-1.05,-1.05), vec3(1.05,1.05,1.05));
-  KDNode *tree = new KDNode(aabb, objects, 3);
+  KDNode *tree = new KDNode(aabb, objects, 2);
   Scene scene(camera, lights, tree);
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );

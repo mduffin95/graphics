@@ -1,5 +1,7 @@
 #include "KDNode.h"
 #include <iostream>
+#include <glm/gtx/string_cast.hpp>
+
 
 int AABB::GetLongestAxis()
 {
@@ -75,10 +77,13 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
   sz[axis] /= 2.0f;
   //Create two new AABBs
   AABB left_aabb(aabb.lb, aabb.lb + sz);
-  AABB right_aabb(aabb.lb, aabb.lb + sz);
+  AABB right_aabb(aabb.rt - sz, aabb.rt);
+  std::cout << "Left lb = " << glm::to_string(left_aabb.lb) << std::endl;
+  std::cout << "Left rt = " << glm::to_string(left_aabb.rt) << std::endl;
+  std::cout << "Right lb = " << glm::to_string(right_aabb.lb) << std::endl;
+  std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
   //Move one along
-  float value = aabb.lb[axis] + sz[axis];
-  right_aabb.lb[axis] = value;
+  float value = left_aabb.rt[axis];
 
   std::vector<Object*> left_objects;
   std::vector<Object*> right_objects;
@@ -109,6 +114,10 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
 
 Intersection KDNode::ClosestIntersection(Ray& ray)
 {
+  //float t;
+  //if (!aabb.Intersect(ray, t))
+  //  return Intersection();
+
   Intersection closest;
   if(NULL == left && NULL == right) //At a leaf
   {
@@ -123,7 +132,18 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
     }
     return closest;
   }
+  else
+  {
+    Intersection isec_l = left->ClosestIntersection(ray);
+    Intersection isec_r = right->ClosestIntersection(ray);
 
+    if (isec_l.didIntersect && isec_r.didIntersect)
+      return (isec_l.distance < isec_r.distance) ? isec_l : isec_r;
+    if (isec_l.didIntersect)
+      return isec_l;
+    return isec_r;
+  }
+  /*
   //This is just for testing
   float tl, tr;
   bool lhit = left->aabb.Intersect(ray, tl); 
@@ -141,4 +161,5 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
   if (rhit)
     return right->ClosestIntersection(ray);
   return Intersection();
+  */
 }
