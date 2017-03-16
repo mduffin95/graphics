@@ -11,6 +11,3 @@
 * Moller-Trumbore intersection
 * Back-face culling
 
-##Rasteriser
-###Features
-* Homogeneous rasterisation (negates need for clipping)
