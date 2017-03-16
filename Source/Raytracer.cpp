@@ -111,7 +111,7 @@ vec3 Raytracer::CastAtPixel(const int x, const int y)
       d /= focalLength;
 
       //d = d*scene.camera.r_y*scene.camera.R_x;
-      Ray ray = {scene.camera.pos, d};
+      Ray ray(scene.camera.pos, d);
       colour += CastRay(ray) * sampleWeight;
     }
   }

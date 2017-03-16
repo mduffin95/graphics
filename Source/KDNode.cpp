@@ -23,20 +23,14 @@ int AABB::GetLongestAxis()
 //Adapted from http://gamedev.stackexchange.com/questions/18436
 bool AABB::Intersect(Ray& ray, float& t)
 {
-	// r.dir is unit direction vector of ray
-  vec3 rdir = normalize(ray.direction);
-  vec3 dirfrac;
-	dirfrac.x = 1.0f / rdir.x;
-	dirfrac.y = 1.0f / rdir.y;
-	dirfrac.z = 1.0f / rdir.z;
 	// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
 	// ray.origin is origin of ray
-	float t1 = (lb.x - ray.origin.x)*dirfrac.x;
-	float t2 = (rt.x - ray.origin.x)*dirfrac.x;
-	float t3 = (lb.y - ray.origin.y)*dirfrac.y;
-	float t4 = (rt.y - ray.origin.y)*dirfrac.y;
-	float t5 = (lb.z - ray.origin.z)*dirfrac.z;
-	float t6 = (rt.z - ray.origin.z)*dirfrac.z;
+	float t1 = (lb.x - ray.origin.x)*ray.dirfrac.x;
+	float t2 = (rt.x - ray.origin.x)*ray.dirfrac.x;
+	float t3 = (lb.y - ray.origin.y)*ray.dirfrac.y;
+	float t4 = (rt.y - ray.origin.y)*ray.dirfrac.y;
+	float t5 = (lb.z - ray.origin.z)*ray.dirfrac.z;
+	float t6 = (rt.z - ray.origin.z)*ray.dirfrac.z;
 
 	float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
 	float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));

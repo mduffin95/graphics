@@ -65,7 +65,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
         p = perp_vec(l, lights[i].radius);       
       }
 
-      Ray ray = {isec.pos, l + p};
+      Ray ray(isec.pos, l + p);
       
       Intersection shadow = tree->ShadowIntersection(ray, isec.object);
       if (!shadow.didIntersect) {
