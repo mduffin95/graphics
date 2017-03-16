@@ -17,7 +17,7 @@ vec3 perp_vec(vec3 in, float radius)
   v *= radius;
   return v;
 }
-
+/*
 Intersection ShadowIntersection(
   Ray ray, //Needs to be a ray from the point to the light (not normalised) 
   KDNode *tree,
@@ -28,7 +28,7 @@ Intersection ShadowIntersection(
     return isec;
   return Intersection();
   //This will currently cause self-intersections
-  /*
+  
   for (unsigned i=0; i<objects.size(); i++)
   {
     if (objects[i] == exclude) //Prevents self-intersections
@@ -38,9 +38,9 @@ Intersection ShadowIntersection(
       return isec;
   }
   return Intersection();
-  */
 }
 
+  */
 vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree, float Kd, float Ks) const
 {
   vec3 i_amb = indirectLight * colour;
@@ -67,7 +67,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
 
       Ray ray = {isec.pos, l + p};
       
-      Intersection shadow = ShadowIntersection(ray, tree, isec.object);
+      Intersection shadow = tree->ShadowIntersection(ray, isec.object);
       if (!shadow.didIntersect) {
         count++;
       }

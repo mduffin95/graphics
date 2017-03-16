@@ -30,6 +30,7 @@ public:
   KDNode(AABB aabb, std::vector<Object*> objects, int depth);
 
   Intersection ClosestIntersection(Ray&);
+  Intersection ShadowIntersection(Ray&, const Object*);
 };
 
 #endif

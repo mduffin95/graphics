@@ -122,6 +122,7 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
   if(NULL == left && NULL == right) //At a leaf
   {
     closest.distance = std::numeric_limits<float>::max();
+    //std::cout << objects.size() << std::endl;
     for (unsigned i=0; i<objects.size(); i++)
     {
       Intersection isec = objects[i]->Intersect(ray);
@@ -132,6 +133,7 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
     }
     return closest;
   }
+  /*
   else
   {
     Intersection isec_l = left->ClosestIntersection(ray);
@@ -143,7 +145,7 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
       return isec_l;
     return isec_r;
   }
-  /*
+  */
   //This is just for testing
   float tl, tr;
   bool lhit = left->aabb.Intersect(ray, tl); 
@@ -161,5 +163,54 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
   if (rhit)
     return right->ClosestIntersection(ray);
   return Intersection();
+}
+
+Intersection KDNode::ShadowIntersection(Ray& ray, const Object* exclude)
+{
+ 
+  if(NULL == left && NULL == right) //At a leaf
+  {
+    for (unsigned i=0; i<objects.size(); i++)
+    {
+      if (objects[i] == exclude)
+        continue;
+      Intersection isec = objects[i]->Intersect(ray);
+      if (isec.didIntersect && (isec.distance <= 1))
+      {
+        return isec;
+      }
+    }
+    return Intersection();
+  }
+  /*
+  else
+  {
+    Intersection isec_l = left->ClosestIntersection(ray);
+    Intersection isec_r = right->ClosestIntersection(ray);
+
+    if (isec_l.didIntersect && isec_r.didIntersect)
+      return (isec_l.distance < isec_r.distance) ? isec_l : isec_r;
+    if (isec_l.didIntersect)
+      return isec_l;
+    return isec_r;
+  }
   */
+  //This is just for testing
+  float tl, tr;
+  bool lhit = left->aabb.Intersect(ray, tl); 
+  bool rhit = right->aabb.Intersect(ray, tr); 
+  Intersection closest;
+  if (lhit && rhit)
+  {
+    closest = (tl < tr) ? left->ShadowIntersection(ray, exclude) : right->ShadowIntersection(ray, exclude);
+    if (closest.didIntersect)
+      return closest;
+    closest = (tl >= tr) ? left->ShadowIntersection(ray, exclude) : right->ShadowIntersection(ray, exclude);
+    return closest;
+  }
+  if (lhit)
+    return left->ShadowIntersection(ray, exclude);
+  if (rhit)
+    return right->ShadowIntersection(ray, exclude);
+  return Intersection(); 
 }
