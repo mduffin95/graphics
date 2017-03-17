@@ -4,6 +4,7 @@
 
 #include "TestModel.h"
 #include "Triangle.h"
+#include "Sphere.h"
 #include "Object.h"
 #include "Material.h"
 #include <memory>
@@ -159,4 +160,6 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
 
     objects.push_back(new Triangle(triangles[i]));
 	}
+
+  objects.push_back(new Sphere(vec3(0,0,0), 0.1f, red));
 }

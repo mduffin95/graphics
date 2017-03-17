@@ -17,11 +17,11 @@ int main(int argc, char* argv[] )
 {
   std::vector<Object*> objects;
 
-  vec3 lightColour(1,1,1);
+  vec3 lightColour(1,0.5,0.5);
 	Camera camera(vec3(0,0,-3));
-	Light light1(vec3(1,1,-3), lightColour, 100, 0.01f);
-	Light light2(vec3(0,-0.5,-0.8), lightColour, 100, 0.01f);
-  std::vector<Light> lights = {light1, light2};
+	Light light1(vec3(1,1,-3), lightColour, 50, 0.01f);
+	Light light2(vec3(0,0.9,0), lightColour, 100, 0.01f);
+  std::vector<Light> lights = {light2};
   std::vector<Material*> materials;
 
 

@@ -4,3 +4,5 @@ Build
 .idea/
 cmake-build-debug/
 tags
+*.txt
+*.out

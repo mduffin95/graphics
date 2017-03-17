@@ -1,22 +1,22 @@
-#ifndef TRIANGLE_H
-#define TRIANGLE_H
-
+#ifndef SPHERE_H
+#define SPHERE_H
 #include <glm/glm.hpp>
 #include "Object.h"
-class Triangle : public Object
+
+class Sphere : public Object
 {
 public:
-	glm::vec3 v0;
-	glm::vec3 v1;
-	glm::vec3 v2;
-	glm::vec3 normal;
-	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material);
-	void ComputeNormal();
+  glm::vec3 position;
+  float radius;
+	float radius2;
 
   Intersection Intersect(Ray) const override;  
   int CheckPlaneIntersection(int axis, float value) const override;
   float GetLeftExtreme(int axis) const override;
   float GetRightExtreme(int axis) const override;
+
+
+  Sphere(glm::vec3 position, float radius, Material* material);
 };
 
 #endif

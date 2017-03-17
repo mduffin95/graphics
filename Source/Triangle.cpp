@@ -57,27 +57,6 @@ int Triangle::CheckPlaneIntersection(int axis, float value) const
   return 0;
 }
 
-vec3 Triangle::get_v0() const
-{
-  return v0;
-}
-
-vec3 Triangle::get_v1() const
-{
-  return v1;
-}
-
-vec3 Triangle::get_v2() const
-{
-  return v2;
-}
-
-vec3 Triangle::get_colour() const
-{
-  //TODO: This is bad, change it
-  return vec3(0,0,0);
-}
-
 
 float Triangle::GetLeftExtreme(int axis) const
 {
