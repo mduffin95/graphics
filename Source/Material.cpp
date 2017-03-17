@@ -85,7 +85,7 @@ vec3 Material::DirectLight( const Intersection& isec, vec3 indirectLight, const 
     dot = glm::dot(r, v);
     if (dot > 0)
     {
-      i_spec += (count / (float) SHADOW_SAMPLES) * powf(dot, 20) * lights[i].GetColour(l.length());
+      i_spec += (count / (float) SHADOW_SAMPLES) * powf(dot, shi) * lights[i].GetColour(l.length());
     }
   }
   i_diff *= colour;

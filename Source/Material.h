@@ -20,7 +20,10 @@ class Material
 {
 protected:
   vec3 colour;
-  Material(vec3 colour) : colour(colour) {}
+  float Kd, Ks;
+  int shi; //specular shininess
+  Material(vec3 colour, float Kd, float Ks, int shi)
+    : colour(colour), Kd(Kd), Ks(Ks), shi(shi) {}
     
   vec3 DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree, float Kd, float Ks) const;
 
@@ -34,8 +37,7 @@ public:
 class DefaultMat : public Material
 {
 public:
-  vec3 colour;
-  DefaultMat(vec3 colour) : Material(colour) {}
+  DefaultMat(vec3 colour) : Material(colour, 1.0f, 0.0f, 0) {}
 
   vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
 };
@@ -43,10 +45,18 @@ public:
 class Phong : public Material
 {
 public:
-  vec3 colour;
-  Phong(vec3 colour) : Material(colour) {}
+  Phong(vec3 colour) : Material(colour, 1.0f, 1.0f, 20) {}
 
   vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
 };
+
+class Global : public Material
+{
+public:
+  Global(vec3 colour) : Material(colour, 1.0f, 1.0f, 20) {}
+
+  vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
+};
+
 
 #endif
