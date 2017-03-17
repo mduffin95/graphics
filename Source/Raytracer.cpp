@@ -6,6 +6,7 @@
 #include "Object.h"
 #include <SDL.h>
 #include "Material.h"
+#include <omp.h>
 using glm::vec3;
 
 
@@ -97,7 +98,10 @@ vec3 Raytracer::CastAtPixel(const int x, const int y)
   float sampleSize = 1/(float)superSamples;
   //while(glm::length(delta) > threshold)
   float sampleWeight = 1.0f / (superSamples * superSamples);
-  vec3 colour;
+  float col_x = 0.0f;
+  float col_y = 0.0f;
+  float col_z = 0.0f;
+#pragma omp parallel for reduction(+:col_x,col_y,col_z)
   for( int i=0; i<superSamples; i++)
   {
     for( int j=0; j<superSamples; j++)
@@ -112,10 +116,14 @@ vec3 Raytracer::CastAtPixel(const int x, const int y)
 
       //d = d*scene.camera.r_y*scene.camera.R_x;
       Ray ray(scene.camera.pos, d);
-      colour += CastRay(ray) * sampleWeight;
+      vec3 tmp_colour = CastRay(ray) * sampleWeight;
+      col_x += tmp_colour.x;
+      col_y += tmp_colour.y;
+      col_z += tmp_colour.z;
     }
   }
   //return average;
+  vec3 colour(col_x, col_y, col_z);
   return colour;
 }
 
