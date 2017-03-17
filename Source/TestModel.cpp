@@ -22,20 +22,12 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
 
 	// Defines colours:
 	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *yellow = new Phong(vec3( 0.75f, 0.75f, 0.15f ));
 	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *cyan = new Phong(vec3(   0.15f, 0.75f, 0.75f ));
-	Material *blue = new Phong(vec3(   0.15f, 0.15f, 0.75f ));
-	Material *purple = new Phong(vec3( 0.75f, 0.15f, 0.75f ));
 	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
 
   materials.push_back(red);
-  materials.push_back(yellow);
-  materials.push_back(green);
-  materials.push_back(cyan);
-  materials.push_back(blue);
-  materials.push_back(purple);
   materials.push_back(white);
+  materials.push_back(green);
 
 	objects.clear();
 	triangles.reserve( 5*2*3 );
@@ -56,20 +48,20 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
 	vec3 H(0,L,L);
 
 	// Floor:
-	triangles.push_back( Triangle(C,A,B, green ) );
-	triangles.push_back( Triangle(C,B,D, green ) );
-
-	// Left wall
-	triangles.push_back( Triangle(A,C,E, purple ) );
-	triangles.push_back( Triangle(C,G,E, purple ) );
+	triangles.push_back( Triangle(C,A,B, white ) );
+	triangles.push_back( Triangle(C,B,D, white ) );
 
 	// Right wall
-	triangles.push_back( Triangle(F,D,B, yellow ) );
-	triangles.push_back( Triangle(H,D,F, yellow ) );
+	triangles.push_back( Triangle(A,C,E, red) );
+	triangles.push_back( Triangle(C,G,E, red) );
+
+	// Left wall
+	triangles.push_back( Triangle(F,D,B, green) );
+	triangles.push_back( Triangle(H,D,F, green) );
 
 	// Ceiling
-	triangles.push_back( Triangle(E,G,F, cyan ) );
-	triangles.push_back( Triangle(F,G,H, cyan ) );
+	triangles.push_back( Triangle(E,G,F, white ) );
+	triangles.push_back( Triangle(F,G,H, white ) );
 
 	// Back wall
 	triangles.push_back( Triangle(G,C,D, white ) );
@@ -89,24 +81,24 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
 	H = vec3(473,165,225);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,red) );
-	triangles.push_back( Triangle(E,F,B,red) );
+	triangles.push_back( Triangle(E,B,A,white) );
+	triangles.push_back( Triangle(E,F,B,white) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,red) );
-	triangles.push_back( Triangle(F,H,D,red) );
+	triangles.push_back( Triangle(F,D,B,white) );
+	triangles.push_back( Triangle(F,H,D,white) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,red) );
-	triangles.push_back( Triangle(H,G,C,red) );
+	triangles.push_back( Triangle(H,C,D,white) );
+	triangles.push_back( Triangle(H,G,C,white) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,red) );
-	triangles.push_back( Triangle(E,A,C,red) );
+	triangles.push_back( Triangle(G,E,C,white) );
+	triangles.push_back( Triangle(E,A,C,white) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,red) );
-	triangles.push_back( Triangle(G,H,F,red) );
+	triangles.push_back( Triangle(G,F,E,white) );
+	triangles.push_back( Triangle(G,H,F,white) );
 
 	// ---------------------------------------------------------------------------
 	// Tall block
@@ -122,24 +114,24 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
 	H = vec3(241,330,456);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,blue) );
-	triangles.push_back( Triangle(E,F,B,blue) );
+	triangles.push_back( Triangle(E,B,A,white) );
+	triangles.push_back( Triangle(E,F,B,white) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,blue) );
-	triangles.push_back( Triangle(F,H,D,blue) );
+	triangles.push_back( Triangle(F,D,B,white) );
+	triangles.push_back( Triangle(F,H,D,white) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,blue) );
-	triangles.push_back( Triangle(H,G,C,blue) );
+	triangles.push_back( Triangle(H,C,D,white) );
+	triangles.push_back( Triangle(H,G,C,white) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,blue) );
-	triangles.push_back( Triangle(E,A,C,blue) );
+	triangles.push_back( Triangle(G,E,C,white) );
+	triangles.push_back( Triangle(E,A,C,white) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,blue) );
-	triangles.push_back( Triangle(G,H,F,blue) );
+	triangles.push_back( Triangle(G,F,E,white) );
+	triangles.push_back( Triangle(G,H,F,white) );
 
 
 	// ----------------------------------------------
