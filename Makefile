@@ -3,7 +3,7 @@ TARGET   = Main
 
 CC       = g++
 # compiling flags here
-CFLAGS   = -pipe -Wall -Wno-switch -ggdb -g3 -Ofast -std=c++11 #-pg
+CFLAGS   = -pipe -Wall -Wno-switch -ggdb -g3 -Ofast -std=c++11 -pg
 
 
 SDL_CFLAGS := $(shell sdl-config --cflags)

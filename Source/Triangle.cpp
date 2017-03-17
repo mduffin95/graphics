@@ -77,3 +77,14 @@ vec3 Triangle::get_colour() const
   //TODO: This is bad, change it
   return vec3(0,0,0);
 }
+
+
+float Triangle::GetLeftExtreme(int axis) const
+{
+  return std::min(std::min(v0[axis], v1[axis]), v2[axis]);
+}
+
+float Triangle::GetRightExtreme(int axis) const
+{
+  return std::max(std::max(v0[axis], v1[axis]), v2[axis]);
+}

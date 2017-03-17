@@ -15,6 +15,9 @@ public:
 
   Intersection Intersect(Ray) const override;  
   int CheckPlaneIntersection(int axis, float value) const override;
+  float GetLeftExtreme(int axis) const override;
+  float GetRightExtreme(int axis) const override;
+
   vec3 get_v0() const override;
   vec3 get_v1() const override;
   vec3 get_v2() const override;

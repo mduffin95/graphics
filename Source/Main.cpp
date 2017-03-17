@@ -31,7 +31,7 @@ int main(int argc, char* argv[] )
 	LoadTestModel( objects, materials );
 
   AABB aabb(vec3(-1.05,-1.05,-1.05), vec3(1.05,1.05,1.05));
-  KDNode *tree = new KDNode(aabb, objects, 2);
+  KDNode *tree = new KDNode(aabb, objects, 0);
   Scene scene(camera, lights, tree);
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );
@@ -41,14 +41,16 @@ int main(int argc, char* argv[] )
   //Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events
-	SDL_Event e;
-	while( SDL_PollEvent(&e) );
+//	SDL_Event e;
+//	while( SDL_PollEvent(&e) );
 
-	while( ProcessInput(t,camera) )
-	{
+//	while( ProcessInput(t,camera) )
+//	{
+  for(int i=0; i<4; i++)
 		r.Draw();
-	}
+//	}
 	SDL_SaveBMP( screen, "screenshot.bmp" );
+  delete tree;
 	return 0;
 }
 

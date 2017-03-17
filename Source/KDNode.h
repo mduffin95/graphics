@@ -25,6 +25,10 @@ private:
   KDNode *left;
   KDNode *right;
   std::vector<Object*> objects;
+  int depth;
+
+  bool StopCriterion();
+  float CalculateCost(float split_pos, int axis, std::vector<Object*> objects);
 
 public:
   KDNode(AABB aabb, std::vector<Object*> objects, int depth);

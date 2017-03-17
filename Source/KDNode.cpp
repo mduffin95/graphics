@@ -1,6 +1,7 @@
 #include "KDNode.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include <assert.h>
 
 
 int AABB::GetLongestAxis()
@@ -53,10 +54,52 @@ bool AABB::Intersect(Ray& ray, float& t)
 	return true;
 }
 
+bool KDNode::StopCriterion()
+{
+  if (depth == 4)
+    return true;
+  return false;
+}
+
+float KDNode::CalculateCost(float split_pos, int axis, std::vector<Object*> objects)
+{
+  vec3 lb = aabb.lb;
+  vec3 rt = aabb.rt;
+  rt[axis] = split_pos;
+  vec3 sz = rt - lb;
+  float left_area = 2 * (sz.x * sz.y + sz.y * sz.z + sz.x * sz.z); 
+  rt = aabb.rt;
+  lb[axis] = split_pos;
+  sz = rt - lb;
+  float right_area = 2 * (sz.x * sz.y + sz.y * sz.z + sz.x * sz.z); 
+  int left_count = 0;
+  int right_count = 0;
+
+  for (unsigned i=0; i<objects.size(); i++)
+  {
+    int x = objects[i]->CheckPlaneIntersection(axis, split_pos); 
+    switch(x)
+    {
+    case(-1): //Less than
+      left_count++;
+      break;
+    case(0): //Straddling
+      left_count++;
+      right_count++;
+      break;
+    case(1): //Greater than
+      right_count++;
+    }
+  }
+
+  return 0.3f + 1.0f * (left_area * left_count + right_area * right_count);
+}
+
 KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
 {
   std::cout << "Depth = " << depth << ", size = " << objects.size() << std::endl;
-  if (depth == 0)
+  this->depth = depth;
+  if (StopCriterion())
   {
     //Terminate
     this->objects = objects;
@@ -65,19 +108,37 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
     return;
   } 
   int axis = aabb.GetLongestAxis();
-  //current size
-  vec3 sz = aabb.rt - aabb.lb;
-  //Halve along longest axis
-  sz[axis] /= 2.0f;
-  //Create two new AABBs
-  AABB left_aabb(aabb.lb, aabb.lb + sz);
-  AABB right_aabb(aabb.rt - sz, aabb.rt);
-  std::cout << "Left lb = " << glm::to_string(left_aabb.lb) << std::endl;
-  std::cout << "Left rt = " << glm::to_string(left_aabb.rt) << std::endl;
-  std::cout << "Right lb = " << glm::to_string(right_aabb.lb) << std::endl;
-  std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
-  //Move one along
-  float value = left_aabb.rt[axis];
+  
+  float best_cost = 1000000;
+  float best_pos = -1;
+  //Check all split positions
+  for (unsigned i=0; i<objects.size(); i++)
+  {
+    float left_extreme = objects[i]->GetLeftExtreme(axis);
+    float right_extreme = objects[i]->GetRightExtreme(axis);
+    float cost;
+    cost = CalculateCost(right_extreme, axis, objects);
+    if (cost < best_cost)
+    {
+      best_cost = cost;
+      best_pos = right_extreme;
+    }
+    cost = CalculateCost(left_extreme, axis, objects);
+    if (cost < best_cost)
+    {
+      best_cost = cost;
+      best_pos = left_extreme;
+    }
+  }
+  if (best_pos == -1)
+  {
+    //Terminate
+    this->objects = objects;
+    left = NULL;
+    right = NULL;
+    return;
+
+  }
 
   std::vector<Object*> left_objects;
   std::vector<Object*> right_objects;
@@ -85,7 +146,7 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
   //Iterate over all objects, placing in left and right vectors
   for (unsigned i=0; i<objects.size(); i++)
   {
-    int x = objects[i]->CheckPlaneIntersection(axis, value); 
+    int x = objects[i]->CheckPlaneIntersection(axis, best_pos); 
     switch(x)
     {
 
@@ -101,9 +162,20 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
     }
 
   }
+  
+  vec3 rt = aabb.rt;
+  vec3 lb = aabb.lb;
+  rt[axis] = best_pos;
+  lb[axis] = best_pos;
+  AABB left_aabb(aabb.lb, rt);
+  AABB right_aabb(lb, aabb.rt);
+  std::cout << "Left lb = " << glm::to_string(left_aabb.lb) << std::endl;
+  std::cout << "Left rt = " << glm::to_string(left_aabb.rt) << std::endl;
+  std::cout << "Right lb = " << glm::to_string(right_aabb.lb) << std::endl;
+  std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
 
-  left = new KDNode(left_aabb, left_objects, depth-1);
-  right = new KDNode(right_aabb, right_objects, depth-1);
+  left = new KDNode(left_aabb, left_objects, depth+1);
+  right = new KDNode(right_aabb, right_objects, depth+1);
 }
 
 Intersection KDNode::ClosestIntersection(Ray& ray)
