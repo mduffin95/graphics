@@ -26,11 +26,10 @@ int main(int argc, char* argv[] )
 
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
-	int t = SDL_GetTicks();	// Set start value for timer.
 
 	LoadTestModel( objects, materials );
 
-  AABB aabb(vec3(-1.05,-1.05,-1.05), vec3(1.05,1.05,1.05));
+  AABB aabb(vec3(-1,-1,-1), vec3(1,1,1));
   KDNode *tree = new KDNode(aabb, objects, 0);
   Scene scene(camera, lights, tree);
 
@@ -46,8 +45,12 @@ int main(int argc, char* argv[] )
 
 //	while( ProcessInput(t,camera) )
 //	{
+	int t = SDL_GetTicks();	// Set start value for timer.
   for(int i=0; i<4; i++)
 		r.Draw();
+	int t2 = SDL_GetTicks();	// Set start value for timer.
+	float dt = float(t2-t);
+	cout << "Render time: " << dt << " ms." << endl;
 //	}
 	SDL_SaveBMP( screen, "screenshot.bmp" );
   delete tree;

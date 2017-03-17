@@ -9,8 +9,8 @@ Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material)
 
 void Triangle::ComputeNormal()
 {
-	glm::vec3 e1 = v1-v0;
-	glm::vec3 e2 = v2-v0;
+	glm::vec3 e1 = v2-v0;
+	glm::vec3 e2 = v1-v0;
 	normal = glm::normalize( glm::cross( e2, e1 ) );
 }
 
@@ -18,8 +18,8 @@ Intersection Triangle::Intersect(Ray ray) const
 {
   Intersection result;
   float t, u, v;
-  vec3 e1 = v2 - v0;
-  vec3 e2 = v1 - v0;
+  vec3 e1 = v1 - v0;
+  vec3 e2 = v2 - v0;
   vec3 pvec = cross(ray.direction, e2);
   float det = dot(e1, pvec);
   float invdet = 1 / det;

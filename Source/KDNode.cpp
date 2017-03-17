@@ -56,7 +56,7 @@ bool AABB::Intersect(Ray& ray, float& t)
 
 bool KDNode::StopCriterion()
 {
-  if (depth == 4)
+  if (depth == 3)
     return true;
   return false;
 }
@@ -97,7 +97,7 @@ float KDNode::CalculateCost(float split_pos, int axis, std::vector<Object*> obje
 
 KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
 {
-  std::cout << "Depth = " << depth << ", size = " << objects.size() << std::endl;
+  std::cout << "Depth = " << depth << ", size = " << objects.size() << " " << glm::to_string(aabb.lb) << " "<< glm::to_string(aabb.rt) << std::endl;
   this->depth = depth;
   if (StopCriterion())
   {
@@ -169,10 +169,12 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
   lb[axis] = best_pos;
   AABB left_aabb(aabb.lb, rt);
   AABB right_aabb(lb, aabb.rt);
+  /*
   std::cout << "Left lb = " << glm::to_string(left_aabb.lb) << std::endl;
   std::cout << "Left rt = " << glm::to_string(left_aabb.rt) << std::endl;
   std::cout << "Right lb = " << glm::to_string(right_aabb.lb) << std::endl;
   std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
+  */
 
   left = new KDNode(left_aabb, left_objects, depth+1);
   right = new KDNode(right_aabb, right_objects, depth+1);
