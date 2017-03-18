@@ -15,7 +15,6 @@ public:
   void Draw();
 
 private:
-  Intersection ClosestIntersection(Ray);
   vec3 CastAtPixel(const int x, const int y);
   vec3 CastRay(const Ray ray);
   int focalLength;

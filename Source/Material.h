@@ -8,7 +8,6 @@
 #include <vector>
 #include "KDNode.h"
 
-#define SHADOW_SAMPLES 1 
 
 using glm::vec3;
 
@@ -25,13 +24,17 @@ protected:
   Material(vec3 colour, float Kd, float Ks, int shi)
     : colour(colour), Kd(Kd), Ks(Ks), shi(shi) {}
     
-  vec3 DirectLight( const Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree, float Kd, float Ks) const;
+  void DirectLight( const Intersection& isec, const std::vector<Light>& lights, KDNode *tree, vec3 &diff, vec3 &spec) const;
 
 public:
   //virtual destructor
   virtual ~Material() {};
 
-  virtual vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const = 0;
+  virtual vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth) const = 0;
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree) const
+  {
+    return Shade(isec, indirectLight, lights, tree, 0);
+  }
 };
 
 class DefaultMat : public Material
@@ -39,7 +42,7 @@ class DefaultMat : public Material
 public:
   DefaultMat(vec3 colour) : Material(colour, 1.0f, 0.0f, 0) {}
 
-  vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
 class Phong : public Material
@@ -47,7 +50,7 @@ class Phong : public Material
 public:
   Phong(vec3 colour) : Material(colour, 1.0f, 1.0f, 20) {}
 
-  vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
 class Global : public Material
@@ -55,7 +58,7 @@ class Global : public Material
 public:
   Global(vec3 colour) : Material(colour, 1.0f, 1.0f, 20) {}
 
-  vec3 Shade(Intersection& isec, vec3 indirectLight, const std::vector<Light>& lights, KDNode *tree) const override;
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
 

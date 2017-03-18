@@ -22,9 +22,9 @@ void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& mater
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *red = new Global(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *green = new Global(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *white = new Global(vec3(  0.75f, 0.75f, 0.75f ));
 
   materials.push_back(red);
   materials.push_back(white);

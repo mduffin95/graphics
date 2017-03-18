@@ -15,25 +15,6 @@ Raytracer::Raytracer(SDL_Surface* screen, Scene& scene, int dofSamples) : Render
   srand (static_cast <unsigned> (time(0)));
 }
 
-Intersection Raytracer::ClosestIntersection(Ray ray) 
-{
-  /*
-  Intersection closest;
-  closest.distance = std::numeric_limits<float>::max();
-  for (unsigned i=0; i<scene.objects.size(); i++)
-  {
-    Intersection isec = scene.objects[i]->Intersect(ray);
-    if (isec.didIntersect && (isec.distance <= closest.distance))
-    {
-      closest = isec;
-    }
-  }
-  return closest;
-  */
-  return scene.tree->ClosestIntersection(ray);
-}
-
-
 void Raytracer::Draw()
 {
   vec3 colour;
@@ -79,7 +60,7 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.direction = scene.camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
-    Intersection isec = ClosestIntersection(new_ray);
+    Intersection isec = scene.tree->ClosestIntersection(new_ray);
 
     if (isec.didIntersect)
     {
