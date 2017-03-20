@@ -8,6 +8,7 @@
 #define PI 3.141592653f
 #define MAX_DEPTH 1
 #define SHADOW_SAMPLES 10 
+#define GLOBAL_ILLUM_SAMPLES 32 
 
 vec3 perp_vec(vec3 in, float radius)
 {
@@ -118,17 +119,15 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   vec3 Nt, Nb;
   create_coord_system(isec.normal, Nt, Nb);
   
-  std::default_random_engine generator; 
-  std::uniform_real_distribution<float> distribution(0, 1);
-  int samples = 16;
+  float pdf = 1 / (2.0f * PI);
   float ind_x = 0.0f;
   float ind_y = 0.0f;
   float ind_z = 0.0f;
 #pragma omp parallel for reduction(+:ind_x,ind_y,ind_z)
-  for (int i=0; i<samples; i++)
+  for (int i=0; i<GLOBAL_ILLUM_SAMPLES; i++)
   {
-    float r1 = distribution(generator);
-    float r2 = distribution(generator);
+    float r1 = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
+    float r2 = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
     vec3 sample = uniform_sample_hemisphere(r1, r2);
     vec3 sample_world(
         sample.x * Nb.x + sample.y * isec.normal.x + sample.z * Nt.x,
@@ -138,13 +137,13 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
     Intersection tmp_isec = tree->ClosestIntersection(ray);
     if (tmp_isec.didIntersect)
     {
-      vec3 hit = r1 * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1); // 
+      vec3 hit = r1 * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1) / pdf; // 
       ind_x += hit.x;
       ind_y += hit.y;
       ind_z += hit.z;
     }
   }
   vec3 indirect(ind_x, ind_y, ind_z);
-  indirect /= samples;
+  indirect /= GLOBAL_ILLUM_SAMPLES;
   return (diff / PI + 2.0f * indirect) * colour * Kd; //indirectLight * colour + 
 }

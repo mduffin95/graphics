@@ -17,10 +17,10 @@ int main(int argc, char* argv[] )
 {
   std::vector<Object*> objects;
 
-  vec3 lightColour(1,0.5,0.5);
+  vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
-	Light light1(vec3(1,1,-3), lightColour, 50, 0.01f);
-	Light light2(vec3(0,0.9,0), lightColour, 100, 0.01f);
+	//Light light1(vec3(0,0,-3), lightColour, 500, 0.01f);
+	Light light2(vec3(0,0.9,0), lightColour, 300, 0.01f);
   std::vector<Light> lights = {light2};
   std::vector<Material*> materials;
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[] )
 //	while( ProcessInput(t,camera) )
 //	{
 	int t = SDL_GetTicks();	// Set start value for timer.
-  for(int i=0; i<4; i++)
+  for(int i=0; i<1; i++)
 		r.Draw();
 	int t2 = SDL_GetTicks();	// Set start value for timer.
 	float dt = float(t2-t);
