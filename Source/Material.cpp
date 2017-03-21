@@ -119,7 +119,6 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   vec3 Nt, Nb;
   create_coord_system(isec.normal, Nt, Nb);
   
-  float pdf = 1 / (2.0f * PI);
   float ind_x = 0.0f;
   float ind_y = 0.0f;
   float ind_z = 0.0f;
@@ -137,7 +136,7 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
     Intersection tmp_isec = tree->ClosestIntersection(ray);
     if (tmp_isec.didIntersect)
     {
-      vec3 hit = r1 * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1) / pdf; // 
+      vec3 hit = r1 * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1);
       ind_x += hit.x;
       ind_y += hit.y;
       ind_z += hit.z;
@@ -145,5 +144,5 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   }
   vec3 indirect(ind_x, ind_y, ind_z);
   indirect /= GLOBAL_ILLUM_SAMPLES;
-  return (diff / PI + 2.0f * indirect) * colour * Kd; //indirectLight * colour + 
+  return (diff + 2.0f * indirect) * colour * Kd; //indirectLight * colour + 
 }
