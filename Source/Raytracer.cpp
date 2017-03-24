@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <glm/glm.hpp>
-#include "Object.h"
+#include "RenderableObject.h"
 #include <SDL.h>
 #include "Material.h"
 #include <omp.h>

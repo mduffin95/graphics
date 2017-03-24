@@ -1,9 +1,9 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 #include <glm/glm.hpp>
-#include "Object.h"
+#include "RenderableObject.h"
 
-class Sphere : public Object
+class Sphere : public RenderableObject
 {
 public:
   glm::vec3 position;

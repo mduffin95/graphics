@@ -3,7 +3,7 @@
 
 #include "Renderer.h"
 #include "Ray.h"
-#include "Object.h"
+#include "RenderableObject.h"
 #include <SDL.h>
 
 using glm::vec3;

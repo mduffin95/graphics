@@ -4,7 +4,7 @@
 using glm::vec3;
 using glm::mat3;
 
-Sphere::Sphere(glm::vec3 position, float radius, Material* material) : Object(material), position(position), radius(radius), radius2(radius*radius) {}
+Sphere::Sphere(glm::vec3 position, float radius, Material* material) : RenderableObject(material), position(position), radius(radius), radius2(radius*radius) {}
 
 
 //Makes heavy use of scratchapixel code

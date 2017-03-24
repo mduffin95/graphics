@@ -2,11 +2,11 @@
 #define INTERSECTION_H
 
 #include <glm/glm.hpp>
-#include "Object.h" //There is a circular dependency so this is not included
+#include "RenderableObject.h" //There is a circular dependency so this is not included
 #include "Material.h"
 
 using glm::vec3;
-class Object;
+class RenderableObject;
 
 class Intersection {
 public:
@@ -17,7 +17,7 @@ public:
   vec3 normal; //Normal of the surface at the intersection point
   Ray ray;
   float distance;
-  const Object *object;
+  const RenderableObject *object;
   Material* material;
 
 };

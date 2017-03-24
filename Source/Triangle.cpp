@@ -3,7 +3,7 @@
 using glm::vec3;
 using glm::mat3;
 
-Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material) : Object(material), v0(v0), v1(v1), v2(v2) {
+Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material) : RenderableObject(material), v0(v0), v1(v1), v2(v2) {
 	ComputeNormal();
 }
 

@@ -61,7 +61,7 @@ bool KDNode::StopCriterion()
   return false;
 }
 
-float KDNode::CalculateCost(float split_pos, int axis, std::vector<Object*> objects)
+float KDNode::CalculateCost(float split_pos, int axis, std::vector<RenderableObject*> objects)
 {
   vec3 lb = aabb.lb;
   vec3 rt = aabb.rt;
@@ -95,7 +95,7 @@ float KDNode::CalculateCost(float split_pos, int axis, std::vector<Object*> obje
   return 0.3f + 1.0f * (left_area * left_count + right_area * right_count);
 }
 
-KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
+KDNode::KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth) : aabb(aabb)
 {
   std::cout << "Depth = " << depth << ", size = " << objects.size() << " " << glm::to_string(aabb.lb) << " "<< glm::to_string(aabb.rt) << std::endl;
   this->depth = depth;
@@ -140,8 +140,8 @@ KDNode::KDNode(AABB aabb, std::vector<Object*> objects, int depth) : aabb(aabb)
 
   }
 
-  std::vector<Object*> left_objects;
-  std::vector<Object*> right_objects;
+  std::vector<RenderableObject*> left_objects;
+  std::vector<RenderableObject*> right_objects;
 
   //Iterate over all objects, placing in left and right vectors
   for (unsigned i=0; i<objects.size(); i++)
@@ -233,7 +233,7 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
   return Intersection();
 }
 
-Intersection KDNode::ShadowIntersection(Ray& ray, const Object* exclude)
+Intersection KDNode::ShadowIntersection(Ray& ray, const RenderableObject* exclude)
 {
  
   if(NULL == left && NULL == right) //At a leaf

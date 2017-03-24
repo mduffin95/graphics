@@ -4,7 +4,7 @@
 #include "Intersection.h"
 #include <glm/glm.hpp>
 #include "Light.h"
-#include "Object.h"
+#include "RenderableObject.h"
 #include <vector>
 #include "KDNode.h"
 
@@ -12,7 +12,7 @@
 using glm::vec3;
 
 class Intersection;
-class Object;
+class RenderableObject;
 class KDNode;
 
 class Material

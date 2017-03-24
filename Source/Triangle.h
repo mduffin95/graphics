@@ -2,8 +2,8 @@
 #define TRIANGLE_H
 
 #include <glm/glm.hpp>
-#include "Object.h"
-class Triangle : public Object
+#include "RenderableObject.h"
+class Triangle : public RenderableObject
 {
 public:
 	glm::vec3 v0;

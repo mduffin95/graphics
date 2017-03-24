@@ -3,6 +3,7 @@
 #include "Light.h"
 #include "Material.h"
 #include "KDNode.h"
+#include "ObjImporter.h"
 
 bool ProcessInput(int& t, Camera & camera);
 using namespace std;
@@ -15,7 +16,7 @@ const int SCREEN_HEIGHT = 500;
 
 int main(int argc, char* argv[] )
 {
-  std::vector<Object*> objects;
+  std::vector<RenderableObject*> objects;
 
   vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
@@ -24,10 +25,18 @@ int main(int argc, char* argv[] )
   std::vector<Light> lights = {light2};
   std::vector<Material*> materials;
 
+  std::vector<Triangle> triangles;
+
+	Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
+  ImportFromFile("Source/cruiser.obj", triangles, turquoise); 
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 
-	LoadTestModel( objects, materials );
+	//LoadTestModel( objects, materials );
+  for (unsigned i=0; i<triangles.size(); i++)
+  {
+    objects.push_back(&triangles[i]);
+  }
 
   AABB aabb(vec3(-1,-1,-1), vec3(1,1,1));
   KDNode *tree = new KDNode(aabb, objects, 0);

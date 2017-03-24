@@ -9,13 +9,13 @@
 class Intersection;
 class Material;
 
-class Object {
+class RenderableObject {
 
 public:
 
-  Object(Material* material) : material(material) {}
+  RenderableObject(Material* material) : material(material) {}
   //virtual destructor
-  virtual ~Object() {};
+  virtual ~RenderableObject() {};
 
   //Something for checking intersections
   virtual Intersection Intersect(Ray ray) const = 0;

@@ -5,7 +5,7 @@
 #include "TestModel.h"
 #include "Triangle.h"
 #include "Sphere.h"
-#include "Object.h"
+#include "RenderableObject.h"
 #include "Material.h"
 #include <memory>
 
@@ -15,16 +15,16 @@
 // -1 <= x <= +1
 // -1 <= y <= +1
 // -1 <= z <= +1
-void LoadTestModel( std::vector<Object*>& objects, std::vector<Material*>& materials)
+void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Material*>& materials)
 {
 	using glm::vec3;
 
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	Material *red = new Global(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *green = new Global(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *white = new Global(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
 
   materials.push_back(red);
   materials.push_back(white);

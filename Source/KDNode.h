@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include "Object.h"
+#include "RenderableObject.h"
 using glm::vec3;
 
 struct AABB
@@ -17,24 +17,24 @@ struct AABB
 };
 
 class Intersection;
-class Object;
+class RenderableObject;
 class KDNode
 {
 private:
   AABB aabb;
   KDNode *left;
   KDNode *right;
-  std::vector<Object*> objects;
+  std::vector<RenderableObject*> objects;
   int depth;
 
   bool StopCriterion();
-  float CalculateCost(float split_pos, int axis, std::vector<Object*> objects);
+  float CalculateCost(float split_pos, int axis, std::vector<RenderableObject*> objects);
 
 public:
-  KDNode(AABB aabb, std::vector<Object*> objects, int depth);
+  KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth);
 
   Intersection ClosestIntersection(Ray&);
-  Intersection ShadowIntersection(Ray&, const Object*);
+  Intersection ShadowIntersection(Ray&, const RenderableObject*);
 };
 
 #endif
