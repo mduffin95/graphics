@@ -1,5 +1,6 @@
 #include "Triangle.h"
 #include <glm/glm.hpp>
+#include <math.h>
 using glm::vec3;
 using glm::mat3;
 
@@ -23,9 +24,8 @@ Intersection Triangle::Intersect(Ray ray) const
   vec3 pvec = cross(ray.direction, e2);
   float det = dot(e1, pvec);
   float invdet = 1 / det;
-  if (det < 0.01f) return result;
+  if (fabsf(det) < 0.001f) return result;
   
-  //Not doing any culling yet
   vec3 tvec = ray.origin - v0;
   u = dot(tvec, pvec);
   if (u<0 || u>det) return result;

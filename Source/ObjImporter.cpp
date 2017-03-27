@@ -22,9 +22,6 @@ void ImportFromFile(std::string filename, std::vector<Triangle>& triangles, Mate
       ss.ignore();
       glm::vec3 v;
       for(int i=0; i<3; i++) ss >> v[i];
-      std::cout << line;
-      std::cout << glm::to_string(v) << std::endl;
-
       vs.push_back(v);
     }
     if (line.compare(0, 3, "vt ") == 0) //This is a texture coordinate 
@@ -32,8 +29,6 @@ void ImportFromFile(std::string filename, std::vector<Triangle>& triangles, Mate
       ss.ignore(2);
       glm::vec3 vt;
       for(int i=0; i<2; i++) ss >> vt[i];
-      std::cout << line;
-      std::cout << glm::to_string(vt) << std::endl;
       vts.push_back(vt);
     }
     if (line.compare(0, 3, "vn ") == 0) //This is a vertex normal
@@ -41,14 +36,13 @@ void ImportFromFile(std::string filename, std::vector<Triangle>& triangles, Mate
       ss.ignore(2);
       glm::vec3 vn;
       for(int i=0; i<3; i++) ss >> vn[i];
-      vts.push_back(vn);
+      vns.push_back(vn);
     }   
     if (line.compare(0, 2, "f ") == 0) //something else
     {
       ss.ignore();
       int tmp[9];
       int i = 0;
-      char discard;
       std::string token;
       while(std::getline(ss, token, ' '))
       {
@@ -62,15 +56,12 @@ void ImportFromFile(std::string filename, std::vector<Triangle>& triangles, Mate
           //std::cout << value << std::endl;
           std::istringstream svalue(value);
           svalue >> tmp[j*3+i];
-          std::cout << tmp[j*3+i] << std::endl;
+          //std::cout << tmp[j*3+i] << std::endl;
           j++;
         }
         i++;
       }
       Triangle tri(vs[tmp[0]-1], vs[tmp[1]-1], vs[tmp[2]-1], material);
-      for( int i=0; i<9; i++ )
-        std::cout << tmp[i] << ',';
-      std::cout << std::endl;
       triangles.push_back(tri);
     }
   }
