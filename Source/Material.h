@@ -61,5 +61,13 @@ public:
   vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
+class Mirror : public Material
+{
+public:
+  Mirror(vec3 colour) : Material(colour, 1.0f, 1.0f, 20) {}
+
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
+};
+
 
 #endif
