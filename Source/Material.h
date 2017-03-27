@@ -69,5 +69,12 @@ public:
   vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
+class Glass : public Material
+{
+public:
+  Glass(vec3 colour) : Material(colour, 1.0f, 1.0f, 40) {}
+
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
+};
 
 #endif

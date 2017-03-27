@@ -150,6 +150,8 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
 
 vec3 Mirror::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const
 {
+  if (depth > MAX_DEPTH)
+    return vec3(0); 
   vec3 n = normalize(isec.normal);
   vec3 incident = normalize(isec.ray.direction);
   vec3 r = incident - 2.0f * glm::dot(incident, n) * n; 
@@ -158,7 +160,47 @@ vec3 Mirror::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   vec3 hit(0);
   if (tmp_isec.didIntersect)
   {
-    hit = 0.9f * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree);
+    hit = 0.9f * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1);
   }
   return Ks * colour * hit; //Using Ks as our reflectance value
+}
+
+
+vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const
+{
+  if (depth > MAX_DEPTH)
+    return vec3(0);
+  float ri = 0.9f; //N1 / N2, so less than 1 when going into glass
+  vec3 n = normalize(isec.normal);
+  vec3 incident = normalize(isec.ray.direction);
+
+  //Reflection
+  vec3 r = incident - 2.0f * glm::dot(incident, n) * n; 
+  Ray ray(isec.pos, r);
+  Intersection tmp_isec = tree->ClosestIntersection(ray, isec.object);
+  vec3 reflection(0);
+  if (tmp_isec.didIntersect)
+  {
+    reflection = tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1);
+  }
+
+  //Refraction
+  float n_dot_i = glm::dot(n, incident); //cosine
+  float k = 1.0f - ri * ri * (1.0f - n_dot_i * n_dot_i);
+  if (k < 0.0f)
+  {
+    //TODO: Only return reflection
+    return(vec3(0));
+  }
+  vec3 r2 = ri * incident - (ri * n_dot_i + sqrtf(k)) * n;
+
+  Ray ray2(isec.pos, r2);
+  Intersection tmp_isec2 = tree->ClosestIntersection(ray2, isec.object);
+  vec3 refraction(0);
+  if (tmp_isec2.didIntersect)
+  {
+    refraction = tmp_isec2.material->Shade(tmp_isec2, indirectLight, lights, tree, depth+1);
+  }
+  return 0.1f * reflection + 0.9f * refraction * colour; //Using Ks as our reflectance value
+ 
 }
