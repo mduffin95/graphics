@@ -33,7 +33,7 @@ private:
 public:
   KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth);
 
-  Intersection ClosestIntersection(Ray&);
+  Intersection ClosestIntersection(Ray&, const RenderableObject*);
   Intersection ShadowIntersection(Ray&, const RenderableObject*);
 };
 

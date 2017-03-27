@@ -19,7 +19,7 @@ int main(int argc, char* argv[] )
   std::vector<RenderableObject*> objects;
 
   vec3 lightColour(1,1,1);
-	Camera camera(vec3(0,0,-3));
+	Camera camera(vec3(-0.2,0,-3));
 	//Light light1(vec3(0,0,-3), lightColour, 500, 0.01f);
 	Light light2(vec3(0,0.9,0), lightColour, 300, 0.01f);
   std::vector<Light> lights = {light2};
@@ -27,12 +27,12 @@ int main(int argc, char* argv[] )
 
   std::vector<Triangle> triangles;
 
-	Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
-  ImportFromFile("Source/cruiser.obj", triangles, turquoise); 
+	//Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
+  //ImportFromFile("Source/cruiser.obj", triangles, turquoise); 
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
 
-	//LoadTestModel( objects, materials );
+	LoadTestModel( objects, materials );
   for (unsigned i=0; i<triangles.size(); i++)
   {
     objects.push_back(&triangles[i]);

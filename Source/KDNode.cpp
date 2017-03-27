@@ -56,7 +56,7 @@ bool AABB::Intersect(Ray& ray, float& t)
 
 bool KDNode::StopCriterion()
 {
-  if (depth == 3)
+  if (depth == 0)
     return true;
   return false;
 }
@@ -180,7 +180,7 @@ KDNode::KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth) : a
   right = new KDNode(right_aabb, right_objects, depth+1);
 }
 
-Intersection KDNode::ClosestIntersection(Ray& ray)
+Intersection KDNode::ClosestIntersection(Ray& ray, const RenderableObject* exclude)
 {
   //float t;
   //if (!aabb.Intersect(ray, t))
@@ -193,6 +193,8 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
     //std::cout << objects.size() << std::endl;
     for (unsigned i=0; i<objects.size(); i++)
     {
+      if (objects[i] == exclude)
+        continue;
       Intersection isec = objects[i]->Intersect(ray);
       if (isec.didIntersect && (isec.distance <= closest.distance))
       {
@@ -220,16 +222,16 @@ Intersection KDNode::ClosestIntersection(Ray& ray)
   bool rhit = right->aabb.Intersect(ray, tr); 
   if (lhit && rhit)
   {
-    closest = (tl < tr) ? left->ClosestIntersection(ray) : right->ClosestIntersection(ray);
+    closest = (tl < tr) ? left->ClosestIntersection(ray, exclude) : right->ClosestIntersection(ray, exclude);
     if (closest.didIntersect)
       return closest;
-    closest = (tl >= tr) ? left->ClosestIntersection(ray) : right->ClosestIntersection(ray);
+    closest = (tl >= tr) ? left->ClosestIntersection(ray, exclude) : right->ClosestIntersection(ray, exclude);
     return closest;
   }
   if (lhit)
-    return left->ClosestIntersection(ray);
+    return left->ClosestIntersection(ray, exclude);
   if (rhit)
-    return right->ClosestIntersection(ray);
+    return right->ClosestIntersection(ray, exclude);
   return Intersection();
 }
 

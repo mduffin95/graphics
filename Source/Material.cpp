@@ -133,7 +133,7 @@ vec3 Global::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
         sample.x * Nb.y + sample.y * isec.normal.y + sample.z * Nt.y,
         sample.x * Nb.z + sample.y * isec.normal.z + sample.z * Nt.z);
     Ray ray(isec.pos, sample_world);
-    Intersection tmp_isec = tree->ClosestIntersection(ray);
+    Intersection tmp_isec = tree->ClosestIntersection(ray, isec.object);
     if (tmp_isec.didIntersect)
     {
       vec3 hit = r1 * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree, depth+1);
@@ -154,11 +154,11 @@ vec3 Mirror::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   vec3 incident = normalize(isec.ray.direction);
   vec3 r = incident - 2.0f * glm::dot(incident, n) * n; 
   Ray ray(isec.pos, r);
-  Intersection tmp_isec = tree->ClosestIntersection(ray);
+  Intersection tmp_isec = tree->ClosestIntersection(ray, isec.object);
   vec3 hit(0);
   if (tmp_isec.didIntersect)
   {
-    hit = tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree);
+    hit = 0.9f * tmp_isec.material->Shade(tmp_isec, indirectLight, lights, tree);
   }
-  return hit;
+  return Ks * colour * hit; //Using Ks as our reflectance value
 }

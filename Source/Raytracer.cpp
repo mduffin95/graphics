@@ -60,7 +60,7 @@ vec3 Raytracer::CastRay(const Ray ray)
     new_ray.direction = scene.camera.transform_c2w_rotate(point - randomise);
     new_ray.origin = ray.origin + randomise;
 
-    Intersection isec = scene.tree->ClosestIntersection(new_ray);
+    Intersection isec = scene.tree->ClosestIntersection(new_ray, NULL);
 
     if (isec.didIntersect)
     {

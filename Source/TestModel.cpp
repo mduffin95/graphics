@@ -22,9 +22,11 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *red = new DefaultMat(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *green = new DefaultMat(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *white = new DefaultMat(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *mirror = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
+	Material *turquoise = new DefaultMat(vec3(    0.27f, 0.88f, 0.95f ));
 
   materials.push_back(red);
   materials.push_back(white);
@@ -49,8 +51,8 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
 	vec3 H(0,L,L);
 
 	// Floor:
-	triangles.push_back( Triangle(C,A,B, white ) );
-	triangles.push_back( Triangle(C,B,D, white ) );
+	triangles.push_back( Triangle(C,A,B, white) );
+	triangles.push_back( Triangle(C,B,D, white) );
 
 	// Right wall
 	triangles.push_back( Triangle(A,C,E, red) );
@@ -82,24 +84,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
 	H = vec3(473,165,225);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,white) );
-	triangles.push_back( Triangle(E,F,B,white) );
+	triangles.push_back( Triangle(E,B,A,red) );
+	triangles.push_back( Triangle(E,F,B,red) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,white) );
-	triangles.push_back( Triangle(F,H,D,white) );
+	triangles.push_back( Triangle(F,D,B,red) );
+	triangles.push_back( Triangle(F,H,D,red) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,white) );
-	triangles.push_back( Triangle(H,G,C,white) );
+	triangles.push_back( Triangle(H,C,D,red) );
+	triangles.push_back( Triangle(H,G,C,red) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,white) );
-	triangles.push_back( Triangle(E,A,C,white) );
+	triangles.push_back( Triangle(G,E,C,red) );
+	triangles.push_back( Triangle(E,A,C,red) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,white) );
-	triangles.push_back( Triangle(G,H,F,white) );
+	triangles.push_back( Triangle(G,F,E,red) );
+	triangles.push_back( Triangle(G,H,F,red) );
 
 	// ---------------------------------------------------------------------------
 	// Tall block
@@ -115,24 +117,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
 	H = vec3(241,330,456);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,white) );
-	triangles.push_back( Triangle(E,F,B,white) );
+	triangles.push_back( Triangle(E,B,A,mirror) );
+	triangles.push_back( Triangle(E,F,B,mirror) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,white) );
-	triangles.push_back( Triangle(F,H,D,white) );
+	triangles.push_back( Triangle(F,D,B,mirror) );
+	triangles.push_back( Triangle(F,H,D,mirror) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,white) );
-	triangles.push_back( Triangle(H,G,C,white) );
+	triangles.push_back( Triangle(H,C,D,mirror) );
+	triangles.push_back( Triangle(H,G,C,mirror) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,white) );
-	triangles.push_back( Triangle(E,A,C,white) );
+	triangles.push_back( Triangle(G,E,C,mirror) );
+	triangles.push_back( Triangle(E,A,C,mirror) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,white) );
-	triangles.push_back( Triangle(G,H,F,white) );
+	triangles.push_back( Triangle(G,F,E,mirror) );
+	triangles.push_back( Triangle(G,H,F,mirror) );
 
 
 	// ----------------------------------------------
@@ -161,5 +163,5 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
     objects.push_back(new Triangle(triangles[i]));
 	}
 
-  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, white));
+  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, mirror));
 }
