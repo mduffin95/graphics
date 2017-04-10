@@ -6,9 +6,15 @@
 class Triangle : public RenderableObject
 {
 public:
+  //Vertices
 	glm::vec3 v0;
 	glm::vec3 v1;
 	glm::vec3 v2;
+  //Texture coordinates
+  glm::vec2 vt0;
+  glm::vec2 vt1;
+  glm::vec2 vt2;
+
 	glm::vec3 normal;
 	Triangle( glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material);
 	void ComputeNormal();

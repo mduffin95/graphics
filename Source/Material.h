@@ -4,16 +4,16 @@
 #include "Intersection.h"
 #include <glm/glm.hpp>
 #include "Light.h"
-#include "RenderableObject.h"
 #include <vector>
 #include "KDNode.h"
+#include "Texture.h"
 
 
 using glm::vec3;
 
 class Intersection;
-class RenderableObject;
 class KDNode;
+class Triangle;
 
 class Material
 {
@@ -77,4 +77,15 @@ public:
   vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
 
+class TextureMat : public Material
+{
+private:
+  Texture diffuse;
+public:
+  TextureMat(const char *textureFile, const char *objFile, std::vector<Triangle>& triangles);
+  void LoadObj(const char *objFile, std::vector<Triangle>& triangles);
+  unsigned char * diffuseTexture(glm::vec2 textureCoordinate);
+
+  vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
+};
 #endif

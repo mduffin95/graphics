@@ -1,8 +1,11 @@
 #include "Material.h"
 #include "Intersection.h"
 #include "Ray.h"
+#include "Triangle.h"
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <random>
 
 #define PI 3.141592653f
@@ -201,6 +204,107 @@ vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Lig
   {
     refraction = tmp_isec2.material->Shade(tmp_isec2, indirectLight, lights, tree, depth+1);
   }
-  return 0.1f * reflection + 0.9f * refraction * colour; //Using Ks as our reflectance value
+  return 0.1f * reflection + 0.9f * refraction * colour; //TODO: Fresnel effects to change the proportion of reflection and refraction
  
 }
+
+
+vec3 TextureMat::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*= 0*/) const
+{
+  //Get texture coordinates from isec
+  //Find barycentric coordinates of intersection point
+  //Get texture using diffuseTexture
+  return vec3(0);
+}
+
+unsigned char * TextureMat::diffuseTexture(glm::vec2 textureCoordinate) {
+  glm::ivec2 coordinate(textureCoordinate.x * diffuse.GetWidth(), textureCoordinate.y * diffuse.GetHeight());
+  return diffuse.Get(coordinate[0],coordinate[1]);
+}
+
+TextureMat::TextureMat(const char *textureFile, const char *objFile, std::vector<Triangle>& triangles) : Material(vec3(0), 1.0f, 1.0f, 40)
+{
+  diffuse.ReadTGAImage(textureFile);
+  LoadObj(objFile, triangles);
+}
+
+void TextureMat::LoadObj(const char *objFile, std::vector<Triangle>& triangles) //pass in a reference to triangle array
+{
+  std::vector<glm::vec3> vs;
+  std::vector<glm::vec3> vts;
+  std::vector<glm::vec3> vns;
+
+  bool debug = false;
+
+  std::ifstream ifs(objFile);
+  std::string line;
+  while (std::getline(ifs, line))
+  {
+    std::istringstream ss(line);
+    ss.clear();
+
+    if (line.compare(0, 2, "v ") == 0) //This is a vertex
+    {
+      ss.ignore();
+      glm::vec3 v;
+      for(int i=0; i<3; i++) ss >> v[i];
+
+      vs.push_back(v);
+    }
+    if (line.compare(0, 3, "vt ") == 0) //This is a texture coordinate
+    {
+      ss.ignore(2);
+      glm::vec3 vt;
+      for(int i=0; i<2; i++) ss >> vt[i];
+
+      vts.push_back(vt);
+    }
+    if (line.compare(0, 3, "vn ") == 0) //This is a vertex normal
+    {
+      ss.ignore(2);
+      glm::vec3 vn;
+      for(int i=0; i<3; i++) ss >> vn[i];
+      vns.push_back(vn);
+    }
+    if (line.compare(0, 2, "f ") == 0) //something else
+    {
+      ss.ignore();
+
+      int i = 0;
+
+      glm::ivec3 v[3];
+      //todo handle negative indices
+      std::string token;
+      while(getline(ss, token, ' '))
+      {
+        if (token == "") continue; //Bit of a hack
+        if(debug) std::cout << token << std::endl;
+        std::string value;
+        int j=0;
+        std::istringstream stoken(token);
+
+        while(getline(stoken, value, '/'))
+        {
+          std::istringstream svalue(value);
+          svalue >> v[i][j];
+          if(debug) std::cout << v[i][j] << ",";
+          v[i][j]--;
+          j++;
+
+        }
+        if(debug) std::cout << std::endl;
+        i++;
+      }
+
+
+      if(debug) std::cout << std::endl;
+      Triangle triangle (vs[v[0][0]],vs[v[0][1]],vs[v[0][2]], this);
+      triangles.push_back(triangle);
+    }
+  }
+}
+
+
+//Load triangles using loadObj
+//Need to attach this material to the triangle
+//Need to also load in the diffuse texture 
