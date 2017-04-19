@@ -169,8 +169,7 @@ vec3 Mirror::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
 }
 
 
-vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const
-{
+vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const {
   if (depth > MAX_DEPTH)
     return vec3(0);
   float ri = 0.9f; //N1 / N2, so less than 1 when going into glass
@@ -212,12 +211,17 @@ vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Lig
 vec3 TextureMat::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*= 0*/) const
 {
   //Get texture coordinates from isec
+  Triangle *tri = (Triangle*)isec.object;
   //Find barycentric coordinates of intersection point
+  unsigned char * ptr = diffuseTexture(glm::vec2(isec.u, isec.v)); 
   //Get texture using diffuseTexture
-  return vec3(0);
+  char b = *ptr;
+  char g = *(ptr+1);
+  char r = *(ptr+2);
+  return glm::vec3(r, g, b);
 }
 
-unsigned char * TextureMat::diffuseTexture(glm::vec2 textureCoordinate) {
+unsigned char * TextureMat::diffuseTexture(glm::vec2 textureCoordinate) const {
   glm::ivec2 coordinate(textureCoordinate.x * diffuse.GetWidth(), textureCoordinate.y * diffuse.GetHeight());
   return diffuse.Get(coordinate[0],coordinate[1]);
 }
@@ -231,7 +235,7 @@ TextureMat::TextureMat(const char *textureFile, const char *objFile, std::vector
 void TextureMat::LoadObj(const char *objFile, std::vector<Triangle>& triangles) //pass in a reference to triangle array
 {
   std::vector<glm::vec3> vs;
-  std::vector<glm::vec3> vts;
+  std::vector<glm::vec2> vts;
   std::vector<glm::vec3> vns;
 
   bool debug = false;
@@ -254,7 +258,7 @@ void TextureMat::LoadObj(const char *objFile, std::vector<Triangle>& triangles) 
     if (line.compare(0, 3, "vt ") == 0) //This is a texture coordinate
     {
       ss.ignore(2);
-      glm::vec3 vt;
+      glm::vec2 vt;
       for(int i=0; i<2; i++) ss >> vt[i];
 
       vts.push_back(vt);
@@ -298,7 +302,8 @@ void TextureMat::LoadObj(const char *objFile, std::vector<Triangle>& triangles) 
 
 
       if(debug) std::cout << std::endl;
-      Triangle triangle (vs[v[0][0]],vs[v[0][1]],vs[v[0][2]], this);
+      Triangle triangle (vs[v[0][0]],vs[v[0][1]],vs[v[0][2]], 
+                         vts[v[1][0]],vts[v[1][1]],vts[v[1][2]], this);
       triangles.push_back(triangle);
     }
   }

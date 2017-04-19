@@ -19,6 +19,7 @@ public:
   float distance;
   const RenderableObject *object;
   Material* material;
+  float u, v, t;
 
 };
 

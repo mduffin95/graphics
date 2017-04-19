@@ -56,7 +56,7 @@ bool AABB::Intersect(Ray& ray, float& t)
 
 bool KDNode::StopCriterion()
 {
-  if (depth == 0)
+  if (depth == 3)
     return true;
   return false;
 }

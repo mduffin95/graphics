@@ -35,11 +35,11 @@ private:
 
 public:
 		bool ReadTGAImage(const char * filename );
-		int GetWidth();
-		int GetHeight();
+		int GetWidth() const;
+		int GetHeight() const;
     void Mirror_horizontally();
     void Mirror_vertically();
-    unsigned char * Get(int x, int y);
+    unsigned char * Get(int x, int y) const;
 
 };
 

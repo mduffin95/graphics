@@ -8,6 +8,10 @@ Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, Material* material)
 	ComputeNormal();
 }
 
+Triangle::Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec2 vt0, glm::vec2 vt1, glm::vec2 vt2, Material* material) : RenderableObject(material), v0(v0), v1(v1), v2(v2), vt0(vt0), vt1(vt1), vt2(vt2) {
+	ComputeNormal();
+}
+
 void Triangle::ComputeNormal()
 {
 	glm::vec3 e1 = v2-v0;
@@ -45,6 +49,9 @@ Intersection Triangle::Intersect(Ray ray) const
   result.material = material;
   result.ray = ray;
   result.didIntersect = true;
+  result.u = u;
+  result.v = v;
+  result.t = t;
   return result;
 }
 

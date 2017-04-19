@@ -19,7 +19,7 @@ int main(int argc, char* argv[] )
   std::vector<RenderableObject*> objects;
 
   vec3 lightColour(1,1,1);
-	Camera camera(vec3(-0.2,0,-3));
+	Camera camera(vec3(0,0,-3));
 	//Light light1(vec3(0,0,-3), lightColour, 500, 0.01f);
 	Light light2(vec3(0,0.9,0), lightColour, 300, 0.01f);
   std::vector<Light> lights = {light2};
@@ -31,15 +31,18 @@ int main(int argc, char* argv[] )
   //ImportFromFile("Source/cruiser.obj", triangles, turquoise); 
 
 	SDL_Surface *screen = InitializeSDL( SCREEN_WIDTH, SCREEN_HEIGHT );
+	Material *diablo = new TextureMat("Source/diablo3_pose_diffuse.tga", "Source/diablo3_pose.obj", triangles);
+  std::cout << "loaded triangles: " << triangles.size() << std::endl;
 
-	LoadTestModel( objects, materials );
+	//LoadTestModel( objects, materials );
   for (unsigned i=0; i<triangles.size(); i++)
   {
     objects.push_back(&triangles[i]);
   }
 
   AABB aabb(vec3(-1,-1,-1), vec3(1,1,1));
-  KDNode *tree = new KDNode(aabb, objects, 0);
+  KDNode *tree = new KDNode(aabb, objects, 0); //Keep at zero
+  std::cout << "Built tree" << std::endl;
   Scene scene(camera, lights, tree);
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );

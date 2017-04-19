@@ -112,16 +112,16 @@ bool Texture::ReadTGAImage(const char *filename) {
 
 }
 
-int Texture::GetHeight(){
+int Texture::GetHeight() const{
   return height;
 };
 
-int Texture::GetWidth(){
+int Texture::GetWidth() const{
   return width;
 };
 
 
-unsigned char * Texture::Get(int x, int y) {
+unsigned char * Texture::Get(int x, int y) const{
 
   if(x < 0 || x >= width || y < 0 || y >=height){
     unsigned char c = 0;

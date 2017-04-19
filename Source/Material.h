@@ -84,7 +84,7 @@ private:
 public:
   TextureMat(const char *textureFile, const char *objFile, std::vector<Triangle>& triangles);
   void LoadObj(const char *objFile, std::vector<Triangle>& triangles);
-  unsigned char * diffuseTexture(glm::vec2 textureCoordinate);
+  unsigned char * diffuseTexture(glm::vec2 textureCoordinate) const;
 
   vec3 Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth = 0) const override;
 };
