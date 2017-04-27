@@ -164,5 +164,5 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
     objects.push_back(new Triangle(triangles[i]));
 	}
 
-  objects.push_back(new Sphere(vec3(0.6,-0.8,0.6), 0.2f, red));
+  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, glass));
 }
