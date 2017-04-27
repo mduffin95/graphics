@@ -166,10 +166,13 @@ vec3 Mirror::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Li
   return Ks * colour * hit; //Using Ks as our reflectance value
 }
 
-void fresnel(const vec3 &I, const vec3 &N, const float &n1, const float &n2, float &kr)  //n1 is the current medium, n2 is the one we are entering
+//Adapted from code at scratchapixel
+void fresnel(const vec3 &I, const vec3 &N, const float &N1, const float &N2, float &kr)  //n1 is the current medium, n2 is the one we are entering
 { 
 	float cos1 = glm::dot(I,N); 
-	//if (cos1 > 0) { std::swap(n1, n2); } 
+  float n1 = N1;
+  float n2 = N2;
+	if (cos1 > 0) { std::swap(n1, n2); } 
 	// Compute sini using Snell's law
 	float sint = n1 / n2 * sqrtf(std::max(0.f, 1 - cos1 * cos1)); 
 	// Total internal reflection
@@ -183,8 +186,6 @@ void fresnel(const vec3 &I, const vec3 &N, const float &n1, const float &n2, flo
 			float Rp = ((n1 * cos1) - (n2 * cos2)) / ((n1 * cos1) + (n2 * cos2)); 
 			kr = (Rs * Rs + Rp * Rp) / 2; 
 	} 
-	// As a consequence of the conservation of energy, transmittance is given by:
-	// kt = 1 - kr;
 }
 
 vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const
@@ -197,28 +198,22 @@ vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Lig
   float cos1 = glm::dot(incident, normal);
 
 	bool outside = cos1 < 0; 
-	float n1, n2;
-	if (outside)
-	{
-		n1 = 1.0f; n2 = 1.5f;
-	}
-	else
-	{
-		n1 = 1.5f; n2 = 1.0f;
-	}
+	float n1 = 1.0f;
+  float n2 = 1.5f;
 
 	float kr;
   fresnel(incident, normal, n1, n2, kr);
 
-	glm::vec3 bias = 0.01f * normal; 
+	glm::vec3 bias = vec3(0); //0.01f * normal; 
 	// compute refraction if it is not a case of total internal reflection
 	vec3 refractionColor(0);
 	if (kr < 1) { 
     glm::vec3 n = normal; 
-    if (cos1 < 0) { cos1 = -cos1; } else { std::swap(n1, n2); n= -normal; } 
+    float n_cos1 = cos1;
+    if (outside) { n_cos1 = -cos1; } else { std::swap(n1, n2); n= -normal; } 
     float ratio = n1 / n2; 
-    float k = 1 - ratio * ratio * (1 - cos1 * cos1); 
-    vec3 refractDir = k < 0.0f ? vec3(0) : normalize(ratio * incident + (ratio * cos1 - sqrtf(k)) * n); 
+    float k = 1 - ratio * ratio * (1 - n_cos1 * n_cos1); 
+    vec3 refractDir = k < 0.0f ? vec3(0) : normalize(ratio * incident + (ratio * n_cos1 - sqrtf(k)) * n); 
 
 		glm::vec3 refractionRayOrig = outside ? isec.pos - bias : isec.pos + bias; 
 		Ray ray(refractionRayOrig, refractDir);
