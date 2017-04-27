@@ -24,6 +24,7 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
 	// Defines colours:
 	Material *red = new DefaultMat(vec3(    0.75f, 0.15f, 0.15f ));
 	Material *green = new DefaultMat(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *blue = new DefaultMat(vec3(  0.15f, 0.15f, 0.75f ));
 	Material *white = new DefaultMat(vec3(  0.75f, 0.75f, 0.75f ));
 	Material *mirror = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
 	Material *glass = new Glass(vec3(  0.75f, 0.75f, 0.75f ));
@@ -118,24 +119,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Materia
 	H = vec3(241,330,456);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,green) );
-	triangles.push_back( Triangle(E,F,B,green) );
+	triangles.push_back( Triangle(E,B,A,blue) );
+	triangles.push_back( Triangle(E,F,B,blue) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,green) );
-	triangles.push_back( Triangle(F,H,D,green) );
+	triangles.push_back( Triangle(F,D,B,blue) );
+	triangles.push_back( Triangle(F,H,D,blue) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,green) );
-	triangles.push_back( Triangle(H,G,C,green) );
+	triangles.push_back( Triangle(H,C,D,blue) );
+	triangles.push_back( Triangle(H,G,C,blue) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,green) );
-	triangles.push_back( Triangle(E,A,C,green) );
+	triangles.push_back( Triangle(G,E,C,blue) );
+	triangles.push_back( Triangle(E,A,C,blue) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,green) );
-	triangles.push_back( Triangle(G,H,F,green) );
+	triangles.push_back( Triangle(G,F,E,blue) );
+	triangles.push_back( Triangle(G,H,F,blue) );
 
 
 	// ----------------------------------------------

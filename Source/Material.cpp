@@ -187,23 +187,6 @@ void fresnel(const vec3 &I, const vec3 &N, const float &n1, const float &n2, flo
 	// kt = 1 - kr;
 }
 
-glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &N1, const float &N2) 
-{ 
-	float cos1 = glm::dot(I,N); 
-  float n1 = N1;
-  float n2 = N2;
-	glm::vec3 n = N; 
-	if (cos1 < 0) { cos1 = -cos1; } else { std::swap(n1, n2); n= -N; } 
-	float ratio = n1 / n2; 
-	float k = 1 - ratio * ratio * (1 - cos1 * cos1); 
-	return k < 0.0f ? vec3(0) : ratio * I + (ratio * cos1 - sqrtf(k)) * n; 
-} 
-
-glm::vec3 reflect(const glm::vec3 &I, const glm::vec3 &N) 
-{ 
-    return I - 2 * glm::dot(I, N) * N; 
-} 
-
 vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Light>& lights, KDNode *tree, unsigned depth /*=0*/) const
 {
   if (depth > MAX_DEPTH)
@@ -211,28 +194,34 @@ vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Lig
 
   vec3 normal = normalize(isec.normal);
   vec3 incident = normalize(isec.ray.direction);
+  float cos1 = glm::dot(incident, normal);
 
-	bool outside = glm::dot(incident, normal) < 0; 
+	bool outside = cos1 < 0; 
 	float n1, n2;
 	if (outside)
 	{
-		n1 = 1.0f; n2 = 0.9f;
+		n1 = 1.0f; n2 = 1.5f;
 	}
 	else
 	{
-		n1 = 0.9f; n2 = 1.0f;
+		n1 = 1.5f; n2 = 1.0f;
 	}
 
 	float kr;
-	fresnel(incident, normal, n1, n2, kr);
+  fresnel(incident, normal, n1, n2, kr);
 
 	glm::vec3 bias = 0.01f * normal; 
 	// compute refraction if it is not a case of total internal reflection
 	vec3 refractionColor(0);
 	if (kr < 1) { 
-		glm::vec3 refractionDirection = normalize(refract(incident, normal, n1, n2)); 
+    glm::vec3 n = normal; 
+    if (cos1 < 0) { cos1 = -cos1; } else { std::swap(n1, n2); n= -normal; } 
+    float ratio = n1 / n2; 
+    float k = 1 - ratio * ratio * (1 - cos1 * cos1); 
+    vec3 refractDir = k < 0.0f ? vec3(0) : normalize(ratio * incident + (ratio * cos1 - sqrtf(k)) * n); 
+
 		glm::vec3 refractionRayOrig = outside ? isec.pos - bias : isec.pos + bias; 
-		Ray ray(refractionRayOrig, refractionDirection);
+		Ray ray(refractionRayOrig, refractDir);
 		Intersection tmp_isec = tree->ClosestIntersection(ray, isec.object);
 		if (tmp_isec.didIntersect)
 		{
@@ -240,7 +229,8 @@ vec3 Glass::Shade(Intersection& isec, vec3& indirectLight, const std::vector<Lig
 		}
 	} 
 
-	glm::vec3 reflectionDirection = normalize(reflect(incident, normal));
+  vec3 r = incident - 2 * cos1 * normal; //reflection
+	glm::vec3 reflectionDirection = normalize(r);
 	glm::vec3 reflectionRayOrig = outside ? isec.pos + bias : isec.pos - bias; 
   Ray ray(reflectionRayOrig, reflectionDirection);
 	Intersection tmp_isec = tree->ClosestIntersection(ray, isec.object);
