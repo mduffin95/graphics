@@ -2,6 +2,7 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include <assert.h>
+#include "RenderableObject.h"
 
 
 int AABB::GetLongestAxis()
@@ -54,9 +55,24 @@ bool AABB::Intersect(Ray& ray, float& t)
 	return true;
 }
 
+AABB operator+(const AABB &box1, const AABB &box2)
+{
+  vec3 lb;
+  vec3 rt; 
+  lb.x = box1.lb.x < box2.lb.x ? box1.lb.x : box2.lb.x;
+  lb.y = box1.lb.y < box2.lb.y ? box1.lb.y : box2.lb.y;
+  lb.z = box1.lb.z < box2.lb.z ? box1.lb.z : box2.lb.z;
+
+  rt.x = box1.rt.x > box2.rt.x ? box1.rt.x : box2.rt.x;
+  rt.y = box1.rt.y > box2.rt.y ? box1.rt.y : box2.rt.y;
+  rt.z = box1.rt.z > box2.rt.z ? box1.rt.z : box2.rt.z;
+
+  return AABB(lb, rt);
+}
+
 bool KDNode::StopCriterion()
 {
-  if (depth == 0)
+  if (depth == 2)
     return true;
   return false;
 }
@@ -93,6 +109,16 @@ float KDNode::CalculateCost(float split_pos, int axis, std::vector<RenderableObj
   }
 
   return 0.3f + 1.0f * (left_area * left_count + right_area * right_count);
+}
+
+AABB KDNode::GetEnclosingAABB( std::vector<RenderableObject*> objects )
+{
+  AABB enclosing(vec3(0), vec3(0));
+  for (unsigned i=0; i<objects.size(); i++)
+  {
+    enclosing = enclosing + objects[i]->GetAABB();  
+  }
+  return enclosing;
 }
 
 KDNode::KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth) : aabb(aabb)

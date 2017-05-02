@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include "RenderableObject.h"
+#include "Ray.h"
 using glm::vec3;
 
 struct AABB
@@ -14,7 +14,9 @@ struct AABB
 
   int GetLongestAxis();
   bool Intersect(Ray& ray, float& t);
+  friend AABB operator+(AABB);
 };
+
 
 class Intersection;
 class RenderableObject;
@@ -35,6 +37,8 @@ public:
 
   Intersection ClosestIntersection(Ray&, const RenderableObject*);
   Intersection ShadowIntersection(Ray&, const RenderableObject*);
+
+  static AABB GetEnclosingAABB( std::vector<RenderableObject*> objects );
 };
 
 #endif
