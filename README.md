@@ -17,4 +17,4 @@
 ### Optimisations
 * Moller-Trumbore intersection
 * K-D Tree
-
+* OpenMP
