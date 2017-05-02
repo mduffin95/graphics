@@ -19,7 +19,7 @@ private:
   vec3 CastRay(const Ray ray);
   int focalLength;
   vec3 indirectLight;
-  float dofSamples;
+  int dofSamples;
 
 };
 

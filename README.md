@@ -7,6 +7,8 @@ Objects derive from the RenderableObject class which allows us to easily create 
 
 We also have a Material base class which has been extended to create lots of different types of material, such as the Phong material and the Glass material. Each of these implements a Shade method which is called when we want to determine the colour of the point that a light ray intersects with. Each object has a pointer to one of these materials.
 
+Here is a simplified UML diagram showing the core classes in the ray tracer.
+![UML Diagram](images/Graphics.png "UML diagram of the ray tracer.")
 
 ## Features
 Here is a list of the most important features that we have implemented.
@@ -20,6 +22,16 @@ Here is a list of the most important features that we have implemented.
 * Global illumination (Monte-Carlo)
 * Mirrors
 * Glass (Refraction)
+
+Below you can see the glass material which uses fresnel equations to vary the amount of reflected and refracted light based on the angle of indidence.
+
+![Glass](images/glass.bmp "Glass")
+
+The image below shows the ray tracer using the Phong lighting model. We have also turned on the depth of field effect. You can also see in this image and the one above that we have soft shadows.
+
+![Depth of field](images/dof.bmp "Depth of field")
+
+
 
 ## Optimisations
 ### M&ouml;ller-Trumbore Intersection

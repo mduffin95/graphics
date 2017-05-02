@@ -9,5 +9,5 @@
 #include <memory>
 
 
-void LoadTestModel( std::vector<RenderableObject*>& objects, std::vector<Material*>& materials);
+void LoadTestModel( std::vector<RenderableObject*>& objects);
 #endif

@@ -39,7 +39,7 @@ void Raytracer::Draw()
 
 vec3 Raytracer::CastRay(const Ray ray)
 {
-  float apertureRadius = 0.1f;
+  float apertureRadius = 0.04f;
   float focalDepth = 3.0f;
   float sampleWeight = 1.0f / dofSamples;
   vec3 point = ray.direction * focalDepth;
@@ -75,7 +75,7 @@ vec3 Raytracer::CastRay(const Ray ray)
 
 vec3 Raytracer::CastAtPixel(const int x, const int y)
 {
-  int superSamples = 2; //In each dimension
+  int superSamples = 3; //In each dimension
   float sampleSize = 1/(float)superSamples;
   //while(glm::length(delta) > threshold)
   float sampleWeight = 1.0f / (superSamples * superSamples);
