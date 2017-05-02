@@ -38,9 +38,8 @@ int main(int argc, char* argv[] )
     objects.push_back(&triangles[i]);
   }
 
-  //AABB aabb(vec3(-1,-1,-1), vec3(1,1,1));
-  AABB aabb = KDNode::GetEnclosingAABB(objects);
-  KDNode *tree = new KDNode(aabb, objects, 0);
+  //AABB aabb = KDNode::GetEnclosingAABB(objects);
+  KDNode *tree = new KDNode(objects);
   Scene scene(camera, lights, tree);
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );

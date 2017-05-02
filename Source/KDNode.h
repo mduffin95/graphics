@@ -10,6 +10,7 @@ struct AABB
 {
   vec3 lb;
 	vec3 rt;
+  AABB() : lb(vec3(0)), rt(vec3(0)) {}
   AABB(vec3 lb, vec3 rt) : lb(lb), rt(rt) {}
 
   int GetLongestAxis();
@@ -33,7 +34,9 @@ private:
   float CalculateCost(float split_pos, int axis, std::vector<RenderableObject*> objects);
 
 public:
-  KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth);
+  KDNode() {}
+  KDNode(std::vector<RenderableObject*> objects);
+  void Init(AABB aabb, std::vector<RenderableObject*> objects, int depth);
 
   Intersection ClosestIntersection(Ray&, const RenderableObject*);
   Intersection ShadowIntersection(Ray&, const RenderableObject*);

@@ -121,8 +121,16 @@ AABB KDNode::GetEnclosingAABB( std::vector<RenderableObject*> objects )
   return enclosing;
 }
 
-KDNode::KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth) : aabb(aabb)
+KDNode::KDNode(std::vector<RenderableObject*> objects)
 {
+  AABB new_aabb = KDNode::GetEnclosingAABB(objects);
+
+  Init(new_aabb, objects, 0);
+}
+
+void KDNode::Init(AABB aabb, std::vector<RenderableObject*> objects, int depth)
+{
+  this->aabb = aabb;
   std::cout << "Depth = " << depth << ", size = " << objects.size() << " " << glm::to_string(aabb.lb) << " "<< glm::to_string(aabb.rt) << std::endl;
   this->depth = depth;
   if (StopCriterion())
@@ -202,8 +210,10 @@ KDNode::KDNode(AABB aabb, std::vector<RenderableObject*> objects, int depth) : a
   std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
   */
 
-  left = new KDNode(left_aabb, left_objects, depth+1);
-  right = new KDNode(right_aabb, right_objects, depth+1);
+  left = new KDNode();
+  left->Init(left_aabb, left_objects, depth+1);
+  right = new KDNode();
+  right->Init(right_aabb, right_objects, depth+1);
 }
 
 Intersection KDNode::ClosestIntersection(Ray& ray, const RenderableObject* exclude)
