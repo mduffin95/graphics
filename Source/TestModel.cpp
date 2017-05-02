@@ -29,7 +29,8 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
 	Material *blue = new Phong(vec3(  0.15f, 0.15f, 0.75f ));
 	Material *purple = new Phong(vec3(  0.75f, 0.15f, 0.75f ));
 	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
-	Material *mirror = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
+	Material *mirror_turquoise = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
+	Material *mirror = new Mirror(vec3(  0.75, 0.75f, 0.75f ));
 	Material *glass = new Glass(vec3(  0.75f, 0.75f, 0.75f ));
 	Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
 
@@ -118,24 +119,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
 	H = vec3(241,330,456);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,blue) );
-	triangles.push_back( Triangle(E,F,B,blue) );
+	triangles.push_back( Triangle(E,B,A,mirror) );
+	triangles.push_back( Triangle(E,F,B,mirror) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,blue) );
-	triangles.push_back( Triangle(F,H,D,blue) );
+	triangles.push_back( Triangle(F,D,B,mirror) );
+	triangles.push_back( Triangle(F,H,D,mirror) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,blue) );
-	triangles.push_back( Triangle(H,G,C,blue) );
+	triangles.push_back( Triangle(H,C,D,mirror) );
+	triangles.push_back( Triangle(H,G,C,mirror) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,blue) );
-	triangles.push_back( Triangle(E,A,C,blue) );
+	triangles.push_back( Triangle(G,E,C,mirror) );
+	triangles.push_back( Triangle(E,A,C,mirror) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,blue) );
-	triangles.push_back( Triangle(G,H,F,blue) );
+	triangles.push_back( Triangle(G,F,E,mirror) );
+	triangles.push_back( Triangle(G,H,F,mirror) );
 
 
 	// ----------------------------------------------
@@ -164,5 +165,5 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
     objects.push_back(new Triangle(triangles[i]));
 	}
 
-  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, red));
+  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, mirror_turquoise));
 }

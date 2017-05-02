@@ -23,15 +23,17 @@ Here is a list of the most important features that we have implemented.
 * Mirrors
 * Glass (Refraction)
 
-Below you can see the glass material which uses fresnel equations to vary the amount of reflected and refracted light based on the angle of indidence.
-
 ![Glass](images/glass.bmp "Glass")
 
-The image below shows the ray tracer using the Phong lighting model. We have also turned on the depth of field effect. You can also see in this image and the one above that we have soft shadows.
+Above you can see the glass material which uses fresnel equations to vary the amount of reflected and refracted light based on the angle of indidence.
 
 ![Depth of field](images/dof.bmp "Depth of field")
 
+The image above shows the ray tracer using the Phong lighting model. We have also turned on the depth of field effect. You can also see in this image and the one above that we have soft shadows.
 
+![Mirror](images/mirror.bmp "Mirror effect")
+
+Here you can see the large block has had the mirror material applied to it, while the sphere has the same material applied but has a turquoise tint. Lastly you can see that in this scene we have two light sources and this produces double shadows.  
 
 ## Optimisations
 ### M&ouml;ller-Trumbore Intersection

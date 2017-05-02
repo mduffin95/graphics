@@ -20,9 +20,9 @@ int main(int argc, char* argv[] )
 
   vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
-	//Light light1(vec3(0,0,-3), lightColour, 500, 0.01f);
-	Light light2(vec3(0,0.9,0), lightColour, 500, 0.01f);
-  std::vector<Light> lights = {light2};
+	Light light1(vec3(0.9,0.9,-0.9), lightColour, 250, 0.01f);
+	Light light2(vec3(0,0.9,0), lightColour, 250, 0.01f);
+  std::vector<Light> lights = {light1, light2};
 
   std::vector<Triangle> triangles;
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[] )
 	//SDL_WM_GrabInput( SDL_GRAB_ON );
 	//SDL_ShowCursor(0);
 
-  Raytracer r (screen, scene, 10) ;
+  Raytracer r (screen, scene, 1) ;
   //Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events
