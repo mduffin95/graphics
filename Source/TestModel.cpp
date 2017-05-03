@@ -22,17 +22,17 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	Material *red = new Global(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *yellow = new Global(vec3(    0.75f, 0.75f, 0.15f ));
-	Material *green = new Global(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *cyan = new Global(vec3(  0.15f, 0.75f, 0.75f ));
-	Material *blue = new Global(vec3(  0.15f, 0.15f, 0.75f ));
-	Material *purple = new Global(vec3(  0.75f, 0.15f, 0.75f ));
-	Material *white = new Global(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *yellow = new Phong(vec3(    0.75f, 0.75f, 0.15f ));
+	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *cyan = new Phong(vec3(  0.15f, 0.75f, 0.75f ));
+	Material *blue = new Phong(vec3(  0.15f, 0.15f, 0.75f ));
+	Material *purple = new Phong(vec3(  0.75f, 0.15f, 0.75f ));
+	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
 	Material *mirror_turquoise = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
 	Material *mirror = new Mirror(vec3(  0.75, 0.75f, 0.75f ));
 	Material *glass = new Glass(vec3(  0.75f, 0.75f, 0.75f ));
-	Material *turquoise = new Global(vec3(    0.27f, 0.88f, 0.95f ));
+	Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
 
 	objects.clear();
 	triangles.reserve( 5*2*3 );

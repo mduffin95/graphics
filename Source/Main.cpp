@@ -20,6 +20,7 @@ int main(int argc, char* argv[] )
 
   vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
+  //camera.rotate(0,-2.356);
 	//Light light1(vec3(0.9,0.9,-0.9), lightColour, 250, 0.01f);
 	Light light2(vec3(0,0.9,0), lightColour, 400, 0.01f);
   std::vector<Light> lights = {light2};
@@ -37,15 +38,13 @@ int main(int argc, char* argv[] )
     objects.push_back(&triangles[i]);
   }
 
-  //AABB aabb = KDNode::GetEnclosingAABB(objects);
-  KDNode *tree = new KDNode(objects);
+  KDNode *tree = new KDNode(objects, 2);
   Scene scene(camera, lights, tree);
 
 	//SDL_WM_GrabInput( SDL_GRAB_ON );
 	//SDL_ShowCursor(0);
 
   Raytracer r (screen, scene, 1) ;
-  //Rasteriser r (screen, camera, lights, objects) ;
 
 	//A bit of a hack to flush initial events
 //	SDL_Event e;

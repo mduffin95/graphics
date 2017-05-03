@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <assert.h>
 #include "RenderableObject.h"
+#include <algorithm>
 
 
 int AABB::GetLongestAxis()
@@ -40,15 +41,15 @@ bool AABB::Intersect(Ray& ray, float& t)
 	// if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
 	if (tmax < 0)
 	{
-			t = tmax;
-			return false;
+    t = tmax;
+    return false;
 	}
 
 	// if tmin > tmax, ray doesn't intersect AABB
 	if (tmin > tmax)
 	{
-			t = tmax;
-			return false;
+    t = tmax;
+    return false;
 	}
 
 	t = tmin;
@@ -72,7 +73,7 @@ AABB operator+(const AABB &box1, const AABB &box2)
 
 bool KDNode::StopCriterion()
 {
-  if (depth == 2)
+  if (depth == maxDepth)
     return true;
   return false;
 }
@@ -121,7 +122,7 @@ AABB KDNode::GetEnclosingAABB( std::vector<RenderableObject*> objects )
   return enclosing;
 }
 
-KDNode::KDNode(std::vector<RenderableObject*> objects)
+KDNode::KDNode(std::vector<RenderableObject*> objects, int maxDepth) : maxDepth(maxDepth)
 {
   AABB new_aabb = KDNode::GetEnclosingAABB(objects);
 
@@ -210,9 +211,9 @@ void KDNode::Init(AABB aabb, std::vector<RenderableObject*> objects, int depth)
   std::cout << "Right rt = " << glm::to_string(right_aabb.rt) << std::endl;
   */
 
-  left = new KDNode();
+  left = new KDNode(maxDepth);
   left->Init(left_aabb, left_objects, depth+1);
-  right = new KDNode();
+  right = new KDNode(maxDepth);
   right->Init(right_aabb, right_objects, depth+1);
 }
 
@@ -256,6 +257,7 @@ Intersection KDNode::ClosestIntersection(Ray& ray, const RenderableObject* exclu
   float tl, tr;
   bool lhit = left->aabb.Intersect(ray, tl); 
   bool rhit = right->aabb.Intersect(ray, tr); 
+  //std::cout << "left " << lhit << " right " << rhit << std::endl;
   if (lhit && rhit)
   {
     closest = (tl < tr) ? left->ClosestIntersection(ray, exclude) : right->ClosestIntersection(ray, exclude);

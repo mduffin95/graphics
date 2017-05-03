@@ -13,15 +13,15 @@ Here is a simplified UML diagram showing the core classes in the ray tracer.
 ## Features
 Here is a list of the most important features that we have implemented.
 
-* Soft shadows
-* Depth of field
-* Multiple light sources
-* Anti-aliasing
-* Phong lighting
-* Object importer
-* Global illumination (Monte-Carlo)
-* Mirrors
-* Glass (Refraction)
+* Soft shadows - Material.cpp
+* Depth of field - Raytracer.cpp
+* Multiple light sources - Scene.h 
+* Anti-aliasing - Raytracer.cpp
+* Phong lighting - Material.cpp
+* Object importer - ObjImporter.cpp
+* Global illumination (Monte-Carlo) - Material.cpp
+* Mirrors - Material.cpp
+* Glass (Fresnel) - Material.cpp
 
 ![Glass](images/glass.bmp "Glass")
 
@@ -39,12 +39,16 @@ Here you can see the large block has had the mirror material applied to it, whil
 
 Here we can see the global illumination material being used. We use monte-carlo simulation for simplicity. The image above was produced using a depth of two bounces, and at each intersection 32 rays were sent out.
 
+![Spaceship](images/cruiser.bmp "An imported model of a spaceship")
+
+Lastly, above you can see an imported model of a space ship rendered using the ray tracer. We have applied a turquoise phong material to it.
+
 ## Optimisations
-### M&ouml;ller-Trumbore Intersection
+### M&ouml;ller-Trumbore Intersection (Triangle.cpp)
 In order to improve the speed of our raytracer we improved the intersection calculation code to use the M&ouml;ller-Trumbore algorithm. This algorithm is faster than the original method that required a matrix inversion. The M&ouml;ller-Trumbore algorithm rejects non-intersecting rays early, thus reducing computation. 
 
-### K-D Tree
-We implemented our own K-D Tree which automatically partitions the scene. The tree then has its own intersection function which is used when we want to calculate whether a ray intersects with an object. This function will only look in partitions of the tree that the ray intersects with, therefore cutting out many intersection tests with triangles in other parts of the scene. This is advantagous when we import a model with thousands of triangles.
+### K-D Tree (KDNode.cpp)
+We implemented our own K-D Tree which automatically partitions the scene. The tree then has its own intersection function which is used when we want to calculate whether a ray intersects with an object. This function will only look in partitions of the tree that the ray intersects with, therefore cutting out many intersection tests with triangles in other parts of the scene. This is advantagous when we import a model with thousands of triangles. For example, in the spaceship render above, with only one level to the tree the render took 104 seconds while with 3 it took 71.
 
 ### OpenMP
 We have added a few OpenMP compiler directives to speed up some of the raycasting sections of the code.

@@ -29,13 +29,14 @@ private:
   KDNode *right;
   std::vector<RenderableObject*> objects;
   int depth;
+  int maxDepth;
 
   bool StopCriterion();
   float CalculateCost(float split_pos, int axis, std::vector<RenderableObject*> objects);
 
 public:
-  KDNode() {}
-  KDNode(std::vector<RenderableObject*> objects);
+  KDNode(int maxDepth) : maxDepth(maxDepth) {}
+  KDNode(std::vector<RenderableObject*> objects, int maxDepth);
   void Init(AABB aabb, std::vector<RenderableObject*> objects, int depth);
 
   Intersection ClosestIntersection(Ray&, const RenderableObject*);
