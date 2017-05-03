@@ -1,4 +1,5 @@
 # Ray Tracer
+m14816 and jg14987
 
 ## Design
 The ray tracer has been designed with extensibility in mind from the beginning. We have made good use of the object oriented features in C++ to implement various aspects of the system. The Raytracer class derives from the Renderer class, which contains various information about the screen which is to be rendered to. The Renderer also contains a Scene object, which holds the lights, the objects in the scene and the camera. Originally we envisioned having the Rasteriser and Raytracer deriving from the same Renderer class, but we found this was more trouble than it was worth.  
