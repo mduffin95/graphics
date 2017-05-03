@@ -22,17 +22,17 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
   std::vector<Triangle> triangles;
 
 	// Defines colours:
-	Material *red = new Phong(vec3(    0.75f, 0.15f, 0.15f ));
-	Material *yellow = new Phong(vec3(    0.75f, 0.75f, 0.15f ));
-	Material *green = new Phong(vec3(  0.15f, 0.75f, 0.15f ));
-	Material *cyan = new Phong(vec3(  0.15f, 0.75f, 0.75f ));
-	Material *blue = new Phong(vec3(  0.15f, 0.15f, 0.75f ));
-	Material *purple = new Phong(vec3(  0.75f, 0.15f, 0.75f ));
-	Material *white = new Phong(vec3(  0.75f, 0.75f, 0.75f ));
+	Material *red = new Global(vec3(    0.75f, 0.15f, 0.15f ));
+	Material *yellow = new Global(vec3(    0.75f, 0.75f, 0.15f ));
+	Material *green = new Global(vec3(  0.15f, 0.75f, 0.15f ));
+	Material *cyan = new Global(vec3(  0.15f, 0.75f, 0.75f ));
+	Material *blue = new Global(vec3(  0.15f, 0.15f, 0.75f ));
+	Material *purple = new Global(vec3(  0.75f, 0.15f, 0.75f ));
+	Material *white = new Global(vec3(  0.75f, 0.75f, 0.75f ));
 	Material *mirror_turquoise = new Mirror(vec3(  0.27f, 0.88f, 0.95f ));
 	Material *mirror = new Mirror(vec3(  0.75, 0.75f, 0.75f ));
 	Material *glass = new Glass(vec3(  0.75f, 0.75f, 0.75f ));
-	Material *turquoise = new Phong(vec3(    0.27f, 0.88f, 0.95f ));
+	Material *turquoise = new Global(vec3(    0.27f, 0.88f, 0.95f ));
 
 	objects.clear();
 	triangles.reserve( 5*2*3 );
@@ -86,24 +86,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
 	H = vec3(473,165,225);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,red) );
-	triangles.push_back( Triangle(E,F,B,red) );
+	triangles.push_back( Triangle(E,B,A,white) );
+	triangles.push_back( Triangle(E,F,B,white) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,red) );
-	triangles.push_back( Triangle(F,H,D,red) );
+	triangles.push_back( Triangle(F,D,B,white) );
+	triangles.push_back( Triangle(F,H,D,white) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,red) );
-	triangles.push_back( Triangle(H,G,C,red) );
+	triangles.push_back( Triangle(H,C,D,white) );
+	triangles.push_back( Triangle(H,G,C,white) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,red) );
-	triangles.push_back( Triangle(E,A,C,red) );
+	triangles.push_back( Triangle(G,E,C,white) );
+	triangles.push_back( Triangle(E,A,C,white) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,red) );
-	triangles.push_back( Triangle(G,H,F,red) );
+	triangles.push_back( Triangle(G,F,E,white) );
+	triangles.push_back( Triangle(G,H,F,white) );
 
 	// ---------------------------------------------------------------------------
 	// Tall block
@@ -119,24 +119,24 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
 	H = vec3(241,330,456);
 
 	// Front
-	triangles.push_back( Triangle(E,B,A,mirror) );
-	triangles.push_back( Triangle(E,F,B,mirror) );
+	triangles.push_back( Triangle(E,B,A,white) );
+	triangles.push_back( Triangle(E,F,B,white) );
 
 	// Front
-	triangles.push_back( Triangle(F,D,B,mirror) );
-	triangles.push_back( Triangle(F,H,D,mirror) );
+	triangles.push_back( Triangle(F,D,B,white) );
+	triangles.push_back( Triangle(F,H,D,white) );
 
 	// BACK
-	triangles.push_back( Triangle(H,C,D,mirror) );
-	triangles.push_back( Triangle(H,G,C,mirror) );
+	triangles.push_back( Triangle(H,C,D,white) );
+	triangles.push_back( Triangle(H,G,C,white) );
 
 	// LEFT
-	triangles.push_back( Triangle(G,E,C,mirror) );
-	triangles.push_back( Triangle(E,A,C,mirror) );
+	triangles.push_back( Triangle(G,E,C,white) );
+	triangles.push_back( Triangle(E,A,C,white) );
 
 	// TOP
-	triangles.push_back( Triangle(G,F,E,mirror) );
-	triangles.push_back( Triangle(G,H,F,mirror) );
+	triangles.push_back( Triangle(G,F,E,white) );
+	triangles.push_back( Triangle(G,H,F,white) );
 
 
 	// ----------------------------------------------
@@ -165,5 +165,5 @@ void LoadTestModel( std::vector<RenderableObject*>& objects)
     objects.push_back(new Triangle(triangles[i]));
 	}
 
-  objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, mirror_turquoise));
+  //objects.push_back(new Sphere(vec3(-0.6,-0.8,-0.6), 0.2f, mirror_turquoise));
 }

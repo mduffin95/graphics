@@ -20,9 +20,9 @@ int main(int argc, char* argv[] )
 
   vec3 lightColour(1,1,1);
 	Camera camera(vec3(0,0,-3));
-	Light light1(vec3(0.9,0.9,-0.9), lightColour, 250, 0.01f);
-	Light light2(vec3(0,0.9,0), lightColour, 250, 0.01f);
-  std::vector<Light> lights = {light1, light2};
+	//Light light1(vec3(0.9,0.9,-0.9), lightColour, 250, 0.01f);
+	Light light2(vec3(0,0.9,0), lightColour, 400, 0.01f);
+  std::vector<Light> lights = {light2};
 
   std::vector<Triangle> triangles;
 

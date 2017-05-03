@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #define PI 3.141592653f
-#define MAX_DEPTH 1
+#define MAX_DEPTH 2
 #define SHADOW_SAMPLES 10 
 #define GLOBAL_ILLUM_SAMPLES 32 
 

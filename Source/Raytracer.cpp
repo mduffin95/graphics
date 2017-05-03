@@ -75,7 +75,7 @@ vec3 Raytracer::CastRay(const Ray ray)
 
 vec3 Raytracer::CastAtPixel(const int x, const int y)
 {
-  int superSamples = 3; //In each dimension
+  int superSamples = 2; //In each dimension
   float sampleSize = 1/(float)superSamples;
   //while(glm::length(delta) > threshold)
   float sampleWeight = 1.0f / (superSamples * superSamples);
